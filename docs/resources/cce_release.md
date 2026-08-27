@@ -115,6 +115,14 @@ In addition to all arguments above, the following attributes are exported:
 
 * `updated_at` - The update time.
 
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 60 minutes.
+* `update` - Default is 60 minutes.
+* `delete` - Default is 30 minutes.
+
 ## Import
 
 CCE release can be imported using the `cluster_id`, `namespace` and `chart_name`, e.g.:
@@ -127,7 +135,7 @@ Note that the imported state may not be identical to your resource definition, d
 API response, security or some other reason. The missing attributes include:
 `version`, `values_json`, `chart_id`, `description`, `parameters` and `action`. It is generally recommended running
 `terraform plan` after importing an CCE release. You can then decide if changes should be applied to the release,
-or the resource definition should be updated to align with the release. Also you can ignore changes as below.
+or the resource definition should be updated to align with the release. You can also ignore changes as below.
 
 ```hcl
 resource "huaweicloud_cce_release" "test" {
@@ -135,7 +143,7 @@ resource "huaweicloud_cce_release" "test" {
 
   lifecycle {
     ignore_changes = [
-      version, values, chart_id, description, parameters, action,
+      version, values_json, chart_id, description, parameters,action,
     ]
   }
 }

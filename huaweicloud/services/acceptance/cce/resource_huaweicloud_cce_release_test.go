@@ -73,7 +73,7 @@ func TestAccRelease_basic(t *testing.T) {
 					resource.TestCheckResourceAttrPair(resourceName, "chart_id", "huaweicloud_cce_chart.test", "id"),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "namespace", "default"),
-					resource.TestCheckResourceAttr(resourceName, "version", "4.9.0"),
+					resource.TestCheckResourceAttr(resourceName, "version", "1.0.0"),
 					resource.TestCheckResourceAttrSet(resourceName, "chart_name"),
 					resource.TestCheckResourceAttrSet(resourceName, "chart_version"),
 					resource.TestCheckResourceAttrSet(resourceName, "cluster_name"),
@@ -81,6 +81,14 @@ func TestAccRelease_basic(t *testing.T) {
 					resource.TestCheckResourceAttrSet(resourceName, "status_description"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
 					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
+					resource.TestCheckResourceAttr(resourceName, "release_version", "1"),
+				),
+			},
+			{
+				Config: testAccRelease_update(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "release_version", "2"),
 				),
 			},
 			{
@@ -89,7 +97,7 @@ func TestAccRelease_basic(t *testing.T) {
 				ImportStateVerify: true,
 				ImportStateIdFunc: testAccCCEReleaseImportStateIdFunc("default", name),
 				ImportStateVerifyIgnore: []string{
-					"version", "values_json", "chart_id", "description", "parameters",
+					"action", "version", "values_json", "chart_id", "description", "parameters",
 				},
 			},
 		},
@@ -120,19 +128,12 @@ resource "huaweicloud_cce_release" "test" {
   chart_id   = huaweicloud_cce_chart.test.id
   name       = "%[3]s"
   namespace  = "default"
-  version    = "4.9.0"
+  version    = "1.0.0"
 
   values_json = jsonencode({
-    "key1" : ["value1"]
-    "key2" : "value2"
-    "key3" : "value3"
-    "key4" : {
-      "key1" : "value1",
-      "key2" : "value2",
-      "key3" : {
-         "sub_key1" : "sub_value1",
-         "sub_key2" : "sub_value2"
-      }
+    "image" : {
+      "repository" : "redis",
+      "tag"        : "5.0"
     }
   })
 
@@ -142,5 +143,74 @@ resource "huaweicloud_cce_release" "test" {
     dry_run = false
   }
 }
-`, testAccCluster_basic(name), testAccChart_basic(), name)
+`, testAccRelease_base(name), testAccChart_basic(), name)
+}
+
+func testAccRelease_base(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_cce_node" "test" {
+  cluster_id        = huaweicloud_cce_cluster.test.id
+  name              = "%s"
+  flavor_id         = data.huaweicloud_compute_flavors.test.ids[0]
+  availability_zone = data.huaweicloud_availability_zones.test.names[0]
+  key_pair          = huaweicloud_kps_keypair.test.name
+
+  root_volume {
+    size       = 40
+    volumetype = "SSD"
+    extend_params = {
+      test_key = "test_val"
+    }
+  }
+
+  data_volumes {
+    size       = 100
+    volumetype = "SSD"
+    extend_params = {
+      test_key = "test_val"
+    }
+  }
+
+  extend_params {
+    docker_base_size = 20
+    postinstall      = <<EOF
+#! /bin/bash
+date
+EOF
+  }
+}
+`, testAccNode_Base(rName), rName)
+}
+
+func testAccRelease_update(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+%[2]s
+
+resource "huaweicloud_cce_release" "test" {
+  cluster_id = huaweicloud_cce_cluster.test.id
+  chart_id   = huaweicloud_cce_chart.test.id
+  name       = "%[3]s"
+  namespace  = "default"
+  version    = "1.0.0"
+
+  values_json = jsonencode({
+    "image" : {
+      "repository" : "redis",
+      "tag"        : "5.0.6"
+    }
+  })
+
+  description = "created by terraform"
+
+  action = "upgrade"
+
+  parameters {
+    dry_run = false
+  }
+}
+`, testAccRelease_base(name), testAccChart_basic(), name)
 }

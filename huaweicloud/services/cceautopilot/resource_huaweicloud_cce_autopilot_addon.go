@@ -3,7 +3,9 @@ package cceautopilot
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"log"
 	"strings"
 	"time"
 
@@ -40,6 +42,7 @@ func ResourceAutopilotAddon() *schema.Resource {
 
 		Timeouts: &schema.ResourceTimeout{
 			Create: schema.DefaultTimeout(30 * time.Minute),
+			Update: schema.DefaultTimeout(30 * time.Minute),
 			Delete: schema.DefaultTimeout(30 * time.Minute),
 		},
 
@@ -162,44 +165,41 @@ func buildAddonValuesBodyParams(d *schema.ResourceData) (map[string]interface{},
 func resourceAutopilotAddonCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-
-	var (
-		createAddonHttpUrl = "autopilot/v3/addons"
-		createAddonProduct = "cce"
-	)
-	createAddonClient, err := cfg.NewServiceClient(createAddonProduct, region)
+	client, err := cfg.NewServiceClient("cce", region)
 	if err != nil {
 		return diag.Errorf("error creating CCE Client: %s", err)
 	}
 
-	createAddonPath := createAddonClient.Endpoint + createAddonHttpUrl
-
+	createPath := client.Endpoint + "autopilot/v3/addons"
+	createParams, err := buildCreateAddonBodyParams(d)
+	if err != nil {
+		return diag.Errorf("error building create options of CCE autopilot addon: %s", err)
+	}
 	createAddonOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		JSONBody: utils.RemoveNil(createParams),
 	}
 
-	createOpts, err := buildCreateAddonBodyParams(d)
+	createAddonResp, err := client.Request("POST", createPath, &createAddonOpt)
 	if err != nil {
-		return diag.Errorf("error building create options of CCE autopolit addon: %s", err)
-	}
-	createAddonOpt.JSONBody = utils.RemoveNil(createOpts)
-	createAddonResp, err := createAddonClient.Request("POST", createAddonPath, &createAddonOpt)
-	if err != nil {
-		return diag.Errorf("error creating CCE autopolit add-on: %s", err)
+		return diag.Errorf("error creating CCE autopilot add-on: %s", err)
 	}
 
-	createAddonRespBody, err := utils.FlattenResponse(createAddonResp)
+	createRespBody, err := utils.FlattenResponse(createAddonResp)
 	if err != nil {
 		return diag.FromErr(err)
 	}
 
-	id := utils.PathSearch("metadata.uid", createAddonRespBody, "").(string)
+	id := utils.PathSearch("metadata.uid", createRespBody, "").(string)
 	if id == "" {
 		return diag.Errorf("error creating CCE autopilot add-on: ID is not found in API response")
 	}
 	d.SetId(id)
 
-	err = addonWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutCreate))
+	err = waitingForAddonJobCompleted(ctx, client, d, d.Timeout(schema.TimeoutCreate), []string{"running", "available"})
 	if err != nil {
 		return diag.Errorf("error waiting for creating CCE autopilot add-on (%s) to complete: %s", id, err)
 	}
@@ -211,30 +211,14 @@ func resourceAutopilotAddonRead(_ context.Context, d *schema.ResourceData, meta 
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 
-	var (
-		getAddonHttpUrl = "autopilot/v3/addons/{id}"
-		getAddonProduct = "cce"
-	)
-	getAddonClient, err := cfg.NewServiceClient(getAddonProduct, region)
+	client, err := cfg.NewServiceClient("cce", region)
 	if err != nil {
 		return diag.Errorf("error creating CCE Client: %s", err)
 	}
 
-	getAddonPath := getAddonClient.Endpoint + getAddonHttpUrl
-	getAddonPath = strings.ReplaceAll(getAddonPath, "{id}", d.Id())
-
-	getAddonOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-
-	getAddonResp, err := getAddonClient.Request("GET", getAddonPath, &getAddonOpt)
+	getAddonRespBody, err := getAutopilotAddon(client, d)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving CCE autopolit add-on")
-	}
-
-	getAddonRespBody, err := utils.FlattenResponse(getAddonResp)
-	if err != nil {
-		return diag.FromErr(err)
+		return common.CheckDeletedDiag(d, err, "error retrieving CCE autopilot add-on")
 	}
 
 	// values not set, because the response if different from the user input
@@ -251,6 +235,25 @@ func resourceAutopilotAddonRead(_ context.Context, d *schema.ResourceData, meta 
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func getAutopilotAddon(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
+	getPath := client.Endpoint + "autopilot/v3/addons/{id}"
+	getPath = strings.ReplaceAll(getPath, "{id}", d.Id())
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+	}
+
+	getAddonResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(getAddonResp)
 }
 
 func buildUpdateAddonBodyParams(d *schema.ResourceData) (map[string]interface{}, error) {
@@ -290,26 +293,36 @@ func resourceAutopilotAddonUpdate(ctx context.Context, d *schema.ResourceData, m
 		updateAddonHttpUrl = "autopilot/v3/addons/{id}"
 	)
 
-	updateAddonClient, err := cfg.NewServiceClient(updateAddonProduct, region)
+	client, err := cfg.NewServiceClient(updateAddonProduct, region)
 	if err != nil {
 		return diag.Errorf("error creating CCE Client: %s", err)
 	}
 
-	updateAddonPath := updateAddonClient.Endpoint + updateAddonHttpUrl
-	updateAddonPath = strings.ReplaceAll(updateAddonPath, "{id}", d.Id())
+	if d.HasChangeExcept("enable_force_new") {
+		updatePath := client.Endpoint + updateAddonHttpUrl
+		updatePath = strings.ReplaceAll(updatePath, "{id}", d.Id())
 
-	updateOpts, err := buildUpdateAddonBodyParams(d)
-	if err != nil {
-		return diag.Errorf("error building update options of CCE autopolit add-on: %s", err)
-	}
-	updateAddonOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		JSONBody:         utils.RemoveNil(updateOpts),
-	}
+		updateOpts, err := buildUpdateAddonBodyParams(d)
+		if err != nil {
+			return diag.Errorf("error building update options of CCE autopilot add-on: %s", err)
+		}
+		updateOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
+			JSONBody: utils.RemoveNil(updateOpts),
+		}
 
-	_, err = updateAddonClient.Request("PUT", updateAddonPath, &updateAddonOpt)
-	if err != nil {
-		return diag.Errorf("error updating CCE autopolit add-on: %s", err)
+		_, err = client.Request("PUT", updatePath, &updateOpt)
+		if err != nil {
+			return diag.Errorf("error updating CCE autopilot add-on: %s", err)
+		}
+
+		err = waitingForAddonJobCompleted(ctx, client, d, d.Timeout(schema.TimeoutUpdate), []string{"running", "available"})
+		if err != nil {
+			return diag.Errorf("error waiting for updating CCE autopilot add-on (%s) to complete: %s", d.Id(), err)
+		}
 	}
 
 	return resourceAutopilotAddonRead(ctx, d, meta)
@@ -318,30 +331,28 @@ func resourceAutopilotAddonUpdate(ctx context.Context, d *schema.ResourceData, m
 func resourceAutopilotAddonDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-
-	var (
-		deleteAddonHttpUrl = "autopilot/v3/addons/{id}"
-		deleteAddonProduct = "cce"
-	)
-	deleteAddonClient, err := cfg.NewServiceClient(deleteAddonProduct, region)
+	client, err := cfg.NewServiceClient("cce", region)
 	if err != nil {
 		return diag.Errorf("error creating CCE Client: %s", err)
 	}
 
-	deleteAddonPath := deleteAddonClient.Endpoint + deleteAddonHttpUrl
-	deleteAddonPath = strings.ReplaceAll(deleteAddonPath, "{project_id}", deleteAddonClient.ProjectID)
-	deleteAddonPath = strings.ReplaceAll(deleteAddonPath, "{id}", d.Id())
+	deletePath := client.Endpoint + "autopilot/v3/addons/{id}"
+	deletePath = strings.ReplaceAll(deletePath, "{project_id}", client.ProjectID)
+	deletePath = strings.ReplaceAll(deletePath, "{id}", d.Id())
 
-	deleteAddonOpt := golangsdk.RequestOpts{
+	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 
-	_, err = deleteAddonClient.Request("DELETE", deleteAddonPath, &deleteAddonOpt)
+	_, err = client.Request("DELETE", deletePath, &deleteOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error deleting CCE autopolit add-on")
+		return common.CheckDeletedDiag(d, err, "error deleting CCE autopilot add-on")
 	}
 
-	err = addonWaitingForStateCompleted(ctx, d, meta, d.Timeout(schema.TimeoutDelete))
+	err = waitingForAddonJobCompleted(ctx, client, d, d.Timeout(schema.TimeoutDelete), nil)
 	if err != nil {
 		return diag.Errorf("error waiting for deleting CCE autopilot add-on (%s) to complete: %s", d.Id(), err)
 	}
@@ -349,65 +360,57 @@ func resourceAutopilotAddonDelete(ctx context.Context, d *schema.ResourceData, m
 	return nil
 }
 
-func addonWaitingForStateCompleted(ctx context.Context, d *schema.ResourceData, meta interface{}, t time.Duration) error {
+func waitingForAddonJobCompleted(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
+	t time.Duration, targets []string) error {
 	stateConf := &retry.StateChangeConf{
-		Pending: []string{"PENDING"},
-		Target:  []string{"COMPLETED"},
-		Refresh: func() (interface{}, string, error) {
-			cfg := meta.(*config.Config)
-			region := cfg.GetRegion(d)
-			var (
-				adonWaitingHttpUrl = "autopilot/v3/addons/{id}"
-				adonWaitingProduct = "cce"
-			)
-			adonWaitingClient, err := cfg.NewServiceClient(adonWaitingProduct, region)
-			if err != nil {
-				return nil, "ERROR", fmt.Errorf("error creating CCE client: %s", err)
-			}
-
-			adonWaitingPath := adonWaitingClient.Endpoint + adonWaitingHttpUrl
-			adonWaitingPath = strings.ReplaceAll(adonWaitingPath, "{id}", d.Id())
-
-			adonWaitingOpt := golangsdk.RequestOpts{
-				KeepResponseBody: true,
-			}
-			adonWaitingResp, err := adonWaitingClient.Request("GET", adonWaitingPath, &adonWaitingOpt)
-			if err != nil {
-				if _, ok := err.(golangsdk.ErrDefault404); ok {
-					return adonWaitingResp, "COMPLETED", nil
-				}
-				return nil, "ERROR", err
-			}
-
-			adonWaitingRespBody, err := utils.FlattenResponse(adonWaitingResp)
-			if err != nil {
-				return nil, "ERROR", err
-			}
-			status := utils.PathSearch(`status.status`, adonWaitingRespBody, nil)
-			if status == nil {
-				return nil, "ERROR", fmt.Errorf("error parsing %s from response body", `status.phase`)
-			}
-
-			targetStatus := []string{
-				"running",
-			}
-			if utils.StrSliceContains(targetStatus, status.(string)) {
-				return adonWaitingRespBody, "COMPLETED", nil
-			}
-
-			unexpectedStatus := []string{
-				"installFailed", "upgradeFailed", "deleteFailed", "rollbackFailed",
-			}
-			if utils.StrSliceContains(unexpectedStatus, status.(string)) {
-				return adonWaitingRespBody, status.(string), nil
-			}
-
-			return adonWaitingRespBody, "PENDING", nil
-		},
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      refreshAddonStatus(client, d, targets),
 		Timeout:      t,
 		Delay:        10 * time.Second,
 		PollInterval: 5 * time.Second,
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
 	return err
+}
+
+func refreshAddonStatus(client *golangsdk.ServiceClient, d *schema.ResourceData, targets []string) retry.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		log.Printf("[DEBUG] Expect the status of CCE autopilot add-on to be any one of the status list: %v.", targets)
+		addonRespBody, err := getAutopilotAddon(client, d)
+		if err != nil {
+			var errDefault404 golangsdk.ErrDefault404
+			if errors.As(err, &errDefault404) {
+				// On delete (targets is nil), the resource is already gone, which is the expected
+				// outcome. Return a non-nil empty object so the SDK state machine matches "COMPLETED"
+				// against Target=["COMPLETED"] and finishes normally.
+				// On create/update (targets is non-nil), a 404 means the resource does not exist,
+				// return nil so the SDK increments notfoundTick and eventually reports NotFoundError.
+				if len(targets) == 0 {
+					return map[string]interface{}{}, "COMPLETED", nil
+				}
+				return nil, "COMPLETED", nil
+			}
+			return nil, "ERROR", err
+		}
+
+		status := utils.PathSearch("status.status", addonRespBody, nil)
+		if status == nil {
+			return nil, "ERROR", fmt.Errorf("error parsing status from response body")
+		}
+
+		statusStr := status.(string)
+		invalidStatuses := []string{"installFailed", "upgradeFailed", "deleteFailed", "rollbackFailed", "abnormal", "unknown"}
+		if utils.IsStrContainsSliceElement(statusStr, invalidStatuses, true, true) {
+			reason := utils.PathSearch("status.reason", addonRespBody, "")
+			message := utils.PathSearch("status.message", addonRespBody, "")
+			return nil, "ERROR", fmt.Errorf("addon status is %s, reason: %s, message: %s",
+				statusStr, reason, message)
+		}
+
+		if utils.StrSliceContains(targets, statusStr) {
+			return addonRespBody, "COMPLETED", nil
+		}
+		return addonRespBody, "PENDING", nil
+	}
 }

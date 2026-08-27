@@ -3,10 +3,14 @@ package cce
 import (
 	"context"
 	"errors"
+	"fmt"
+	"log"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -36,6 +40,12 @@ func ResourceRelease() *schema.Resource {
 		},
 
 		CustomizeDiff: config.FlexibleForceNew(releaseNonUpdatableParams),
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(60 * time.Minute),
+			Update: schema.DefaultTimeout(60 * time.Minute),
+			Delete: schema.DefaultTimeout(30 * time.Minute),
+		},
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -171,6 +181,10 @@ func ResourceRelease() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"release_version": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -232,17 +246,12 @@ func buildReleaseParametersParams(d *schema.ResourceData) map[string]interface{}
 func resourceReleaseCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-
-	var (
-		createReleaseHttpUrl = "cce/cam/v3/clusters/{cluster_id}/releases"
-		createReleaseProduct = "cce"
-	)
-	createReleaseClient, err := cfg.NewServiceClient(createReleaseProduct, region)
+	createReleaseClient, err := cfg.NewServiceClient("cce", region)
 	if err != nil {
 		return diag.Errorf("error creating CCE Client: %s", err)
 	}
 
-	createReleasePath := createReleaseClient.Endpoint + createReleaseHttpUrl
+	createReleasePath := createReleaseClient.Endpoint + "cce/cam/v3/clusters/{cluster_id}/releases"
 	createReleasePath = strings.ReplaceAll(createReleasePath, "{cluster_id}", d.Get("cluster_id").(string))
 
 	createReleaseOpt := golangsdk.RequestOpts{
@@ -264,61 +273,67 @@ func resourceReleaseCreate(ctx context.Context, d *schema.ResourceData, meta int
 
 	d.SetId(d.Get("name").(string))
 
+	err = waitingForReleaseJobCompleted(ctx, createReleaseClient, d, d.Timeout(schema.TimeoutCreate), []string{"DEPLOYED"})
+	if err != nil {
+		return diag.Errorf("error creating CCE release: %s", err)
+	}
+
 	return resourceReleaseRead(ctx, d, meta)
 }
 
 func resourceReleaseRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-
-	var (
-		getReleaseHttpUrl = "cce/cam/v3/clusters/{cluster_id}/namespace/{namespace}/releases/{name}"
-		getReleaseProduct = "cce"
-	)
-	getReleaseClient, err := cfg.NewServiceClient(getReleaseProduct, region)
+	client, err := cfg.NewServiceClient("cce", region)
 	if err != nil {
 		return diag.Errorf("error creating CCE client: %s", err)
 	}
 
-	getReleaseHttpPath := getReleaseClient.Endpoint + getReleaseHttpUrl
-	getReleaseHttpPath = strings.ReplaceAll(getReleaseHttpPath, "{cluster_id}", d.Get("cluster_id").(string))
-	getReleaseHttpPath = strings.ReplaceAll(getReleaseHttpPath, "{namespace}", d.Get("namespace").(string))
-	getReleaseHttpPath = strings.ReplaceAll(getReleaseHttpPath, "{name}", d.Id())
+	getRespBody, err := getCceReleaseDetails(client, d)
+	if err != nil {
+		return common.CheckDeletedDiag(d, err, "error retrieving CCE release")
+	}
 
-	getReleaseOpt := golangsdk.RequestOpts{
+	// values, chart_id, description, parameters, action these set by user are not returned in GET API
+	// version returned in the response is the version of release
+	mErr := multierror.Append(nil,
+		d.Set("region", cfg.GetRegion(d)),
+		d.Set("cluster_id", utils.PathSearch("cluster_id", getRespBody, nil)),
+		d.Set("name", utils.PathSearch("name", getRespBody, nil)),
+		d.Set("namespace", utils.PathSearch("namespace", getRespBody, nil)),
+		d.Set("status", utils.PathSearch("status", getRespBody, nil)),
+		d.Set("status_description", utils.PathSearch("status_description", getRespBody, nil)),
+		d.Set("cluster_name", utils.PathSearch("cluster_name", getRespBody, nil)),
+		d.Set("chart_name", utils.PathSearch("chart_name", getRespBody, nil)),
+		d.Set("chart_public", utils.PathSearch("chart_public", getRespBody, nil)),
+		d.Set("chart_version", utils.PathSearch("chart_version", getRespBody, nil)),
+		d.Set("release_version", utils.PathSearch("version", getRespBody, nil)),
+		d.Set("created_at", utils.PathSearch("create_at", getRespBody, nil)),
+		d.Set("updated_at", utils.PathSearch("update_at", getRespBody, nil)),
+	)
+
+	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func getCceReleaseDetails(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
+	getPath := client.Endpoint + "cce/cam/v3/clusters/{cluster_id}/namespace/{namespace}/releases/{name}"
+	getPath = strings.ReplaceAll(getPath, "{cluster_id}", d.Get("cluster_id").(string))
+	getPath = strings.ReplaceAll(getPath, "{namespace}", d.Get("namespace").(string))
+	getPath = strings.ReplaceAll(getPath, "{name}", d.Id())
+
+	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders: map[string]string{
 			"Content-Type": "application/json",
 		},
 	}
 
-	getReleaseResp, err := getReleaseClient.Request("GET", getReleaseHttpPath, &getReleaseOpt)
+	getResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error retrieving CCE release")
+		return nil, err
 	}
 
-	getReleaseRespBody, err := utils.FlattenResponse(getReleaseResp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	// version, values, chart_id, description, parameters, action are not returned in GET API
-	mErr := multierror.Append(nil,
-		d.Set("region", cfg.GetRegion(d)),
-		d.Set("cluster_id", utils.PathSearch("cluster_id", getReleaseRespBody, nil)),
-		d.Set("name", utils.PathSearch("name", getReleaseRespBody, nil)),
-		d.Set("namespace", utils.PathSearch("namespace", getReleaseRespBody, nil)),
-		d.Set("status", utils.PathSearch("status", getReleaseRespBody, nil)),
-		d.Set("status_description", utils.PathSearch("status_description", getReleaseRespBody, nil)),
-		d.Set("cluster_name", utils.PathSearch("cluster_name", getReleaseRespBody, nil)),
-		d.Set("chart_name", utils.PathSearch("chart_name", getReleaseRespBody, nil)),
-		d.Set("chart_public", utils.PathSearch("chart_public", getReleaseRespBody, nil)),
-		d.Set("chart_version", utils.PathSearch("chart_version", getReleaseRespBody, nil)),
-		d.Set("created_at", utils.PathSearch("create_at", getReleaseRespBody, nil)),
-		d.Set("updated_at", utils.PathSearch("update_at", getReleaseRespBody, nil)),
-	)
-
-	return diag.FromErr(mErr.ErrorOrNil())
+	return utils.FlattenResponse(getResp)
 }
 
 func buildUpdateReleaseBodyParams(d *schema.ResourceData) (map[string]interface{}, error) {
@@ -342,32 +357,54 @@ func buildUpdateReleaseBodyParams(d *schema.ResourceData) (map[string]interface{
 func resourceReleaseUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-
-	var (
-		updateReleaseHttpUrl = "cce/cam/v3/clusters/{cluster_id}/namespace/{namespace}/releases/{name}"
-		updateReleaseProduct = "cce"
-	)
-	updateReleaseClient, err := cfg.NewServiceClient(updateReleaseProduct, region)
+	client, err := cfg.NewServiceClient("cce", region)
 	if err != nil {
 		return diag.Errorf("error creating CCE Client: %s", err)
 	}
 
 	if d.HasChangeExcept("enable_force_new") {
-		updateReleasePath := updateReleaseClient.Endpoint + updateReleaseHttpUrl
-		updateReleasePath = strings.ReplaceAll(updateReleasePath, "{cluster_id}", d.Get("cluster_id").(string))
-		updateReleasePath = strings.ReplaceAll(updateReleasePath, "{namespace}", d.Get("namespace").(string))
-		updateReleasePath = strings.ReplaceAll(updateReleasePath, "{name}", d.Id())
-
-		updateReleaseOpt := golangsdk.RequestOpts{
-			KeepResponseBody: true,
-		}
+		updatePath := client.Endpoint + "cce/cam/v3/clusters/{cluster_id}/namespace/{namespace}/releases/{name}"
+		updatePath = strings.ReplaceAll(updatePath, "{cluster_id}", d.Get("cluster_id").(string))
+		updatePath = strings.ReplaceAll(updatePath, "{namespace}", d.Get("namespace").(string))
+		updatePath = strings.ReplaceAll(updatePath, "{name}", d.Id())
 
 		bodyParams, err := buildUpdateReleaseBodyParams(d)
 		if err != nil {
 			return diag.FromErr(err)
 		}
-		updateReleaseOpt.JSONBody = utils.RemoveNil(bodyParams)
-		_, err = updateReleaseClient.Request("PUT", updateReleasePath, &updateReleaseOpt)
+
+		updateOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
+			JSONBody: utils.RemoveNil(bodyParams),
+		}
+
+		retryFunc := func() (interface{}, bool, error) {
+			res, err := client.Request("PUT", updatePath, &updateOpt)
+			if err == nil {
+				return res, false, nil
+			}
+			shouldRetry := strings.Contains(err.Error(), "Update release is forbidden")
+			return nil, shouldRetry, err
+		}
+
+		_, err = common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+			Ctx:          ctx,
+			RetryFunc:    retryFunc,
+			WaitFunc:     refreshReleaseStatus(client, d, []string{"DEPLOYED"}),
+			WaitTarget:   []string{"COMPLETED"},
+			WaitPending:  []string{"PENDING"},
+			Timeout:      d.Timeout(schema.TimeoutUpdate),
+			DelayTimeout: 10 * time.Second,
+			PollInterval: 5 * time.Second,
+		})
+		if err != nil {
+			return diag.Errorf("error updating CCE release: %s", err)
+		}
+
+		err = waitingForReleaseJobCompleted(ctx, client, d, d.Timeout(schema.TimeoutUpdate), []string{"DEPLOYED"})
 		if err != nil {
 			return diag.Errorf("error updating CCE release: %s", err)
 		}
@@ -376,31 +413,42 @@ func resourceReleaseUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	return resourceReleaseRead(ctx, d, meta)
 }
 
-func resourceReleaseDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceReleaseDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-
-	var (
-		deleteReleaseHttpUrl = "cce/cam/v3/clusters/{cluster_id}/namespace/{namespace}/releases/{name}"
-		deleteReleaseProduct = "cce"
-	)
-	deleteReleaseClient, err := cfg.NewServiceClient(deleteReleaseProduct, region)
+	client, err := cfg.NewServiceClient("cce", region)
 	if err != nil {
 		return diag.Errorf("error creating CCE client: %s", err)
 	}
 
-	deleteReleaseHttpPath := deleteReleaseClient.Endpoint + deleteReleaseHttpUrl
-	deleteReleaseHttpPath = strings.ReplaceAll(deleteReleaseHttpPath, "{cluster_id}", d.Get("cluster_id").(string))
-	deleteReleaseHttpPath = strings.ReplaceAll(deleteReleaseHttpPath, "{namespace}", d.Get("namespace").(string))
-	deleteReleaseHttpPath = strings.ReplaceAll(deleteReleaseHttpPath, "{name}", d.Id())
+	deletePath := client.Endpoint + "cce/cam/v3/clusters/{cluster_id}/namespace/{namespace}/releases/{name}"
+	deletePath = strings.ReplaceAll(deletePath, "{cluster_id}", d.Get("cluster_id").(string))
+	deletePath = strings.ReplaceAll(deletePath, "{namespace}", d.Get("namespace").(string))
+	deletePath = strings.ReplaceAll(deletePath, "{name}", d.Id())
 
 	deleteReleaseOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 
-	_, err = deleteReleaseClient.Request("DELETE", deleteReleaseHttpPath, &deleteReleaseOpt)
+	_, err = client.Request("DELETE", deletePath, &deleteReleaseOpt)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error deleting CCE release")
+	}
+
+	stateConf := &retry.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"DELETED"},
+		Refresh:      refreshReleaseStatus(client, d, []string{"DELETED"}),
+		Timeout:      d.Timeout(schema.TimeoutDelete),
+		Delay:        10 * time.Second,
+		PollInterval: 5 * time.Second,
+	}
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return diag.Errorf("error deleting CCE release: %s", err)
 	}
 
 	return nil
@@ -418,9 +466,59 @@ func resourceReleaseImport(_ context.Context, d *schema.ResourceData, _ interfac
 	name := parts[2]
 
 	d.SetId(name)
-	d.Set("name", name)
-	d.Set("cluster_id", clusterID)
-	d.Set("namespace", namespace)
 
-	return []*schema.ResourceData{d}, nil
+	mErr := multierror.Append(nil,
+		d.Set("cluster_id", clusterID),
+		d.Set("namespace", namespace),
+		d.Set("name", name),
+	)
+
+	return []*schema.ResourceData{d}, mErr.ErrorOrNil()
+}
+
+func waitingForReleaseJobCompleted(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
+	t time.Duration, targets []string) error {
+	stateConf := &retry.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      refreshReleaseStatus(client, d, targets),
+		Timeout:      t,
+		Delay:        10 * time.Second,
+		PollInterval: 5 * time.Second,
+	}
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
+}
+
+func refreshReleaseStatus(client *golangsdk.ServiceClient, d *schema.ResourceData, targets []string) retry.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		log.Printf("[DEBUG] Expect the status of CCE release to be any one of the status list: %v.", targets)
+		releaseRespBody, err := getCceReleaseDetails(client, d)
+		if err != nil {
+			var errDefault404 golangsdk.ErrDefault404
+			if errors.As(err, &errDefault404) {
+				return "Resource Not Found", "DELETED", nil
+			}
+			return nil, "ERROR", fmt.Errorf("error retrieving CCE release: %s", err)
+		}
+
+		status := utils.PathSearch("status", releaseRespBody, nil)
+		if status == nil {
+			return nil, "ERROR", fmt.Errorf("error parsing status from response body")
+		}
+
+		statusStr := status.(string)
+		invalidStatuses := []string{"FAILED", "UNKNOWN"}
+		if utils.IsStrContainsSliceElement(statusStr, invalidStatuses, true, true) {
+			if statusStr == "UNKNOWN" {
+				return nil, "ERROR", fmt.Errorf("the release status is unknown, please try to delete and reinstall manually")
+			}
+			return nil, "ERROR", fmt.Errorf("the release job failed, status: %s", statusStr)
+		}
+
+		if utils.StrSliceContains(targets, statusStr) {
+			return releaseRespBody, "COMPLETED", nil
+		}
+		return releaseRespBody, "PENDING", nil
+	}
 }
