@@ -3,10 +3,14 @@ package cceautopilot
 import (
 	"context"
 	"errors"
+	"fmt"
+	"log"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -36,6 +40,12 @@ func ResourceAutopilotRelease() *schema.Resource {
 		},
 
 		CustomizeDiff: config.FlexibleForceNew(releaseNonUpdatableParams),
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(60 * time.Minute),
+			Update: schema.DefaultTimeout(60 * time.Minute),
+			Delete: schema.DefaultTimeout(30 * time.Minute),
+		},
 
 		Schema: map[string]*schema.Schema{
 			"region": {
@@ -160,6 +170,10 @@ func ResourceAutopilotRelease() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"release_version": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
 			"created_at": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -213,30 +227,32 @@ func buildAutopilotReleaseParametersParams(d *schema.ResourceData) map[string]in
 func resourceAutopilotReleaseCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-
-	var (
-		createAutopilotReleaseHttpUrl = "autopilot/cam/v3/clusters/{cluster_id}/releases"
-		createAutopilotReleaseProduct = "cce"
-	)
-	createAutopilotReleaseClient, err := cfg.NewServiceClient(createAutopilotReleaseProduct, region)
+	client, err := cfg.NewServiceClient("cce", region)
 	if err != nil {
 		return diag.Errorf("error creating CCE Client: %s", err)
 	}
 
-	createAutopilotReleasePath := createAutopilotReleaseClient.Endpoint + createAutopilotReleaseHttpUrl
-	createAutopilotReleasePath = strings.ReplaceAll(createAutopilotReleasePath, "{cluster_id}", d.Get("cluster_id").(string))
+	createPath := client.Endpoint + "autopilot/cam/v3/clusters/{cluster_id}/releases"
+	createPath = strings.ReplaceAll(createPath, "{cluster_id}", d.Get("cluster_id").(string))
 
-	createAutopilotReleaseOpt := golangsdk.RequestOpts{
+	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		JSONBody: utils.RemoveNil(buildCreateAutopilotReleaseBodyParams(d)),
 	}
 
-	createAutopilotReleaseOpt.JSONBody = utils.RemoveNil(buildCreateAutopilotReleaseBodyParams(d))
-	_, err = createAutopilotReleaseClient.Request("POST", createAutopilotReleasePath, &createAutopilotReleaseOpt)
+	_, err = client.Request("POST", createPath, &createOpt)
 	if err != nil {
 		return diag.Errorf("error creating CCE autopilot release: %s", err)
 	}
-
 	d.SetId(d.Get("name").(string))
+
+	err = waitingForReleaseJobCompleted(ctx, client, d, d.Timeout(schema.TimeoutCreate), []string{"DEPLOYED"})
+	if err != nil {
+		return diag.Errorf("error creating CCE autopilot release: %s", err)
+	}
 
 	return resourceAutopilotReleaseRead(ctx, d, meta)
 }
@@ -244,36 +260,18 @@ func resourceAutopilotReleaseCreate(ctx context.Context, d *schema.ResourceData,
 func resourceAutopilotReleaseRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-
-	var (
-		getAutopilotReleaseHttpUrl = "autopilot/cam/v3/clusters/{cluster_id}/namespace/{namespace}/releases/{name}"
-		getAutopilotReleaseProduct = "cce"
-	)
-	getAutopilotReleaseClient, err := cfg.NewServiceClient(getAutopilotReleaseProduct, region)
+	client, err := cfg.NewServiceClient("cce", region)
 	if err != nil {
 		return diag.Errorf("error creating CCE client: %s", err)
 	}
 
-	getAutopilotReleaseHttpPath := getAutopilotReleaseClient.Endpoint + getAutopilotReleaseHttpUrl
-	getAutopilotReleaseHttpPath = strings.ReplaceAll(getAutopilotReleaseHttpPath, "{cluster_id}", d.Get("cluster_id").(string))
-	getAutopilotReleaseHttpPath = strings.ReplaceAll(getAutopilotReleaseHttpPath, "{namespace}", d.Get("namespace").(string))
-	getAutopilotReleaseHttpPath = strings.ReplaceAll(getAutopilotReleaseHttpPath, "{name}", d.Id())
-
-	getAutopilotReleaseOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-	}
-
-	getAutopilotReleaseResp, err := getAutopilotReleaseClient.Request("GET", getAutopilotReleaseHttpPath, &getAutopilotReleaseOpt)
+	getAutopilotReleaseRespBody, err := getAutopilotRelease(client, d)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving CCE autopilot release")
 	}
 
-	getAutopilotReleaseRespBody, err := utils.FlattenResponse(getAutopilotReleaseResp)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	// version, values, chart_id, description, parameters, action are not returned in GET API
+	// values, chart_id, description, parameters, action these set by user are not returned in GET API
+	// version returned in the response is the version of release
 	mErr := multierror.Append(nil,
 		d.Set("region", cfg.GetRegion(d)),
 		d.Set("cluster_id", utils.PathSearch("cluster_id", getAutopilotReleaseRespBody, nil)),
@@ -285,11 +283,33 @@ func resourceAutopilotReleaseRead(_ context.Context, d *schema.ResourceData, met
 		d.Set("chart_name", utils.PathSearch("chart_name", getAutopilotReleaseRespBody, nil)),
 		d.Set("chart_public", utils.PathSearch("chart_public", getAutopilotReleaseRespBody, nil)),
 		d.Set("chart_version", utils.PathSearch("chart_version", getAutopilotReleaseRespBody, nil)),
+		d.Set("release_version", utils.PathSearch("version", getAutopilotReleaseRespBody, nil)),
 		d.Set("created_at", utils.PathSearch("create_at", getAutopilotReleaseRespBody, nil)),
 		d.Set("updated_at", utils.PathSearch("update_at", getAutopilotReleaseRespBody, nil)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
+}
+
+func getAutopilotRelease(client *golangsdk.ServiceClient, d *schema.ResourceData) (interface{}, error) {
+	getPath := client.Endpoint + "autopilot/cam/v3/clusters/{cluster_id}/namespace/{namespace}/releases/{name}"
+	getPath = strings.ReplaceAll(getPath, "{cluster_id}", d.Get("cluster_id").(string))
+	getPath = strings.ReplaceAll(getPath, "{namespace}", d.Get("namespace").(string))
+	getPath = strings.ReplaceAll(getPath, "{name}", d.Id())
+
+	getOpt := golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+	}
+
+	getResp, err := client.Request("GET", getPath, &getOpt)
+	if err != nil {
+		return nil, err
+	}
+
+	return utils.FlattenResponse(getResp)
 }
 
 func buildUpdateAutopilotReleaseBodyParams(d *schema.ResourceData) map[string]interface{} {
@@ -306,59 +326,92 @@ func buildUpdateAutopilotReleaseBodyParams(d *schema.ResourceData) map[string]in
 func resourceAutopilotReleaseUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-
-	var (
-		updateAutopilotReleaseHttpUrl = "autopilot/cam/v3/clusters/{cluster_id}/namespace/{namespace}/releases/{name}"
-		updateAutopilotReleaseProduct = "cce"
-	)
-	updateAutopilotReleaseClient, err := cfg.NewServiceClient(updateAutopilotReleaseProduct, region)
+	client, err := cfg.NewServiceClient("cce", region)
 	if err != nil {
 		return diag.Errorf("error creating CCE Client: %s", err)
 	}
 
-	updateAutopilotReleasePath := updateAutopilotReleaseClient.Endpoint + updateAutopilotReleaseHttpUrl
-	updateAutopilotReleasePath = strings.ReplaceAll(updateAutopilotReleasePath, "{cluster_id}", d.Get("cluster_id").(string))
-	updateAutopilotReleasePath = strings.ReplaceAll(updateAutopilotReleasePath, "{namespace}", d.Get("namespace").(string))
-	updateAutopilotReleasePath = strings.ReplaceAll(updateAutopilotReleasePath, "{name}", d.Id())
+	if d.HasChangeExcept("enable_force_new") {
+		updatePath := client.Endpoint + "autopilot/cam/v3/clusters/{cluster_id}/namespace/{namespace}/releases/{name}"
+		updatePath = strings.ReplaceAll(updatePath, "{cluster_id}", d.Get("cluster_id").(string))
+		updatePath = strings.ReplaceAll(updatePath, "{namespace}", d.Get("namespace").(string))
+		updatePath = strings.ReplaceAll(updatePath, "{name}", d.Id())
 
-	updateAutopilotReleaseOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
+		updateOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
+			JSONBody: utils.RemoveNil(buildUpdateAutopilotReleaseBodyParams(d)),
+		}
+
+		retryFunc := func() (interface{}, bool, error) {
+			res, err := client.Request("PUT", updatePath, &updateOpt)
+			if err == nil {
+				return res, false, nil
+			}
+			shouldRetry := strings.Contains(err.Error(), "Update release is forbidden")
+			return nil, shouldRetry, err
+		}
+
+		_, err := common.RetryContextWithWaitForState(&common.RetryContextWithWaitForStateParam{
+			Ctx:          ctx,
+			RetryFunc:    retryFunc,
+			WaitFunc:     refreshAutoPilotReleaseStatus(client, d, []string{"DEPLOYED"}),
+			WaitTarget:   []string{"COMPLETED"},
+			WaitPending:  []string{"PENDING"},
+			Timeout:      d.Timeout(schema.TimeoutUpdate),
+			DelayTimeout: 10 * time.Second,
+			PollInterval: 5 * time.Second,
+		})
+		if err != nil {
+			return diag.Errorf("error updating CCE autopilot release: %s", err)
+		}
+
+		err = waitingForReleaseJobCompleted(ctx, client, d, d.Timeout(schema.TimeoutUpdate), []string{"DEPLOYED"})
+		if err != nil {
+			return diag.Errorf("error updating CCE autopilot release: %s", err)
+		}
 	}
-
-	updateAutopilotReleaseOpt.JSONBody = utils.RemoveNil(buildUpdateAutopilotReleaseBodyParams(d))
-	_, err = updateAutopilotReleaseClient.Request("PUT", updateAutopilotReleasePath, &updateAutopilotReleaseOpt)
-	if err != nil {
-		return diag.Errorf("error updating CCE autopilot release: %s", err)
-	}
-
 	return resourceAutopilotReleaseRead(ctx, d, meta)
 }
 
-func resourceAutopilotReleaseDelete(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceAutopilotReleaseDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
-
-	var (
-		deleteAutopilotReleaseHttpUrl = "autopilot/cam/v3/clusters/{cluster_id}/namespace/{namespace}/releases/{name}"
-		deleteAutopilotReleaseProduct = "cce"
-	)
-	deleteAutopilotReleaseClient, err := cfg.NewServiceClient(deleteAutopilotReleaseProduct, region)
+	client, err := cfg.NewServiceClient("cce", region)
 	if err != nil {
 		return diag.Errorf("error creating CCE client: %s", err)
 	}
 
-	deleteAutopilotReleaseHttpPath := deleteAutopilotReleaseClient.Endpoint + deleteAutopilotReleaseHttpUrl
-	deleteAutopilotReleaseHttpPath = strings.ReplaceAll(deleteAutopilotReleaseHttpPath, "{cluster_id}", d.Get("cluster_id").(string))
-	deleteAutopilotReleaseHttpPath = strings.ReplaceAll(deleteAutopilotReleaseHttpPath, "{namespace}", d.Get("namespace").(string))
-	deleteAutopilotReleaseHttpPath = strings.ReplaceAll(deleteAutopilotReleaseHttpPath, "{name}", d.Id())
+	deletePath := client.Endpoint + "autopilot/cam/v3/clusters/{cluster_id}/namespace/{namespace}/releases/{name}"
+	deletePath = strings.ReplaceAll(deletePath, "{cluster_id}", d.Get("cluster_id").(string))
+	deletePath = strings.ReplaceAll(deletePath, "{namespace}", d.Get("namespace").(string))
+	deletePath = strings.ReplaceAll(deletePath, "{name}", d.Id())
 
 	deleteAutopilotReleaseOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 
-	_, err = deleteAutopilotReleaseClient.Request("DELETE", deleteAutopilotReleaseHttpPath, &deleteAutopilotReleaseOpt)
+	_, err = client.Request("DELETE", deletePath, &deleteAutopilotReleaseOpt)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error deleting CCE autopilot release")
+	}
+
+	stateConf := &retry.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"DELETED"},
+		Refresh:      refreshAutoPilotReleaseStatus(client, d, []string{"DELETED"}),
+		Timeout:      d.Timeout(schema.TimeoutDelete),
+		Delay:        10 * time.Second,
+		PollInterval: 5 * time.Second,
+	}
+	_, err = stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		return diag.Errorf("error deleting CCE autopilot release: %s", err)
 	}
 
 	return nil
@@ -376,9 +429,58 @@ func resourceAutopilotReleaseImport(_ context.Context, d *schema.ResourceData, _
 	name := parts[2]
 
 	d.SetId(name)
-	d.Set("name", name)
-	d.Set("cluster_id", clusterID)
-	d.Set("namespace", namespace)
+	mErr := multierror.Append(nil,
+		d.Set("name", name),
+		d.Set("cluster_id", clusterID),
+		d.Set("namespace", namespace),
+	)
 
-	return []*schema.ResourceData{d}, nil
+	return []*schema.ResourceData{d}, mErr.ErrorOrNil()
+}
+
+func waitingForReleaseJobCompleted(ctx context.Context, client *golangsdk.ServiceClient, d *schema.ResourceData,
+	t time.Duration, targets []string) error {
+	stateConf := &retry.StateChangeConf{
+		Pending:      []string{"PENDING"},
+		Target:       []string{"COMPLETED"},
+		Refresh:      refreshAutoPilotReleaseStatus(client, d, targets),
+		Timeout:      t,
+		Delay:        10 * time.Second,
+		PollInterval: 5 * time.Second,
+	}
+	_, err := stateConf.WaitForStateContext(ctx)
+	return err
+}
+
+func refreshAutoPilotReleaseStatus(client *golangsdk.ServiceClient, d *schema.ResourceData, targets []string) retry.StateRefreshFunc {
+	return func() (interface{}, string, error) {
+		log.Printf("[DEBUG] Expect the status of CCE autopilot release to be any one of the status list: %v.", targets)
+		releaseRespBody, err := getAutopilotRelease(client, d)
+		if err != nil {
+			var errDefault404 golangsdk.ErrDefault404
+			if errors.As(err, &errDefault404) {
+				return "Resource Not Found", "DELETED", nil
+			}
+			return nil, "ERROR", fmt.Errorf("error retrieving CCE autopilot release: %s", err)
+		}
+
+		status := utils.PathSearch("status", releaseRespBody, nil)
+		if status == nil {
+			return nil, "ERROR", fmt.Errorf("error parsing status from response body")
+		}
+
+		statusStr := status.(string)
+		invalidStatuses := []string{"FAILED", "UNKNOWN"}
+		if utils.IsStrContainsSliceElement(statusStr, invalidStatuses, true, true) {
+			if statusStr == "UNKNOWN" {
+				return nil, "ERROR", fmt.Errorf("the release status is unknown, please try to delete and reinstall manually")
+			}
+			return nil, "ERROR", fmt.Errorf("the release job failed, status: %s", statusStr)
+		}
+
+		if utils.StrSliceContains(targets, statusStr) {
+			return releaseRespBody, "COMPLETED", nil
+		}
+		return releaseRespBody, "PENDING", nil
+	}
 }

@@ -12,6 +12,7 @@ import (
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/acceptance/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
@@ -75,14 +76,28 @@ func TestAccAutopilotRelease_basic(t *testing.T) {
 						"huaweicloud_cce_autopilot_chart.test", "id"),
 					resource.TestCheckResourceAttr(resourceName, "name", name),
 					resource.TestCheckResourceAttr(resourceName, "namespace", "default"),
-					resource.TestCheckResourceAttr(resourceName, "version", "4.9.0"),
 					resource.TestCheckResourceAttrSet(resourceName, "chart_name"),
 					resource.TestCheckResourceAttrSet(resourceName, "chart_version"),
 					resource.TestCheckResourceAttrSet(resourceName, "cluster_name"),
-					resource.TestCheckResourceAttrSet(resourceName, "status"),
+					resource.TestCheckResourceAttr(resourceName, "status", "DEPLOYED"),
 					resource.TestCheckResourceAttrSet(resourceName, "status_description"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
 					resource.TestCheckResourceAttrSet(resourceName, "updated_at"),
+					resource.TestCheckResourceAttr(resourceName, "release_version", "1"),
+				),
+			},
+			{
+				Config: testAccAutopilotRelease_upgrade(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "release_version", "2"),
+				),
+			},
+			{
+				Config: testAccAutopilotRelease_rollback(name),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "release_version", "3"),
 				),
 			},
 			{
@@ -91,7 +106,7 @@ func TestAccAutopilotRelease_basic(t *testing.T) {
 				ImportStateVerify: true,
 				ImportStateIdFunc: testAccCCEAutopilotReleaseImportStateIdFunc("default", name),
 				ImportStateVerifyIgnore: []string{
-					"version", "values", "chart_id", "description", "parameters",
+					"action", "version", "values", "chart_id", "description", "parameters",
 				},
 			},
 		},
@@ -122,11 +137,11 @@ resource "huaweicloud_cce_autopilot_release" "test" {
   chart_id   = huaweicloud_cce_autopilot_chart.test.id
   name       = "%[3]s"
   namespace  = "default"
-  version    = "4.9.0"
+  version    = "1.0.0"
 
   values {
-    image_tag         = "v1"
     image_pull_policy = "IfNotPresent"
+    image_tag         = "5.0"
   }
 
   description = "created by terraform"
@@ -135,5 +150,100 @@ resource "huaweicloud_cce_autopilot_release" "test" {
     dry_run = false
   }
 }
-`, testAccCluster_basic(name), testAccAutopilotChart_basic(), name)
+`, testAccAutopilotRelease_base(name), testAccAutopilotChart_basic(), name)
+}
+
+func testAccAutopilotRelease_base(rName string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_cce_autopilot_cluster" "test" {
+  name        = "%[2]s"
+  flavor      = "cce.autopilot.cluster"
+  description = "created by terraform"
+
+  host_network {
+    vpc    = huaweicloud_vpc.test.id
+    subnet = huaweicloud_vpc_subnet.test.id
+  }
+
+  container_network {
+    mode = "eni"
+  }
+
+  eni_network {
+    subnets {
+      subnet_id = huaweicloud_vpc_subnet.test.ipv4_subnet_id
+    }
+  }
+
+  # for pull image from SWR
+  enable_swr_image_access = true
+
+  lifecycle {
+    ignore_changes = [
+      tags
+    ]
+  }
+}
+`, common.TestVpc(rName), rName)
+}
+
+func testAccAutopilotRelease_upgrade(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+%[2]s
+
+resource "huaweicloud_cce_autopilot_release" "test" {
+  cluster_id = huaweicloud_cce_autopilot_cluster.test.id
+  chart_id   = huaweicloud_cce_autopilot_chart.test.id
+  name       = "%[3]s"
+  namespace  = "default"
+  version    = "1.0.0"
+
+  values {
+    image_pull_policy = "IfNotPresent"
+    image_tag         = "5.0.6"
+  }
+
+  description = "created by terraform"
+
+  action = "upgrade"
+
+  parameters {
+    dry_run = false
+  }
+}
+`, testAccAutopilotRelease_base(name), testAccAutopilotChart_basic(), name)
+}
+
+func testAccAutopilotRelease_rollback(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+%[2]s
+
+resource "huaweicloud_cce_autopilot_release" "test" {
+  cluster_id = huaweicloud_cce_autopilot_cluster.test.id
+  chart_id   = huaweicloud_cce_autopilot_chart.test.id
+  name       = "%[3]s"
+  namespace  = "default"
+  version    = "1.0.0"
+
+  values {
+    image_pull_policy = "IfNotPresent"
+    image_tag         = "5.0.6"
+  }
+
+  description = "created by terraform"
+
+  action = "rollback"
+
+  parameters {
+    dry_run         = false
+    release_version = 1
+  }
+}
+`, testAccAutopilotRelease_base(name), testAccAutopilotChart_basic(), name)
 }
