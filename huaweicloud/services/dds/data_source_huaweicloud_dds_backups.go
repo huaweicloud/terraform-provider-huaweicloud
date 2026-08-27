@@ -3,10 +3,11 @@ package dds
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
@@ -71,6 +72,16 @@ func DataSourceDDSBackups() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
+			"order_field": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				RequiredWith: []string{"order_rule"},
+			},
+			"order_rule": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				RequiredWith: []string{"order_field"},
+			},
 			"backups": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -132,6 +143,30 @@ func DataSourceDDSBackups() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"instance_status": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"instance_mode": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"is_instance_restoring": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"backup_method": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"kms_enable": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"deletable": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
 					},
 				},
 			},
@@ -140,109 +175,137 @@ func DataSourceDDSBackups() *schema.Resource {
 }
 
 func dataSourceDdsBackupsRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	cfg := meta.(*config.Config)
-	region := cfg.GetRegion(d)
+	var (
+		cfg     = meta.(*config.Config)
+		region  = cfg.GetRegion(d)
+		httpUrl = "v3/{project_id}/backups?limit={limit}"
+		offset  = 0
+		limit   = 100
+		result  = make([]interface{}, 0)
+	)
+
 	client, err := cfg.NewServiceClient("dds", region)
 	if err != nil {
 		return diag.Errorf("error creating DDS client: %s", err)
 	}
 
-	getBackupHttpUrl := "v3/{project_id}/backups"
-	getBackupPath := client.Endpoint + getBackupHttpUrl
-	getBackupPath = strings.ReplaceAll(getBackupPath, "{project_id}", client.ProjectID)
-	getBackupOpt := golangsdk.RequestOpts{
+	getPath := client.Endpoint + httpUrl
+	getPath = strings.ReplaceAll(getPath, "{project_id}", client.ProjectID)
+	getPath = strings.ReplaceAll(getPath, "{limit}", strconv.Itoa(limit))
+	getPath += buildBackupsQueryParams(d)
+	getOpt := golangsdk.RequestOpts{
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 		KeepResponseBody: true,
 	}
 
-	// pagelimit is `10`
-	getBackupPath += fmt.Sprintf("?limit=%v", pageLimit)
-	getBackupPath = buildQueryBackupListPath(d, getBackupPath)
-
-	currentTotal := 0
-	results := make([]map[string]interface{}, 0)
 	for {
-		currentPath := getBackupPath + fmt.Sprintf("&offset=%d", currentTotal)
-		getBackupResp, err := client.Request("GET", currentPath, &getBackupOpt)
+		currentPath := fmt.Sprintf("%s&offset=%v", getPath, offset)
+		getResp, err := client.Request("GET", currentPath, &getOpt)
 		if err != nil {
-			return diag.Errorf("error retrieving backups: %s", err)
-		}
-		getBackupRespBody, err := utils.FlattenResponse(getBackupResp)
-		if err != nil {
-			return diag.Errorf("error flatten response: %s", err)
+			return diag.Errorf("error retrieving the DDS backups: %s", err)
 		}
 
-		backups := utils.PathSearch("backups", getBackupRespBody, make([]interface{}, 0)).([]interface{})
-		for _, backup := range backups {
-			// filter result
-			instanceName := utils.PathSearch("instance_name", backup, "").(string)
-			backupName := utils.PathSearch("name", backup, "").(string)
-			status := utils.PathSearch("status", backup, "").(string)
-			description := utils.PathSearch("description", backup, "").(string)
-			if val, ok := d.GetOk("instance_name"); ok && instanceName != val {
-				continue
-			}
-			if val, ok := d.GetOk("backup_name"); ok && backupName != val {
-				continue
-			}
-			if val, ok := d.GetOk("status"); ok && status != val {
-				continue
-			}
-			if val, ok := d.GetOk("description"); ok && description != val {
-				continue
-			}
-			results = append(results, map[string]interface{}{
-				"id":            utils.PathSearch("id", backup, nil),
-				"name":          utils.PathSearch("name", backup, nil),
-				"instance_id":   utils.PathSearch("instance_id", backup, nil),
-				"instance_name": utils.PathSearch("instance_name", backup, nil),
-				"datastore":     flattenGetBackupResponseDatastore(backup),
-				"type":          utils.PathSearch("type", backup, nil),
-				"begin_time":    utils.PathSearch("begin_time", backup, nil),
-				"end_time":      utils.PathSearch("end_time", backup, nil),
-				"status":        utils.PathSearch("status", backup, nil),
-				"size":          utils.PathSearch("size", backup, 0),
-				"description":   utils.PathSearch("description", backup, nil),
-			})
+		getRespBody, err := utils.FlattenResponse(getResp)
+		if err != nil {
+			return diag.FromErr(err)
 		}
 
-		// `totalCount` means the number of all `backups`, and type is float64.
-		currentTotal += len(backups)
-		totalCount := utils.PathSearch("total_count", getBackupRespBody, float64(0))
-		if int(totalCount.(float64)) == currentTotal {
+		backups := utils.PathSearch("backups", getRespBody, make([]interface{}, 0)).([]interface{})
+		result = append(result, backups...)
+		if len(backups) < limit {
 			break
 		}
+
+		offset += len(backups)
 	}
 
-	id, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.NewRandom()
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(id)
 
-	mErr := multierror.Append(nil,
+	d.SetId(randomUUID.String())
+
+	mErr := multierror.Append(
 		d.Set("region", region),
-		d.Set("backups", results),
+		d.Set("backups", flattenBackups(result)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func buildQueryBackupListPath(d *schema.ResourceData, getBackupPath string) string {
+func flattenBackups(resp []interface{}) []interface{} {
+	if len(resp) == 0 {
+		return nil
+	}
+
+	result := make([]interface{}, 0, len(resp))
+	for _, v := range resp {
+		result = append(result, map[string]interface{}{
+			"id":                    utils.PathSearch("id", v, nil),
+			"name":                  utils.PathSearch("name", v, nil),
+			"instance_id":           utils.PathSearch("instance_id", v, nil),
+			"instance_name":         utils.PathSearch("instance_name", v, nil),
+			"datastore":             flattenGetBackupResponseDatastore(v),
+			"type":                  utils.PathSearch("type", v, nil),
+			"begin_time":            utils.PathSearch("begin_time", v, nil),
+			"end_time":              utils.PathSearch("end_time", v, nil),
+			"status":                utils.PathSearch("status", v, nil),
+			"size":                  utils.PathSearch("size", v, nil),
+			"description":           utils.PathSearch("description", v, nil),
+			"instance_status":       utils.PathSearch("instance_status", v, nil),
+			"instance_mode":         utils.PathSearch("instance_mode", v, nil),
+			"is_instance_restoring": utils.PathSearch("is_instance_restoring", v, nil),
+			"backup_method":         utils.PathSearch("backup_method", v, nil),
+			"kms_enable":            utils.PathSearch("kms_enable", v, nil),
+			"deletable":             utils.PathSearch("deletable", v, nil),
+		})
+	}
+
+	return result
+}
+
+func buildBackupsQueryParams(d *schema.ResourceData) string {
+	queryParams := ""
+
 	if instId, ok := d.GetOk("instance_id"); ok {
-		getBackupPath += fmt.Sprintf("&instance_id=%s", instId)
+		queryParams += fmt.Sprintf("&instance_id=%s", instId)
 	}
 	if backupId, ok := d.GetOk("backup_id"); ok {
-		getBackupPath += fmt.Sprintf("&backup_id=%s", backupId)
+		queryParams += fmt.Sprintf("&backup_id=%s", backupId)
 	}
 	if backupType, ok := d.GetOk("backup_type"); ok {
-		getBackupPath += fmt.Sprintf("&backup_type=%s", backupType)
+		queryParams += fmt.Sprintf("&backup_type=%s", backupType)
 	}
 	if mode, ok := d.GetOk("mode"); ok {
-		getBackupPath += fmt.Sprintf("&mode=%s", mode)
+		queryParams += fmt.Sprintf("&mode=%s", mode)
 	}
 	if beginTime, ok := d.GetOk("begin_time"); ok {
-		getBackupPath += fmt.Sprintf("&begin_time=%s", beginTime)
-		getBackupPath += fmt.Sprintf("&end_time=%s", d.Get("end_time"))
+		queryParams += fmt.Sprintf("&begin_time=%s", beginTime)
 	}
-	return getBackupPath
+	if endTime, ok := d.GetOk("end_time"); ok {
+		queryParams += fmt.Sprintf("&end_time=%s", endTime)
+	}
+	if instanceName, ok := d.GetOk("instance_name"); ok {
+		queryParams += fmt.Sprintf("&instance_name=%s", instanceName)
+	}
+	if backupName, ok := d.GetOk("backup_name"); ok {
+		queryParams += fmt.Sprintf("&backup_name=%s", backupName)
+	}
+	if backupStatus, ok := d.GetOk("status"); ok {
+		queryParams += fmt.Sprintf("&backup_status=%s", backupStatus)
+	}
+	if description, ok := d.GetOk("description"); ok {
+		queryParams += fmt.Sprintf("&backup_description=%s", description)
+	}
+	if orderField, ok := d.GetOk("order_field"); ok {
+		queryParams += fmt.Sprintf("&order_field=%s", orderField)
+	}
+	if orderRule, ok := d.GetOk("order_rule"); ok {
+		queryParams += fmt.Sprintf("&order_rule=%s", orderRule)
+	}
+
+	return queryParams
 }
