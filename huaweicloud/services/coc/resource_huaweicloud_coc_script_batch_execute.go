@@ -30,6 +30,8 @@ var scriptBatchExecuteNonUpdatableParams = []string{
 	"parameters.*.name",
 	"parameters.*.value",
 	"is_sync",
+	"resource_provider",
+	"type",
 }
 
 // @API COC POST /v1/external/resources/sync
@@ -91,6 +93,18 @@ func ResourceScriptBatchExecute() *schema.Resource {
 				Default:     true,
 				Description: `Whether to sync data before executing the script.`,
 			},
+			"resource_provider": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "ecs",
+				Description: `The resource provider.`,
+			},
+			"type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Default:     "cloudservers",
+				Description: `The resource type of the resource provider.`,
+			},
 
 			// Attributes.
 			"status": {
@@ -142,7 +156,7 @@ func scriptBatchExecuteBatchesSchema() *schema.Resource {
 				Type:        schema.TypeList,
 				Required:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `The ID list of the ECS instances in this batch.`,
+				Description: `The ID list of the specified resource instances in this batch.`,
 			},
 		},
 	}
@@ -224,7 +238,7 @@ func buildScriptBatchExecuteBatchesTargetInstances(instanceIds []string, instanc
 	return results
 }
 
-func listResources(client *golangsdk.ServiceClient, instanceId string) ([]interface{}, error) {
+func listResources(client *golangsdk.ServiceClient, resourceProvider, resourceType, instanceId string) ([]interface{}, error) {
 	var (
 		httpUrl = "v1/resources"
 		limit   = 100
@@ -232,7 +246,8 @@ func listResources(client *golangsdk.ServiceClient, instanceId string) ([]interf
 		result  = make([]interface{}, 0)
 	)
 
-	listPath := client.Endpoint + fmt.Sprintf("%s?provider=ecs&type=cloudservers&limit=%v&resource_id_list=%s", httpUrl, limit, instanceId)
+	pathParams := fmt.Sprintf("%s?provider=%s&type=%s&limit=%v&resource_id_list=%s", httpUrl, resourceProvider, resourceType, limit, instanceId)
+	listPath := client.Endpoint + pathParams
 	listOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
@@ -262,9 +277,9 @@ func listResources(client *golangsdk.ServiceClient, instanceId string) ([]interf
 	return result, nil
 }
 
-func refreshResourcesAgentStatus(client *golangsdk.ServiceClient, instanceId string) retry.StateRefreshFunc {
+func refreshResourcesAgentStatus(client *golangsdk.ServiceClient, resourceProvider, resourceType, instanceId string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
-		resources, err := listResources(client, instanceId)
+		resources, err := listResources(client, resourceProvider, resourceType, instanceId)
 		if err != nil {
 			return nil, "ERROR", err
 		}
@@ -321,18 +336,21 @@ func resourceScriptBatchExecuteCreate(ctx context.Context, d *schema.ResourceDat
 		return diag.Errorf("error creating COC client: %s", err)
 	}
 
+	resourceProvider := d.Get("resource_provider").(string)
+	resourceType := d.Get("type").(string)
 	// Synchronize the ECS instances to get information about UniAgent.
 	if d.Get("is_sync").(bool) {
-		if err = syncResourceInfo(client); err != nil {
+		if err = syncResourceInfo(client, resourceProvider, resourceType); err != nil {
 			return diag.FromErr(err)
 		}
 	}
 
 	instanceIds := utils.PathSearch("[*].instance_ids[]", d.Get("execute_batches").([]interface{}), make([]interface{}, 0))
 	stateConf := &retry.StateChangeConf{
-		Pending:      []string{"PENDING"},
-		Target:       []string{"COMPLETE"},
-		Refresh:      refreshResourcesAgentStatus(client, strings.Join(utils.ExpandToStringList(instanceIds.([]interface{})), ",")),
+		Pending: []string{"PENDING"},
+		Target:  []string{"COMPLETE"},
+		Refresh: refreshResourcesAgentStatus(client, resourceProvider, resourceType,
+			strings.Join(utils.ExpandToStringList(instanceIds.([]interface{})), ",")),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        5 * time.Second,
 		PollInterval: 15 * time.Second,

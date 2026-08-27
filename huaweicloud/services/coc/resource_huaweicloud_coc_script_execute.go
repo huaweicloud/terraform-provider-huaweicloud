@@ -25,6 +25,7 @@ var scriptOrderNotFoundErrCodes = []string{
 
 var scriptExecuteNonUpdatableParams = []string{
 	"script_id", "instance_id", "timeout", "execute_user", "parameters", "parameters.*.name", "parameters.*.value", "is_sync",
+	"resource_provider", "type",
 }
 
 // @API COC POST /v1/job/scripts/{script_uuid}
@@ -89,6 +90,16 @@ func ResourceScriptExecute() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
+			},
+			"resource_provider": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "ecs",
+			},
+			"type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "cloudservers",
 			},
 			"enable_force_new": {
 				Type:         schema.TypeString,
@@ -186,9 +197,11 @@ func resourceScriptExecuteCreate(ctx context.Context, d *schema.ResourceData, me
 	}
 
 	instanceID := d.Get("instance_id").(string)
+	resourceProvider := d.Get("resource_provider").(string)
+	resourceType := d.Get("type").(string)
 	// sync the ECS instance to get information about UniAgent
 	if d.Get("is_sync").(bool) {
-		if err = syncResourceInfo(client); err != nil {
+		if err = syncResourceInfo(client, resourceProvider, resourceType); err != nil {
 			return diag.FromErr(err)
 		}
 	}
@@ -196,7 +209,7 @@ func resourceScriptExecuteCreate(ctx context.Context, d *schema.ResourceData, me
 	stateConf := &retry.StateChangeConf{
 		Pending:      []string{"pending"},
 		Target:       []string{"online"},
-		Refresh:      doGetResources(client, instanceID),
+		Refresh:      doGetResources(client, resourceProvider, resourceType, instanceID),
 		Timeout:      d.Timeout(schema.TimeoutCreate),
 		Delay:        5 * time.Second,
 		PollInterval: 15 * time.Second,
@@ -359,7 +372,7 @@ func resourceScriptExecuteDelete(_ context.Context, d *schema.ResourceData, meta
 	return nil
 }
 
-func syncResourceInfo(client *golangsdk.ServiceClient) error {
+func syncResourceInfo(client *golangsdk.ServiceClient, resourceProvider, resourceType string) error {
 	syncResourceHttpUrl := "v1/external/resources/sync"
 	syncResourcePath := client.Endpoint + syncResourceHttpUrl
 
@@ -367,8 +380,8 @@ func syncResourceInfo(client *golangsdk.ServiceClient) error {
 		KeepResponseBody: true,
 		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 		JSONBody: map[string]string{
-			"provider": "ecs",
-			"type":     "cloudservers",
+			"provider": resourceProvider,
+			"type":     resourceType,
 		},
 	}
 
@@ -380,10 +393,10 @@ func syncResourceInfo(client *golangsdk.ServiceClient) error {
 	return nil
 }
 
-func doGetResources(client *golangsdk.ServiceClient, instanceID string) retry.StateRefreshFunc {
+func doGetResources(client *golangsdk.ServiceClient, resourceProvider, resourceType, instanceID string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		listResourceInfoHttpUrl := fmt.Sprintf("v1/external/resources?provider=%s&type=%s&limit=10&resource_id_list=%s",
-			"ecs", "cloudservers", instanceID)
+			resourceProvider, resourceType, instanceID)
 		listResourceInfoPath := client.Endpoint + listResourceInfoHttpUrl
 
 		listResourceInfoOpt := golangsdk.RequestOpts{
