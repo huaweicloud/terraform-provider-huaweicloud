@@ -53,7 +53,6 @@ func ResourceV3Agency() *schema.Resource {
 		CustomizeDiff: config.FlexibleForceNew(v3AgencyNonUpdatableParams),
 
 		Timeouts: &schema.ResourceTimeout{
-			Read:   schema.DefaultTimeout(2 * time.Minute),
 			Update: schema.DefaultTimeout(1 * time.Minute),
 			Delete: schema.DefaultTimeout(1 * time.Minute),
 		},
@@ -737,6 +736,14 @@ func resourceV3AgencyCreate(ctx context.Context, d *schema.ResourceData, meta in
 	}
 	d.SetId(agencyId)
 
+	// After creation, the agency may not be immediately queryable (usually 2-3s, up to 10s).
+	_, err = PollRequest(ctx, func() (interface{}, error) {
+		return GetV3AgencyById(iamClient, agencyId)
+	})
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
 	// get all of the role IDs, include system-defined roles and custom roles
 	allRoles, err := listAllRoles(iamClient, domainId)
 	if err != nil {
@@ -799,7 +806,7 @@ func normalizeAgencyDuration(duration interface{}) interface{} {
 	return result
 }
 
-func getV3AgencyById(client *golangsdk.ServiceClient, agencyId string) (interface{}, error) {
+func GetV3AgencyById(client *golangsdk.ServiceClient, agencyId string) (interface{}, error) {
 	httpUrl := "v3.0/OS-AGENCY/agencies/{agency_id}"
 
 	getPath := client.Endpoint + httpUrl
@@ -818,37 +825,6 @@ func getV3AgencyById(client *golangsdk.ServiceClient, agencyId string) (interfac
 	}
 
 	return utils.FlattenResponse(respBody)
-}
-
-func GetV3AgencyByIdWithRetry(ctx context.Context, client *golangsdk.ServiceClient, agencyId string, timeout ...time.Duration) (interface{}, error) {
-	var (
-		respBody   interface{}
-		err        error
-		timeoutVal time.Duration
-	)
-
-	if len(timeout) < 1 || timeout[0] <= time.Duration(0) {
-		return getV3AgencyById(client, agencyId)
-	}
-	timeoutVal = timeout[0]
-
-	// lintignore:R006
-	err = retry.RetryContext(ctx, timeoutVal, func() *retry.RetryError {
-		respBody, err = getV3AgencyById(client, agencyId)
-		if _, ok := err.(golangsdk.ErrDefault404); ok {
-			// Retrieving agency details may result in a 404 error, requiring appropriate retries.
-			// If the details are not retrieved within the timeout period, an error will be returned.
-			// lintignore:R018
-			time.Sleep(10 * time.Second)
-			return retry.RetryableError(err)
-		}
-		if err != nil {
-			return retry.NonRetryableError(err)
-		}
-		return nil
-	})
-
-	return respBody, err
 }
 
 func listAttachedProjectRolesForV3AgencyByProjectId(client *golangsdk.ServiceClient, agencyId, projectId string) ([]interface{}, error) {
@@ -947,7 +923,6 @@ func resourceV3AgencyRead(ctx context.Context, d *schema.ResourceData, meta inte
 		cfg      = meta.(*config.Config)
 		region   = cfg.GetRegion(d)
 		agencyId = d.Id()
-		timeout  time.Duration
 	)
 
 	client, err := cfg.NewServiceClient("iam", region)
@@ -955,10 +930,14 @@ func resourceV3AgencyRead(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
+	var agency interface{}
 	if d.IsNewResource() {
-		timeout = d.Timeout(schema.TimeoutRead)
+		agency, err = PollRequest(ctx, func() (interface{}, error) {
+			return GetV3AgencyById(client, agencyId)
+		})
+	} else {
+		agency, err = GetV3AgencyById(client, agencyId)
 	}
-	agency, err := GetV3AgencyByIdWithRetry(ctx, client, agencyId, timeout)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "error retrieving agency")
 	}
