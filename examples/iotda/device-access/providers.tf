@@ -1,0 +1,20 @@
+terraform {
+  required_version = ">= 0.14.0"
+
+  required_providers {
+    huaweicloud = {
+      source  = "huaweicloud/huaweicloud"
+      version = ">= 1.38.0"
+    }
+  }
+}
+
+provider "huaweicloud" {
+  region     = var.region_name
+  access_key = var.access_key
+  secret_key = var.secret_key
+
+  endpoints = var.iotda_endpoint != "" ? {
+    iotda = var.iotda_endpoint
+  } : null
+}
