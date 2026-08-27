@@ -29,7 +29,7 @@ func ResourceV3Group() *schema.Resource {
 		DeleteContext: resourceV3GroupDelete,
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(20 * time.Second),
+			Create: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Importer: &schema.ResourceImporter{

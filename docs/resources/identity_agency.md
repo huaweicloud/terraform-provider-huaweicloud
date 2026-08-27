@@ -107,9 +107,8 @@ In addition to all arguments above, the following attributes are exported:
 
 This resource provides the following timeouts configuration options:
 
-* `read` - Default is 2 minutes.
-* `update` - Default is 1 minute.
-* `delete` - Default is 1 minute.
+* `update` - Default is 20 minutes.
+* `delete` - Default is 20 minutes.
 
 ## Import
 

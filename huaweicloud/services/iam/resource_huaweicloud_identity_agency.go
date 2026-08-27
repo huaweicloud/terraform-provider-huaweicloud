@@ -53,8 +53,8 @@ func ResourceV3Agency() *schema.Resource {
 		CustomizeDiff: config.FlexibleForceNew(v3AgencyNonUpdatableParams),
 
 		Timeouts: &schema.ResourceTimeout{
-			Update: schema.DefaultTimeout(1 * time.Minute),
-			Delete: schema.DefaultTimeout(1 * time.Minute),
+			Update: schema.DefaultTimeout(20 * time.Minute),
+			Delete: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Importer: &schema.ResourceImporter{

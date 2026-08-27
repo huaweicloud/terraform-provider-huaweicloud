@@ -30,7 +30,7 @@ func ResourceV3Role() *schema.Resource {
 		DeleteContext: resourceV3IdentityRoleDelete,
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(20 * time.Second),
+			Create: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Importer: &schema.ResourceImporter{
