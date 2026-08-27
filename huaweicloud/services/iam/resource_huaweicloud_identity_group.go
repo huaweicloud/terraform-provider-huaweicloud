@@ -180,6 +180,11 @@ func resourceV3GroupUpdate(ctx context.Context, d *schema.ResourceData, meta int
 		return diag.Errorf("error updating group (%s): %s", groupId, err)
 	}
 
+	// sleep 3 seconds to wait for the group to be updated (during each PATCH operation, the group with the
+	// expected result cannot be queried immediately).
+	// lintignore:R018
+	time.Sleep(3 * time.Second)
+
 	return resourceV3GroupRead(ctx, d, meta)
 }
 

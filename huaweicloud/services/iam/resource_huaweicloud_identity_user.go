@@ -225,6 +225,10 @@ func updateLoginProtect(client *golangsdk.ServiceClient, userID, method string) 
 	if err != nil {
 		return fmt.Errorf("error updating IAM user login protect: %s", err)
 	}
+	// sleep 3 seconds to wait for the user to be updated (during each PUT operation, the user with the
+	// expected result cannot be queried immediately).
+	// lintignore:R018
+	time.Sleep(3 * time.Second)
 
 	return nil
 }
@@ -366,6 +370,11 @@ func resourceUserUpdate(ctx context.Context, d *schema.ResourceData, meta interf
 			return diag.FromErr(err)
 		}
 	}
+
+	// sleep 3 seconds to wait for the user to be updated (during each PUT operation, the user with the
+	// expected result cannot be queried immediately).
+	// lintignore:R018
+	time.Sleep(3 * time.Second)
 
 	return resourceUserRead(ctx, d, meta)
 }

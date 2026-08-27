@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -320,6 +321,11 @@ func resourceV3AclCreate(ctx context.Context, d *schema.ResourceData, meta inter
 	}
 	d.SetId(fmt.Sprintf("%s/%s", domainId, d.Get("type").(string)))
 
+	// sleep 3 seconds to wait for the ACL policy to be updated (during PUT operation, the ACL policy with the
+	// expected result cannot be queried immediately).
+	// lintignore:R018
+	time.Sleep(3 * time.Second)
+
 	if err = d.Set("ip_ciders_order", buildV3AclIpCidersOrder(d)); err != nil {
 		log.Printf("[ERROR] error setting the ip_ciders_order field after creating ACL: %s", err)
 	}
@@ -595,6 +601,11 @@ func resourceV3AclUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 			}
 		}
 	}
+
+	// sleep 3 seconds to wait for the ACL policy to be updated (during PUT operation, the ACL policy with the
+	// expected result cannot be queried immediately).
+	// lintignore:R018
+	time.Sleep(3 * time.Second)
 
 	return resourceV3AclRead(ctx, d, meta)
 }
