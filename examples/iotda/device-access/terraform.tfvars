@@ -1,0 +1,7 @@
+space_name         = "your_space_name"
+product_name       = "your_product_name"
+product_service_id = "service_1"
+device_node_id     = "your_device_node_id"
+device_name        = "your_device_name"
+device_secret      = "1234567890"
+iotda_endpoint     = "your_instance_id.iotda-app.cn-north-4.myhuaweicloud.com"
