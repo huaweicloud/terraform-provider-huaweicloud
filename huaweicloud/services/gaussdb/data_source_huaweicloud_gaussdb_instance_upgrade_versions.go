@@ -15,7 +15,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
 
-// @API GaussDB POST /gaussdb/v3.1/{project_id}/instances/db-upgrade/candidate-versions
+// @API GaussDB POST /v3.1/{project_id}/instances/db-upgrade/candidate-versions
 func DataSourceGaussDBInstanceUpgradeVersions() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: resourceGaussDBKernelVersionUpgradeRead,
