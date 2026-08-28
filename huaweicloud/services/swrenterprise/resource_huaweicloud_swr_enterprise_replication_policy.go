@@ -199,7 +199,10 @@ func resourceSwrEnterpriseReplicationPolicyCreate(ctx context.Context, d *schema
 	createPath = strings.ReplaceAll(createPath, "{instance_id}", instanceId)
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody:         utils.RemoveNil(buildCreateSwrEnterpriseReplicationPolicyBodyParams(d)),
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		JSONBody: utils.RemoveNil(buildCreateSwrEnterpriseReplicationPolicyBodyParams(d)),
 	}
 
 	createResp, err := client.Request("POST", createPath, &createOpt)
@@ -322,6 +325,9 @@ func resourceSwrEnterpriseReplicationPolicyRead(_ context.Context, d *schema.Res
 	getPath = strings.ReplaceAll(getPath, "{policy_id}", id)
 	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 
 	getResp, err := client.Request("GET", getPath, &getOpt)
@@ -418,19 +424,24 @@ func resourceSwrEnterpriseReplicationPolicyUpdate(ctx context.Context, d *schema
 		return diag.Errorf("error creating SWR client: %s", err)
 	}
 
-	updateHttpUrl := "v2/{project_id}/instances/{instance_id}/replication/policies/{policy_id}"
-	updatePath := client.Endpoint + updateHttpUrl
-	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
-	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Get("instance_id").(string))
-	updatePath = strings.ReplaceAll(updatePath, "{policy_id}", strconv.Itoa(d.Get("policy_id").(int)))
-	updateOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		JSONBody:         utils.RemoveNil(buildUpdateSwrEnterpriseReplicationPolicyBodyParams(d)),
-	}
+	if d.HasChangeExcept("enable_force_new") {
+		updateHttpUrl := "v2/{project_id}/instances/{instance_id}/replication/policies/{policy_id}"
+		updatePath := client.Endpoint + updateHttpUrl
+		updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+		updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Get("instance_id").(string))
+		updatePath = strings.ReplaceAll(updatePath, "{policy_id}", strconv.Itoa(d.Get("policy_id").(int)))
+		updateOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
+			JSONBody: utils.RemoveNil(buildUpdateSwrEnterpriseReplicationPolicyBodyParams(d)),
+		}
 
-	_, err = client.Request("PUT", updatePath, &updateOpt)
-	if err != nil {
-		return diag.Errorf("error updating SWR instance replication policy: %s", err)
+		_, err = client.Request("PUT", updatePath, &updateOpt)
+		if err != nil {
+			return diag.Errorf("error updating SWR instance replication policy: %s", err)
+		}
 	}
 
 	return resourceSwrEnterpriseReplicationPolicyRead(ctx, d, meta)
@@ -480,6 +491,9 @@ func resourceSwrEnterpriseReplicationPolicyDelete(_ context.Context, d *schema.R
 	deletePath = strings.ReplaceAll(deletePath, "{policy_id}", strconv.Itoa(d.Get("policy_id").(int)))
 	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 
 	_, err = client.Request("DELETE", deletePath, &deleteOpt)

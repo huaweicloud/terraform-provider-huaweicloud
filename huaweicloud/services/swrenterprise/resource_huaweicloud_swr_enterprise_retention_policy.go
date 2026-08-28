@@ -239,7 +239,10 @@ func resourceSwrEnterpriseRetentionPolicyCreate(ctx context.Context, d *schema.R
 	createPath = strings.ReplaceAll(createPath, "{namespace_name}", namespaceName)
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody:         utils.RemoveNil(buildCreateOrUpdateSwrEnterpriseRetentionPolicyBodyParams(d)),
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		JSONBody: utils.RemoveNil(buildCreateOrUpdateSwrEnterpriseRetentionPolicyBodyParams(d)),
 	}
 
 	createResp, err := client.Request("POST", createPath, &createOpt)
@@ -407,6 +410,9 @@ func resourceSwrEnterpriseRetentionPolicyRead(_ context.Context, d *schema.Resou
 	getPath = strings.ReplaceAll(getPath, "{policy_id}", id)
 	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 
 	getResp, err := client.Request("GET", getPath, &getOpt)
@@ -534,20 +540,25 @@ func resourceSwrEnterpriseRetentionPolicyUpdate(ctx context.Context, d *schema.R
 		return diag.Errorf("error creating SWR client: %s", err)
 	}
 
-	updateHttpUrl := "v2/{project_id}/instances/{instance_id}/namespaces/{namespace_name}/retention/policies/{policy_id}"
-	updatePath := client.Endpoint + updateHttpUrl
-	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
-	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Get("instance_id").(string))
-	updatePath = strings.ReplaceAll(updatePath, "{namespace_name}", d.Get("namespace_name").(string))
-	updatePath = strings.ReplaceAll(updatePath, "{policy_id}", d.Get("policy_id").(string))
-	updateOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		JSONBody:         utils.RemoveNil(buildCreateOrUpdateSwrEnterpriseRetentionPolicyBodyParams(d)),
-	}
+	if d.HasChangeExcept("enable_force_new") {
+		updateHttpUrl := "v2/{project_id}/instances/{instance_id}/namespaces/{namespace_name}/retention/policies/{policy_id}"
+		updatePath := client.Endpoint + updateHttpUrl
+		updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+		updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Get("instance_id").(string))
+		updatePath = strings.ReplaceAll(updatePath, "{namespace_name}", d.Get("namespace_name").(string))
+		updatePath = strings.ReplaceAll(updatePath, "{policy_id}", d.Get("policy_id").(string))
+		updateOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
+			JSONBody: utils.RemoveNil(buildCreateOrUpdateSwrEnterpriseRetentionPolicyBodyParams(d)),
+		}
 
-	_, err = client.Request("PUT", updatePath, &updateOpt)
-	if err != nil {
-		return diag.Errorf("error updating SWR instance retention policy: %s", err)
+		_, err = client.Request("PUT", updatePath, &updateOpt)
+		if err != nil {
+			return diag.Errorf("error updating SWR instance retention policy: %s", err)
+		}
 	}
 
 	return resourceSwrEnterpriseRetentionPolicyRead(ctx, d, meta)
@@ -569,6 +580,9 @@ func resourceSwrEnterpriseRetentionPolicyDelete(_ context.Context, d *schema.Res
 	deletePath = strings.ReplaceAll(deletePath, "{policy_id}", d.Get("policy_id").(string))
 	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 
 	_, err = client.Request("DELETE", deletePath, &deleteOpt)
