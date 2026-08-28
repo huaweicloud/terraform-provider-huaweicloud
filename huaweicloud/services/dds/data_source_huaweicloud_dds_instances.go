@@ -20,7 +20,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/pagination"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -60,6 +59,21 @@ func DataSourceDdsInstance() *schema.Resource {
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: `Specifies the subnet Network ID.`,
+			},
+			"instance_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the instance ID.`,
+			},
+			"datastore_type": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the DB version type.`,
+			},
+			"tags": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the tags of the instance.`,
 			},
 			"instances": {
 				Type:        schema.TypeList,
@@ -137,7 +151,7 @@ func ddsInstanceInstanceSchema() *schema.Resource {
 			"status": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the the DB instance status.`,
+				Description: `Indicates the DB instance status.`,
 			},
 			"enterprise_project_id": {
 				Type:        schema.TypeString,
@@ -183,6 +197,52 @@ func ddsInstanceInstanceSchema() *schema.Resource {
 				},
 			},
 			"tags": common.TagsComputedSchema(),
+			"remark": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the instance description.`,
+			},
+			"engine": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the storage engine.`,
+			},
+			"created": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the instance creation time.`,
+			},
+			"updated": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the instance update time.`,
+			},
+			"pay_mode": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the billing mode.`,
+			},
+			"maintenance_window": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the maintenance time window.`,
+			},
+			"time_zone": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the ime zone.`,
+			},
+			"dss_pool_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the DSS storage pool ID of the Dec user.`,
+			},
+			"actions": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `Indicates the action that is being executed on an instance.`,
+			},
 
 			// deprecated
 			"nodes": {
@@ -209,10 +269,20 @@ func ddsInstanceInstanceDatastoreSchema() *schema.Resource {
 				Computed:    true,
 				Description: `Indicates the DB instance version.`,
 			},
+			"whole_version": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the DB instance complete version number.`,
+			},
+			"patch_available": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Whether there is an available patch for upgrade.`,
+			},
 			"storage_engine": {
 				Type:        schema.TypeString,
 				Computed:    true,
-				Description: `Indicates the storage engine of the DB instance.`,
+				Description: `schema: Deprecated`,
 			},
 		},
 	}
@@ -367,14 +437,6 @@ func flattenGetDDSInstancesResponseBodyInstance(resp interface{}, client *golang
 			log.Printf("[WARNING] Port %s invalid, Type conversion error: %s", portStr, err)
 		}
 
-		// save tags
-		var tagMap interface{}
-		if resourceTags, err := tags.Get(client, "instances", id.(string)).Extract(); err == nil {
-			tagMap = utils.TagsToMap(resourceTags.Tags)
-		} else {
-			log.Printf("[WARN] Error fetching tags of DDS instance (%s): %s", id.(string), err)
-		}
-
 		rst = append(rst, map[string]interface{}{
 			"id":                    id,
 			"name":                  utils.PathSearch("name", v, nil),
@@ -387,12 +449,21 @@ func flattenGetDDSInstancesResponseBodyInstance(resp interface{}, client *golang
 			"security_group_id":     utils.PathSearch("security_group_id", v, nil),
 			"disk_encryption_id":    utils.PathSearch("disk_encryption_id", v, nil),
 			"mode":                  utils.PathSearch("mode", v, nil),
-			"db_username":           utils.PathSearch("db_username", v, nil),
+			"db_username":           utils.PathSearch("db_user_name", v, nil),
 			"status":                utils.PathSearch("status", v, nil),
 			"enterprise_project_id": utils.PathSearch("enterprise_project_id", v, nil),
 			"nodes":                 flattenInstanceNodes(v),
 			"groups":                flattenInstanceGroups(v),
-			"tags":                  tagMap,
+			"tags":                  utils.FlattenTagsToMap(utils.PathSearch("tags", v, nil)),
+			"remark":                utils.PathSearch("remark", v, nil),
+			"engine":                utils.PathSearch("engine", v, nil),
+			"created":               utils.PathSearch("created", v, nil),
+			"updated":               utils.PathSearch("updated", v, nil),
+			"pay_mode":              utils.PathSearch("pay_mode", v, nil),
+			"maintenance_window":    utils.PathSearch("maintenance_window", v, nil),
+			"time_zone":             utils.PathSearch("time_zone", v, nil),
+			"dss_pool_id":           utils.PathSearch("dss_pool_id", v, nil),
+			"actions":               utils.PathSearch("actions", v, []interface{}{}),
 		})
 	}
 	return rst
@@ -451,9 +522,11 @@ func flattenInstanceDatastore(resp interface{}) interface{} {
 
 	rst = []map[string]interface{}{
 		{
-			"type":           utils.PathSearch("type", curJson, nil),
-			"version":        utils.PathSearch("version", curJson, nil),
-			"storage_engine": utils.PathSearch("storage_engine", curJson, nil),
+			"type":            utils.PathSearch("type", curJson, nil),
+			"version":         utils.PathSearch("version", curJson, nil),
+			"whole_version":   utils.PathSearch("whole_version", curJson, nil),
+			"patch_available": utils.PathSearch("patch_available", curJson, nil),
+			"storage_engine":  utils.PathSearch("storage_engine", curJson, nil),
 		},
 	}
 	return rst
@@ -491,6 +564,18 @@ func buildGetDDSInstancesQueryParams(d *schema.ResourceData) string {
 
 	if v, ok := d.GetOk("subnet_id"); ok {
 		res = fmt.Sprintf("%s&subnet_id=%v", res, v)
+	}
+
+	if v, ok := d.GetOk("instance_id"); ok {
+		res = fmt.Sprintf("%s&id=%v", res, v)
+	}
+
+	if v, ok := d.GetOk("datastore_type"); ok {
+		res = fmt.Sprintf("%s&datastore_type=%v", res, v)
+	}
+
+	if v, ok := d.GetOk("tags"); ok {
+		res = fmt.Sprintf("%s&tags=%v", res, v)
 	}
 
 	if res != "" {
