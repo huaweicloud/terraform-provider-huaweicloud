@@ -26,8 +26,8 @@ var warmPoolNonUpdatableParams = []string{"scaling_group_id"}
 // @API AS DELETE /v2/{project_id}/scaling-groups/{scaling_group_id}/warm-pool
 func ResourceAsWarmPool() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceAsWarmPoolCreateOrUpdate,
-		UpdateContext: resourceAsWarmPoolCreateOrUpdate,
+		CreateContext: resourceAsWarmPoolCreate,
+		UpdateContext: resourceAsWarmPoolUpdate,
 		ReadContext:   resourceAsWarmPoolRead,
 		DeleteContext: resourceAsWarmPoolDelete,
 		CustomizeDiff: config.FlexibleForceNew(warmPoolNonUpdatableParams),
@@ -82,11 +82,10 @@ func ResourceAsWarmPool() *schema.Resource {
 	}
 }
 
-func resourceAsWarmPoolCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceAsWarmPoolCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg            = meta.(*config.Config)
 		region         = cfg.GetRegion(d)
-		httpUrl        = "v2/{project_id}/scaling-groups/{scaling_group_id}/warm-pool"
 		product        = "autoscaling"
 		scalingGroupID = d.Get("scaling_group_id").(string)
 	)
@@ -94,6 +93,42 @@ func resourceAsWarmPoolCreateOrUpdate(ctx context.Context, d *schema.ResourceDat
 	if err != nil {
 		return diag.Errorf("error creating AS client: %s", err)
 	}
+
+	err = updateASWarmPool(client, scalingGroupID, d)
+	if err != nil {
+		return diag.Errorf("error creating AS warm pool: %s", err)
+	}
+
+	d.SetId(scalingGroupID)
+	return resourceAsWarmPoolRead(ctx, d, meta)
+}
+
+func resourceAsWarmPoolUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var (
+		cfg            = meta.(*config.Config)
+		region         = cfg.GetRegion(d)
+		product        = "autoscaling"
+		scalingGroupID = d.Get("scaling_group_id").(string)
+	)
+	client, err := cfg.NewServiceClient(product, region)
+	if err != nil {
+		return diag.Errorf("error creating AS client: %s", err)
+	}
+
+	if d.HasChangeExcept("enable_force_new") {
+		err = updateASWarmPool(client, scalingGroupID, d)
+		if err != nil {
+			return diag.Errorf("error updating AS warm pool: %s", err)
+		}
+	}
+
+	return resourceAsWarmPoolRead(ctx, d, meta)
+}
+
+func updateASWarmPool(client *golangsdk.ServiceClient, scalingGroupID string, d *schema.ResourceData) error {
+	var (
+		httpUrl = "v2/{project_id}/scaling-groups/{scaling_group_id}/warm-pool"
+	)
 
 	updatePath := client.Endpoint + httpUrl
 	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
@@ -109,13 +144,8 @@ func resourceAsWarmPoolCreateOrUpdate(ctx context.Context, d *schema.ResourceDat
 		JSONBody: utils.RemoveNil(buildCreateOrUpdateASWarmPoolBodyParams(d)),
 	}
 
-	_, err = client.Request("PUT", updatePath, &putOpt)
-	if err != nil {
-		return diag.Errorf("error creating or updating AS warm pool: %s", err)
-	}
-
-	d.SetId(d.Get("scaling_group_id").(string))
-	return resourceAsWarmPoolRead(ctx, d, meta)
+	_, err := client.Request("PUT", updatePath, &putOpt)
+	return err
 }
 
 func buildCreateOrUpdateASWarmPoolBodyParams(d *schema.ResourceData) map[string]interface{} {

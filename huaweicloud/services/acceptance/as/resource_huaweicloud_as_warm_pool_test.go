@@ -55,6 +55,7 @@ func TestAccAsWarmPool_basic(t *testing.T) {
 	var obj interface{}
 
 	rName := "huaweicloud_as_warm_pool.test"
+	name := acceptance.RandomAccResourceName()
 
 	rc := acceptance.InitResourceCheck(
 		rName,
@@ -68,7 +69,7 @@ func TestAccAsWarmPool_basic(t *testing.T) {
 		CheckDestroy:      rc.CheckResourceDestroy(),
 		Steps: []resource.TestStep{
 			{
-				Config: testAsWarmPool_basic(),
+				Config: testAsWarmPool_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "min_capacity", "1"),
@@ -78,12 +79,7 @@ func TestAccAsWarmPool_basic(t *testing.T) {
 				),
 			},
 			{
-				ResourceName:      rName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-			{
-				Config: testAsWarmPool_basic_update(),
+				Config: testAsWarmPool_basic_update(name),
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(rName, "min_capacity", "2"),
@@ -92,28 +88,37 @@ func TestAccAsWarmPool_basic(t *testing.T) {
 					resource.TestCheckResourceAttr(rName, "status", "ACTIVE"),
 				),
 			},
+			{
+				ResourceName:      rName,
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
 		},
 	})
 }
 
-func testAsWarmPool_basic() string {
+func testAsWarmPool_basic(name string) string {
 	return fmt.Sprintf(`
+%s
+
 resource "huaweicloud_as_warm_pool" "test" {
-  scaling_group_id 		  = "%s"
+  scaling_group_id 		  = huaweicloud_as_group.acc_as_group.id
   min_capacity     		  = 1
   max_capacity     		  = 1
   instance_init_wait_time = 30
 }
-`, acceptance.HW_AS_SCALING_GROUP_ID)
+`, testASGroup_basic(name))
 }
 
-func testAsWarmPool_basic_update() string {
+func testAsWarmPool_basic_update(name string) string {
 	return fmt.Sprintf(`
+%s
+
 resource "huaweicloud_as_warm_pool" "test" {
-  scaling_group_id 		  = "%s"
+  scaling_group_id 		  = huaweicloud_as_group.acc_as_group.id
   min_capacity     		  = 2
   max_capacity     		  = 2
   instance_init_wait_time = 60
 }
-`, acceptance.HW_AS_SCALING_GROUP_ID)
+`, testASGroup_basic(name))
 }
