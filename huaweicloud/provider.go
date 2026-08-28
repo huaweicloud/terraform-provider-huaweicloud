@@ -689,6 +689,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cbh_instance_admin_url": cbh.DataSourceInstanceAdminUrl(),
 			"huaweicloud_cbh_instance_login_url": cbh.DataSourceInstanceLoginUrl(),
 			"huaweicloud_cbh_instance_om_url":    cbh.DataSourceInstanceOmUrl(),
+			"huaweicloud_cbh_switch_config_info": cbh.DataSourceSwitchConfigInfo(),
 
 			"huaweicloud_cc_authorizations":                               cc.DataSourceCcAuthorizations(),
 			"huaweicloud_cc_bandwidth_packages":                           cc.DataSourceCcBandwidthPackages(),
