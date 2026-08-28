@@ -78,7 +78,7 @@ func TestAccScriptBatchExecute_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"execute_batches", "parameters", "is_sync",
+					"execute_batches", "parameters", "is_sync", "resource_provider", "type",
 				},
 			},
 			{
@@ -86,7 +86,7 @@ func TestAccScriptBatchExecute_basic(t *testing.T) {
 				ImportState:       true,
 				ImportStateVerify: true,
 				ImportStateVerifyIgnore: []string{
-					"execute_batches", "parameters", "is_sync",
+					"execute_batches", "parameters", "is_sync", "resource_provider", "type",
 				},
 			},
 		},

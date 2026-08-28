@@ -2,24 +2,28 @@
 subcategory: "Cloud Operations Center (COC)"
 layout: "huaweicloud"
 page_title: "HuaweiCloud: huaweicloud_coc_script_execute"
-description: ""
+description: |-
+  Manages a COC script execution on a specified resource within HuaweiCloud.
 ---
 
 # huaweicloud_coc_script_execute
 
-Execute a COC script on a specified ECS instance within HuaweiCloud.
+Manages a COC script execution on a specified resource within HuaweiCloud.
 
--> Please make sure the ECS instance has installed the [UniAgent](https://support.huaweicloud.com/intl/en-us/usermanual-aom2/agent_01_0005.html).
+-> If the specified resource is ECS instance, please make sure the resource has installed
+the [UniAgent](https://support.huaweicloud.com/intl/en-us/usermanual-aom2/agent_01_0005.html).
 
 ## Example Usage
 
+### Script execution on a specified ECS instance
+
 ```hcl
 variable "script_id" {}
-variable "instance_id" {}
+variable "ecs_instance_id" {}
 
 resource "huaweicloud_coc_script_execute" "test" {
   script_id    = var.script_id
-  instance_id  = var.instance_id
+  instance_id  = var.ecs_instance_id
   timeout      = 600
   execute_user = "root"
 
@@ -40,7 +44,7 @@ The following arguments are supported:
 
 * `script_id` - (Required, String, NonUpdatable) Specifies the COC script ID.
 
-* `instance_id` - (Required, String, NonUpdatable) Specifies the ECS instance ID.
+* `instance_id` - (Required, String, NonUpdatable) Specifies the resource ID.
 
 * `timeout` - (Required, Int, NonUpdatable) Specifies the maximum time to execute the script in seconds.
 
@@ -51,6 +55,12 @@ The following arguments are supported:
   The [parameters](#block--parameters) structure is documented below.
 
 * `is_sync` - (Optional, Bool, NonUpdatable) Specifies whether sync data before execute the script. Defaults to **true**.
+
+* `resource_provider` - (Optional, String, NonUpdatable) Specifies the resource provider.
+  The default value is **ecs**.
+
+* `type` - (Optional, String, NonUpdatable) Specifies the resource type of the resource provider.
+  The default value is **cloudservers**.
 
 <a name="block--parameters"></a>
 The `parameters` block supports:
@@ -89,7 +99,8 @@ $ terraform import huaweicloud_coc_script_execute.test <id>
 ```
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
-API response, security or some other reason. The missing attributes include `instance_id`, `parameters` and `is_sync`.
+API response, security or some other reason. The missing attributes include `instance_id`, `parameters`, `is_sync`,
+`resource_provider` and `type`.
 
 It is generally recommended running `terraform plan` after importing the resource.
 You can then decide if changes should be applied to the instance, or the resource definition should be updated to
@@ -101,7 +112,7 @@ resource "huaweicloud_coc_script_execute" "test" {
 
   lifecycle {
     ignore_changes = [
-      instance_id, parameters, is_sync
+      instance_id, parameters, is_sync, resource_provider, type,
     ]
   }
 }

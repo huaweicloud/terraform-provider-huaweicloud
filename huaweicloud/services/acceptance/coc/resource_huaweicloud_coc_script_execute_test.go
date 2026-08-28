@@ -80,7 +80,7 @@ func TestAccScriptExecute_basic(t *testing.T) {
 				ResourceName:            resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"instance_id", "parameters", "is_sync"},
+				ImportStateVerifyIgnore: []string{"instance_id", "parameters", "is_sync", "resource_provider", "type"},
 			},
 		},
 	})
@@ -123,7 +123,7 @@ func TestAccScriptExecute_no_sync(t *testing.T) {
 				ResourceName:            resourceName,
 				ImportState:             true,
 				ImportStateVerify:       true,
-				ImportStateVerifyIgnore: []string{"instance_id", "parameters", "is_sync"},
+				ImportStateVerifyIgnore: []string{"instance_id", "parameters", "is_sync", "resource_provider", "type"},
 			},
 		},
 	})
