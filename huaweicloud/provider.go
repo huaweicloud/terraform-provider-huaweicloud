@@ -3885,6 +3885,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_drs_backup_migration":               drs.ResourceBackupMigration(),
 			"huaweicloud_drs_batch_pause_task":               drs.ResourceBatchPauseTask(),
 			"huaweicloud_drs_batch_retry_task":               drs.ResourceBatchRetryTask(),
+			"huaweicloud_drs_batch_select_objects":           drs.ResourceDrsBatchSelectObjects(),
 			"huaweicloud_drs_batch_set_definer":              drs.ResourceBatchSetDefiner(),
 			"huaweicloud_drs_check_data_filter":              drs.ResourceDrsCheckDataFilter(),
 			"huaweicloud_drs_update_data_progress_rules":     drs.ResourceDrsUpdateDataProgressRules(),
