@@ -19,7 +19,9 @@ func getV3AgencyResourceFunc(c *config.Config, state *terraform.ResourceState) (
 	if err != nil {
 		return nil, fmt.Errorf("error creating IAM client: %s", err)
 	}
-	return iam.GetV3AgencyByIdWithRetry(context.Background(), client, state.Primary.ID)
+	return iam.PollRequest(context.Background(), func() (interface{}, error) {
+		return iam.GetV3AgencyById(client, state.Primary.ID)
+	})
 }
 
 func TestAccV3Agency_basic(t *testing.T) {

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -128,6 +129,11 @@ func resourceV3GroupMembershipCreate(ctx context.Context, d *schema.ResourceData
 	if err = mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error adding users to group (%s): %s", groupId, err)
 	}
+
+	// sleep 3 seconds to wait for the group membership to be created (during each PUT operation, the group membership
+	// with the expected result cannot be queried immediately).
+	// lintignore:R018
+	time.Sleep(3 * time.Second)
 
 	// If the request is successful, obtain the values of all slice parameters first and save them to the corresponding
 	// '_origin' attributes for subsequent determination and construction of the request body during next updates.

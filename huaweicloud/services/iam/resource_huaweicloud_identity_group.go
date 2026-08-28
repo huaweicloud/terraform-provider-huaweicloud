@@ -8,7 +8,6 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
 	"github.com/chnsz/golangsdk"
@@ -30,7 +29,7 @@ func ResourceV3Group() *schema.Resource {
 		DeleteContext: resourceV3GroupDelete,
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(20 * time.Second),
+			Create: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Importer: &schema.ResourceImporter{
@@ -114,19 +113,6 @@ func GetV3GroupById(client *golangsdk.ServiceClient, groupId string) (interface{
 	return utils.FlattenResponse(requestResp)
 }
 
-func refreshV3Group(client *golangsdk.ServiceClient, groupId string) retry.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		resp, err := GetV3GroupById(client, groupId)
-		if err != nil {
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				return "NOT_FOUND", "PENDING", nil
-			}
-			return nil, "ERROR", err
-		}
-		return resp, "COMPLETED", nil
-	}
-}
-
 func resourceV3GroupRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg     = meta.(*config.Config)
@@ -141,14 +127,9 @@ func resourceV3GroupRead(ctx context.Context, d *schema.ResourceData, meta inter
 	var group interface{}
 	// After creation, the group may not be immediately queryable (usually 2-3s, up to 10s).
 	if d.IsNewResource() {
-		stateConf := &retry.StateChangeConf{
-			Pending:    []string{"PENDING"},
-			Target:     []string{"COMPLETED"},
-			Refresh:    refreshV3Group(client, groupId),
-			Timeout:    d.Timeout(schema.TimeoutCreate),
-			MinTimeout: 1 * time.Second,
-		}
-		group, err = stateConf.WaitForStateContext(ctx)
+		group, err = PollRequest(ctx, func() (interface{}, error) {
+			return GetV3GroupById(client, groupId)
+		})
 	} else {
 		group, err = GetV3GroupById(client, groupId)
 	}
@@ -198,6 +179,11 @@ func resourceV3GroupUpdate(ctx context.Context, d *schema.ResourceData, meta int
 	if err != nil {
 		return diag.Errorf("error updating group (%s): %s", groupId, err)
 	}
+
+	// sleep 3 seconds to wait for the group to be updated (during each PATCH operation, the group with the
+	// expected result cannot be queried immediately).
+	// lintignore:R018
+	time.Sleep(3 * time.Second)
 
 	return resourceV3GroupRead(ctx, d, meta)
 }

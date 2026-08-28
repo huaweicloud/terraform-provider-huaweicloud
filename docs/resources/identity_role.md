@@ -73,6 +73,12 @@ In addition to all arguments above, the following attributes are exported:
 
 * `references` - The number of references.
 
+## Timeouts
+
+This resource provides the following timeouts configuration options:
+
+* `create` - Default is 20 minutes.
+
 ## Import
 
 IAM custom policies can be imported using the `id`, e.g.

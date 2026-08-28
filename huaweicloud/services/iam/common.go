@@ -1,12 +1,53 @@
 package iam
 
 import (
+	"context"
+	"fmt"
 	"strings"
+	"time"
 
 	"github.com/chnsz/golangsdk"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
+
+const (
+	iamPollTimeout      = 20 * time.Second
+	iamPollInitialDelay = 1 * time.Second
+	iamPollInterval     = 1 * time.Second
+)
+
+// PollRequest polls an IAM resource until the request function no longer returns 404.
+func PollRequest(ctx context.Context, requestFunc func() (interface{}, error)) (interface{}, error) {
+	select {
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	case <-time.After(iamPollInitialDelay):
+	}
+
+	deadline := time.Now().Add(iamPollTimeout)
+
+	for {
+		resp, err := requestFunc()
+		if err == nil {
+			return resp, nil
+		}
+
+		if _, ok := err.(golangsdk.ErrDefault404); !ok {
+			return nil, err
+		}
+
+		if time.Now().After(deadline) {
+			return nil, fmt.Errorf("timeout waiting for IAM resources to become expected status after %s", iamPollTimeout)
+		}
+
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		case <-time.After(iamPollInterval):
+		}
+	}
+}
 
 func buildV5ResourceTags(tagmap map[string]interface{}) []map[string]interface{} {
 	tags := make([]map[string]interface{}, 0, len(tagmap))

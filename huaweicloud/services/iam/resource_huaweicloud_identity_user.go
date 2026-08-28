@@ -9,7 +9,6 @@ import (
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -36,7 +35,7 @@ func ResourceIdentityUser() *schema.Resource {
 		DeleteContext: resourceUserDelete,
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(20 * time.Second),
+			Create: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Importer: &schema.ResourceImporter{
@@ -188,11 +187,20 @@ func resourceUserCreate(ctx context.Context, d *schema.ResourceData, meta interf
 		return diag.Errorf("error creating IAM user: %s", err)
 	}
 
-	d.SetId(user.ID)
+	userId := user.ID
+	d.SetId(userId)
+
+	// After creation, the user may not be immediately queryable (usually 2-3s, up to 10s).
+	_, err = PollRequest(ctx, func() (interface{}, error) {
+		return users.Get(iamClient, userId).Extract()
+	})
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	// if login_protect_verification_method is not empty, update login protect
 	if val, ok := d.GetOk("login_protect_verification_method"); ok {
-		err := updateLoginProtect(iamClient, user.ID, val.(string))
+		err := updateLoginProtect(iamClient, userId, val.(string))
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -217,20 +225,12 @@ func updateLoginProtect(client *golangsdk.ServiceClient, userID, method string) 
 	if err != nil {
 		return fmt.Errorf("error updating IAM user login protect: %s", err)
 	}
-	return nil
-}
+	// sleep 3 seconds to wait for the user to be updated (during each PUT operation, the user with the
+	// expected result cannot be queried immediately).
+	// lintignore:R018
+	time.Sleep(3 * time.Second)
 
-func refreshIdentityUser(client *golangsdk.ServiceClient, userId string) retry.StateRefreshFunc {
-	return func() (interface{}, string, error) {
-		resp, err := users.Get(client, userId).Extract()
-		if err != nil {
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
-				return "NOT_FOUND", "PENDING", nil
-			}
-			return nil, "ERROR", err
-		}
-		return resp, "COMPLETED", nil
-	}
+	return nil
 }
 
 func resourceUserRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -241,27 +241,14 @@ func resourceUserRead(ctx context.Context, d *schema.ResourceData, meta interfac
 	}
 
 	var (
-		resp   interface{}
 		method string
 		userId = d.Id()
 	)
-	// After creation, the user may not be immediately queryable (usually 2-3s, up to 10s).
-	if d.IsNewResource() {
-		stateConf := &retry.StateChangeConf{
-			Pending:    []string{"PENDING"},
-			Target:     []string{"COMPLETED"},
-			Refresh:    refreshIdentityUser(iamClient, userId),
-			Timeout:    d.Timeout(schema.TimeoutCreate),
-			MinTimeout: 1 * time.Second,
-		}
-		resp, err = stateConf.WaitForStateContext(ctx)
-	} else {
-		resp, err = users.Get(iamClient, userId).Extract()
-	}
+
+	user, err := users.Get(iamClient, userId).Extract()
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, "user")
 	}
-	user := resp.(*users.User)
 
 	loginProtect, err := users.GetLoginProtect(iamClient, userId).ExtractLoginProtect()
 	if err != nil {
@@ -383,6 +370,11 @@ func resourceUserUpdate(ctx context.Context, d *schema.ResourceData, meta interf
 			return diag.FromErr(err)
 		}
 	}
+
+	// sleep 3 seconds to wait for the user to be updated (during each PUT operation, the user with the
+	// expected result cannot be queried immediately).
+	// lintignore:R018
+	time.Sleep(3 * time.Second)
 
 	return resourceUserRead(ctx, d, meta)
 }
