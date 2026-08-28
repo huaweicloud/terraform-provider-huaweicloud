@@ -168,7 +168,10 @@ func resourceSwrEnterpriseImmutableTagRuleCreate(ctx context.Context, d *schema.
 	createPath = strings.ReplaceAll(createPath, "{namespace_name}", namespaceName)
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody:         utils.RemoveNil(buildCreateOrUpdateSwrEnterpriseImmutableTagRuleBodyParams(d)),
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		JSONBody: utils.RemoveNil(buildCreateOrUpdateSwrEnterpriseImmutableTagRuleBodyParams(d)),
 	}
 
 	createResp, err := client.Request("POST", createPath, &createOpt)
@@ -357,20 +360,25 @@ func resourceSwrEnterpriseImmutableTagRuleUpdate(ctx context.Context, d *schema.
 		return diag.Errorf("error creating SWR client: %s", err)
 	}
 
-	updateHttpUrl := "v2/{project_id}/instances/{instance_id}/namespaces/{namespace_name}/immutabletagrules/{immutable_rule_id}"
-	updatePath := client.Endpoint + updateHttpUrl
-	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
-	updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Get("instance_id").(string))
-	updatePath = strings.ReplaceAll(updatePath, "{namespace_name}", d.Get("namespace_name").(string))
-	updatePath = strings.ReplaceAll(updatePath, "{immutable_rule_id}", d.Get("immutable_rule_id").(string))
-	updateOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		JSONBody:         utils.RemoveNil(buildCreateOrUpdateSwrEnterpriseImmutableTagRuleBodyParams(d)),
-	}
+	if d.HasChangeExcept("enable_force_new") {
+		updateHttpUrl := "v2/{project_id}/instances/{instance_id}/namespaces/{namespace_name}/immutabletagrules/{immutable_rule_id}"
+		updatePath := client.Endpoint + updateHttpUrl
+		updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+		updatePath = strings.ReplaceAll(updatePath, "{instance_id}", d.Get("instance_id").(string))
+		updatePath = strings.ReplaceAll(updatePath, "{namespace_name}", d.Get("namespace_name").(string))
+		updatePath = strings.ReplaceAll(updatePath, "{immutable_rule_id}", d.Get("immutable_rule_id").(string))
+		updateOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
+			JSONBody: utils.RemoveNil(buildCreateOrUpdateSwrEnterpriseImmutableTagRuleBodyParams(d)),
+		}
 
-	_, err = client.Request("PUT", updatePath, &updateOpt)
-	if err != nil {
-		return diag.Errorf("error updating SWR instance immutable tag rule: %s", err)
+		_, err = client.Request("PUT", updatePath, &updateOpt)
+		if err != nil {
+			return diag.Errorf("error updating SWR instance immutable tag rule: %s", err)
+		}
 	}
 
 	return resourceSwrEnterpriseImmutableTagRuleRead(ctx, d, meta)
@@ -392,6 +400,9 @@ func resourceSwrEnterpriseImmutableTagRuleDelete(_ context.Context, d *schema.Re
 	deletePath = strings.ReplaceAll(deletePath, "{immutable_rule_id}", d.Get("immutable_rule_id").(string))
 	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 
 	_, err = client.Request("DELETE", deletePath, &deleteOpt)

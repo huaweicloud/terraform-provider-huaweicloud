@@ -25,8 +25,8 @@ var enterpriseRepositoryUpdateNonUpdatableParams = []string{
 // @API SWR GET /v2/{project_id}/instances/{instance_id}/namespaces/{namespace_name}/repositories/{repository_name}
 func ResourceSwrEnterpriseRepositoryUpdate() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceSwrEnterpriseRepositoryUpdateCreateOrUpdate,
-		UpdateContext: resourceSwrEnterpriseRepositoryUpdateCreateOrUpdate,
+		CreateContext: resourceSwrEnterpriseRepositoryUpdateCreate,
+		UpdateContext: resourceSwrEnterpriseRepositoryUpdateUpdate,
 		ReadContext:   resourceSwrEnterpriseRepositoryUpdateRead,
 		DeleteContext: resourceSwrEnterpriseRepositoryUpdateDelete,
 
@@ -69,7 +69,7 @@ func ResourceSwrEnterpriseRepositoryUpdate() *schema.Resource {
 	}
 }
 
-func resourceSwrEnterpriseRepositoryUpdateCreateOrUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceSwrEnterpriseRepositoryUpdateCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
 	region := cfg.GetRegion(d)
 	client, err := cfg.NewServiceClient("swr", region)
@@ -80,7 +80,42 @@ func resourceSwrEnterpriseRepositoryUpdateCreateOrUpdate(ctx context.Context, d 
 	instanceId := d.Get("instance_id").(string)
 	namespaceName := d.Get("namespace_name").(string)
 	repositoryName := d.Get("repository_name").(string)
+	description := d.Get("description").(string)
 
+	err = updateSwrEnterpriseRepository(client, instanceId, namespaceName, repositoryName, description)
+	if err != nil {
+		return diag.Errorf("error creating SWR enterprise repository: %s", err)
+	}
+
+	d.SetId(instanceId + "/" + namespaceName + "/" + repositoryName)
+
+	return resourceSwrEnterpriseRepositoryUpdateRead(ctx, d, meta)
+}
+
+func resourceSwrEnterpriseRepositoryUpdateUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	cfg := meta.(*config.Config)
+	region := cfg.GetRegion(d)
+	client, err := cfg.NewServiceClient("swr", region)
+	if err != nil {
+		return diag.Errorf("error creating SWR client: %s", err)
+	}
+
+	if d.HasChangeExcept("enable_force_new") {
+		instanceId := d.Get("instance_id").(string)
+		namespaceName := d.Get("namespace_name").(string)
+		repositoryName := d.Get("repository_name").(string)
+		description := d.Get("description").(string)
+
+		err = updateSwrEnterpriseRepository(client, instanceId, namespaceName, repositoryName, description)
+		if err != nil {
+			return diag.Errorf("error updating SWR enterprise repository: %s", err)
+		}
+	}
+
+	return resourceSwrEnterpriseRepositoryUpdateRead(ctx, d, meta)
+}
+
+func updateSwrEnterpriseRepository(client *golangsdk.ServiceClient, instanceId, namespaceName, repositoryName, description string) error {
 	updateHttpUrl := "v2/{project_id}/instances/{instance_id}/namespaces/{namespace_name}/repositories/{repository_name}"
 	updatePath := client.Endpoint + updateHttpUrl
 	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
@@ -89,21 +124,16 @@ func resourceSwrEnterpriseRepositoryUpdateCreateOrUpdate(ctx context.Context, d 
 	updatePath = strings.ReplaceAll(updatePath, "{repository_name}", url.PathEscape(strings.ReplaceAll(repositoryName, "/", "%2F")))
 	updateOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 		JSONBody: map[string]interface{}{
-			"description": d.Get("description"),
+			"description": description,
 		},
 	}
 
-	_, err = client.Request("PUT", updatePath, &updateOpt)
-	if err != nil {
-		return diag.Errorf("error updating SWR enterprise repository: %s", err)
-	}
-
-	if d.IsNewResource() {
-		d.SetId(instanceId + "/" + namespaceName + "/" + repositoryName)
-	}
-
-	return resourceSwrEnterpriseRepositoryUpdateRead(ctx, d, meta)
+	_, err := client.Request("PUT", updatePath, &updateOpt)
+	return err
 }
 
 func resourceSwrEnterpriseRepositoryUpdateRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -122,6 +152,9 @@ func resourceSwrEnterpriseRepositoryUpdateRead(_ context.Context, d *schema.Reso
 	getPath = strings.ReplaceAll(getPath, "{repository_name}", url.PathEscape(strings.ReplaceAll(d.Get("repository_name").(string), "/", "%2F")))
 	getOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 
 	getResp, err := client.Request("GET", getPath, &getOpt)
