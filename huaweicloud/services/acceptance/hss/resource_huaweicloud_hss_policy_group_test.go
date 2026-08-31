@@ -95,26 +95,36 @@ func TestAccPolicyGroup_basic(t *testing.T) {
 
 func testAccPolicyGroup_basic(name string) string {
 	return fmt.Sprintf(`
+variable "enterprise_project_id" {
+  type    = string
+  default = "%[1]s"
+}
+
 resource "huaweicloud_hss_policy_group" "test" {
-  group_id              = "%s"
-  name                  = "%s"
+  group_id              = "%[2]s"
+  name                  = "%[3]s"
   description           = "test description"
-  enterprise_project_id = "all_granted_eps"
+  enterprise_project_id = var.enterprise_project_id != "" ? var.enterprise_project_id : null
   protect_mode          = "high_detection"
 }
-`, acceptance.HW_HSS_POLICY_GROUP_ID, name)
+`, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST, acceptance.HW_HSS_POLICY_GROUP_ID, name)
 }
 
 func testAccPolicyGroup_update(name string) string {
 	return fmt.Sprintf(`
+variable "enterprise_project_id" {
+  type    = string
+  default = "%[1]s"
+}
+
 resource "huaweicloud_hss_policy_group" "test" {
-  group_id              = "%s"
-  name                  = "%s"
+  group_id              = "%[2]s"
+  name                  = "%[3]s"
   description           = "test description"
-  enterprise_project_id = "all_granted_eps"
+  enterprise_project_id = var.enterprise_project_id != "" ? var.enterprise_project_id : null
   protect_mode          = "equalization"
 }
-`, acceptance.HW_HSS_POLICY_GROUP_ID, name)
+`, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST, acceptance.HW_HSS_POLICY_GROUP_ID, name)
 }
 
 func testAccPolicyGroupImportStateIDFunc(resourceName string) resource.ImportStateIdFunc {

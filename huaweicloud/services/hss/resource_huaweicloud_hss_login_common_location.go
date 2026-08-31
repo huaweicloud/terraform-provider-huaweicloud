@@ -82,6 +82,9 @@ func updateLoginCommonLocation(client *golangsdk.ServiceClient, d *schema.Resour
 	requestPath += buildLoginCommonLocationModifyQueryParams(epsId)
 	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 		JSONBody: map[string]interface{}{
 			"area_code":    d.Get("area_code"),
 			"host_id_list": d.Get("host_id_list"),
@@ -135,6 +138,9 @@ func QueryLoginCommonLocation(client *golangsdk.ServiceClient, areaCode int, eps
 	requestPath += buildLoginCommonLocationQueryParams(epsId, areaCode)
 	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 
 	resp, err := client.Request("GET", requestPath, &requestOpt)
@@ -195,8 +201,10 @@ func resourceLoginCommonLocationUpdate(ctx context.Context, d *schema.ResourceDa
 		return diag.Errorf("error creating HSS client: %s", err)
 	}
 
-	if err := updateLoginCommonLocation(client, d, epsId); err != nil {
-		return diag.Errorf("error updating HSS login common location in update operation: %s", err)
+	if d.HasChangeExcept("enable_force_new") {
+		if err := updateLoginCommonLocation(client, d, epsId); err != nil {
+			return diag.Errorf("error updating HSS login common location in update operation: %s", err)
+		}
 	}
 
 	return resourceLoginCommonLocationRead(ctx, d, meta)
@@ -220,6 +228,9 @@ func resourceLoginCommonLocationDelete(_ context.Context, d *schema.ResourceData
 	requestPath += buildLoginCommonLocationModifyQueryParams(epsId)
 	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 		JSONBody: map[string]interface{}{
 			"area_code":    d.Get("area_code"),
 			"host_id_list": make([]string, 0),

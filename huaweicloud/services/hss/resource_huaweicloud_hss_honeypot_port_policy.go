@@ -181,7 +181,10 @@ func resourceHoneypotPortPolicyCreate(ctx context.Context, d *schema.ResourceDat
 	createPath += buildHoneypotPortPolicyQueryParams(epsId)
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody:         utils.RemoveNil(buildHoneypotPortPolicyBodyParams(d)),
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		JSONBody: utils.RemoveNil(buildHoneypotPortPolicyBodyParams(d)),
 	}
 
 	_, err = client.Request("POST", createPath, &createOpt)
@@ -218,6 +221,9 @@ func getHoneypotPortPolicyId(client *golangsdk.ServiceClient, policyName, epsId 
 
 	listOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 
 	for {
@@ -256,6 +262,9 @@ func GetHoneypotPortPolicy(client *golangsdk.ServiceClient, policyId, epsId stri
 	getPath += buildHoneypotPortPolicyQueryParams(epsId)
 	getOpts := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 
 	resp, err := client.Request("GET", getPath, &getOpts)
@@ -323,18 +332,23 @@ func resourceHoneypotPortPolicyUpdate(ctx context.Context, d *schema.ResourceDat
 		return diag.Errorf("error creating HSS client: %s", err)
 	}
 
-	updatePath := client.Endpoint + httpUrl
-	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
-	updatePath = strings.ReplaceAll(updatePath, "{policy_id}", d.Id())
-	updatePath += buildHoneypotPortPolicyQueryParams(epsId)
-	updateOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		JSONBody:         utils.RemoveNil(buildHoneypotPortPolicyBodyParams(d)),
-	}
+	if d.HasChangeExcept("enable_force_new") {
+		updatePath := client.Endpoint + httpUrl
+		updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+		updatePath = strings.ReplaceAll(updatePath, "{policy_id}", d.Id())
+		updatePath += buildHoneypotPortPolicyQueryParams(epsId)
+		updateOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
+			JSONBody: utils.RemoveNil(buildHoneypotPortPolicyBodyParams(d)),
+		}
 
-	_, err = client.Request("PUT", updatePath, &updateOpt)
-	if err != nil {
-		return diag.Errorf("error updating dynamic port honeypot policy: %s", err)
+		_, err = client.Request("PUT", updatePath, &updateOpt)
+		if err != nil {
+			return diag.Errorf("error updating dynamic port honeypot policy: %s", err)
+		}
 	}
 
 	return resourceHoneypotPortPolicyRead(ctx, d, meta)
@@ -359,6 +373,9 @@ func resourceHoneypotPortPolicyDelete(_ context.Context, d *schema.ResourceData,
 	deletePath += buildHoneypotPortPolicyQueryParams(epsId)
 	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 
 	_, err = client.Request("DELETE", deletePath, &deleteOpt)

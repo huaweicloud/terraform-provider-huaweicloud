@@ -142,6 +142,9 @@ func queryPolicyGroupByName(client *golangsdk.ServiceClient, name, epsId string)
 	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
 	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 
 	var (
@@ -191,6 +194,9 @@ func updatePolicyGroup(client *golangsdk.ServiceClient, d *schema.ResourceData, 
 	requestPath += buildUpdateGroupQueryParams(epsId)
 	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 		JSONBody: map[string]interface{}{
 			"group_id":     d.Id(),
 			"protect_mode": d.Get("protect_mode"),
@@ -220,7 +226,10 @@ func resourcePolicyGroupCreate(ctx context.Context, d *schema.ResourceData, meta
 	createPath += buildCreateGroupQueryParams(epsId)
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody:         utils.RemoveNil(buildCreateGroupBodyParams(d)),
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		JSONBody: utils.RemoveNil(buildCreateGroupBodyParams(d)),
 	}
 
 	_, err = client.Request("PUT", createPath, &createOpt)
@@ -264,6 +273,9 @@ func QueryPolicyGroupById(client *golangsdk.ServiceClient, policyGroupId, epsId 
 	requestPath += buildQueryGroupByIdQueryParams(policyGroupId, epsId)
 	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 
 	resp, err := client.Request("GET", requestPath, &requestOpt)
@@ -328,8 +340,10 @@ func resourcePolicyGroupUpdate(ctx context.Context, d *schema.ResourceData, meta
 		return diag.Errorf("error creating HSS client: %s", err)
 	}
 
-	if err := updatePolicyGroup(client, d, epsId); err != nil {
-		return diag.Errorf("error updating HSS policy group in update operation: %s", err)
+	if d.HasChangeExcept("enable_force_new") {
+		if err := updatePolicyGroup(client, d, epsId); err != nil {
+			return diag.Errorf("error updating HSS policy group in update operation: %s", err)
+		}
 	}
 
 	return resourcePolicyGroupRead(ctx, d, meta)
@@ -360,6 +374,9 @@ func resourcePolicyGroupDelete(_ context.Context, d *schema.ResourceData, meta i
 	requestPath += buildDeleteGroupQueryParams(epsId)
 	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 		JSONBody: map[string]interface{}{
 			"id_list": []string{d.Id()},
 		},

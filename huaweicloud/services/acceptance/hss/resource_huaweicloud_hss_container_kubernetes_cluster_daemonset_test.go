@@ -72,7 +72,6 @@ func TestAccContainerKubernetesClusterDaemonset_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			// This test case requires the preparation of a CCE cluster under the default enterprise project.
 			acceptance.TestAccPreCheckHSSCCEProtection(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
@@ -112,9 +111,14 @@ func TestAccContainerKubernetesClusterDaemonset_basic(t *testing.T) {
 
 func testContainerKubernetesClusterDaemonset_basic() string {
 	return fmt.Sprintf(`
+variable "enterprise_project_id" {
+  type    = string
+  default = "%[1]s"
+}
+
 resource "huaweicloud_hss_container_kubernetes_cluster_daemonset" "test" {
-  cluster_id   = "%[1]s"
-  cluster_name = "%[2]s"
+  cluster_id   = "%[2]s"
+  cluster_name = "%[3]s"
   auto_upgrade = true
 
   runtime_info {
@@ -126,16 +130,21 @@ resource "huaweicloud_hss_container_kubernetes_cluster_daemonset" "test" {
     node_selector = ["test=test"]
   }
 
-  enterprise_project_id = "0"
+  enterprise_project_id = var.enterprise_project_id != "" ? var.enterprise_project_id : null
 }
-`, acceptance.HW_CCE_CLUSTER_ID, acceptance.HW_CCE_CLUSTER_NAME)
+`, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST, acceptance.HW_CCE_CLUSTER_ID, acceptance.HW_CCE_CLUSTER_NAME)
 }
 
 func testContainerKubernetesClusterDaemonset_update() string {
 	return fmt.Sprintf(`
+variable "enterprise_project_id" {
+  type    = string
+  default = "%[1]s"
+}
+
 resource "huaweicloud_hss_container_kubernetes_cluster_daemonset" "test" {
-  cluster_id   = "%[1]s"
-  cluster_name = "%[2]s"
+  cluster_id   = "%[2]s"
+  cluster_name = "%[3]s"
   auto_upgrade = true
 
   runtime_info {
@@ -147,7 +156,7 @@ resource "huaweicloud_hss_container_kubernetes_cluster_daemonset" "test" {
     node_selector = ["test_update=test_update"]
   }
 
-  enterprise_project_id = "0"
+  enterprise_project_id = var.enterprise_project_id != "" ? var.enterprise_project_id : null
 }
-`, acceptance.HW_CCE_CLUSTER_ID, acceptance.HW_CCE_CLUSTER_NAME)
+`, acceptance.HW_ENTERPRISE_PROJECT_ID_TEST, acceptance.HW_CCE_CLUSTER_ID, acceptance.HW_CCE_CLUSTER_NAME)
 }

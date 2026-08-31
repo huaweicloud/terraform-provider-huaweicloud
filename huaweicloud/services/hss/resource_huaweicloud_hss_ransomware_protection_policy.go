@@ -231,7 +231,10 @@ func QueryProtectionPolicyByPolicyName(client *golangsdk.ServiceClient, policyNa
 	requestPath += buildProtectionPolicyByPolicyNameQueryParams(policyName, epsId)
 	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      map[string]string{"region": region},
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+			"region":       region,
+		},
 	}
 
 	var (
@@ -289,8 +292,11 @@ func resourceRansomwareProtectionPolicyCreate(ctx context.Context, d *schema.Res
 	requestPath += buildRansomwareProtectionPolicyQueryParams(epsId)
 	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      map[string]string{"region": region},
-		JSONBody:         utils.RemoveNil(buildCreateRansomwareProtectionPolicyRequestOpt(d)),
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+			"region":       region,
+		},
+		JSONBody: utils.RemoveNil(buildCreateRansomwareProtectionPolicyRequestOpt(d)),
 	}
 
 	_, err = client.Request("POST", requestPath, &requestOpt)
@@ -336,7 +342,10 @@ func QueryProtectionPolicyByPolicyId(client *golangsdk.ServiceClient, policyId, 
 	requestPath += buildProtectionPolicyByPolicyIdQueryParams(policyId, epsId)
 	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      map[string]string{"region": region},
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+			"region":       region,
+		},
 	}
 
 	resp, err := client.Request("GET", requestPath, &requestOpt)
@@ -436,8 +445,11 @@ func updateRansomwareProtectionPolicy(client *golangsdk.ServiceClient, d *schema
 	requestPath += buildRansomwareProtectionPolicyQueryParams(cfg.GetEnterpriseProjectID(d, QueryAllEpsValue))
 	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      map[string]string{"region": cfg.GetRegion(d)},
-		JSONBody:         utils.RemoveNil(buildUpdateRansomwareProtectionPolicyRequestOpt(d)),
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+			"region":       cfg.GetRegion(d),
+		},
+		JSONBody: utils.RemoveNil(buildUpdateRansomwareProtectionPolicyRequestOpt(d)),
 	}
 
 	_, err := client.Request("PUT", requestPath, &requestOpt)
@@ -456,8 +468,10 @@ func resourceRansomwareProtectionPolicyUpdate(ctx context.Context, d *schema.Res
 		return diag.Errorf("error creating HSS client: %s", err)
 	}
 
-	if err = updateRansomwareProtectionPolicy(client, d, cfg); err != nil {
-		return diag.Errorf("error updating HSS ransomware protection policy in update operation: %s", err)
+	if d.HasChangeExcept("enable_force_new") {
+		if err = updateRansomwareProtectionPolicy(client, d, cfg); err != nil {
+			return diag.Errorf("error updating HSS ransomware protection policy in update operation: %s", err)
+		}
 	}
 
 	return resourceRansomwareProtectionPolicyRead(ctx, d, meta)
@@ -491,7 +505,10 @@ func resourceRansomwareProtectionPolicyDelete(_ context.Context, d *schema.Resou
 	requestPath += buildDeleteRansomwareProtectionPolicyQueryParams(d.Id(), epsId)
 	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      map[string]string{"region": region},
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+			"region":       region,
+		},
 	}
 
 	_, err = client.Request("DELETE", requestPath, &requestOpt)
