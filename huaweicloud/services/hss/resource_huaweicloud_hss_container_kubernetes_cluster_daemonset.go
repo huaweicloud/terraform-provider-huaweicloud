@@ -249,7 +249,10 @@ func resourceContainerKubernetesClusterDaemonsetCreate(ctx context.Context, d *s
 	requestPath += buildContainerKubernetesClusterDaemonsetQueryParams(epsId)
 	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody:         utils.RemoveNil(buildCreateContainerKubernetesClusterDaemonsetBodyParams(d)),
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		JSONBody: utils.RemoveNil(buildCreateContainerKubernetesClusterDaemonsetBodyParams(d)),
 	}
 
 	_, err = client.Request("POST", requestPath, &requestOpt)
@@ -277,7 +280,7 @@ func resourceContainerKubernetesClusterDaemonsetRead(_ context.Context, d *schem
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
 		product = "hss"
-		epsId   = cfg.GetEnterpriseProjectID(d)
+		epsId   = cfg.GetEnterpriseProjectID(d, QueryAllEpsValue)
 	)
 
 	client, err := cfg.NewServiceClient(product, region)
@@ -381,8 +384,11 @@ func updateContainerKubernetesClusterDaemonset(client *golangsdk.ServiceClient, 
 	requestPath += buildContainerKubernetesClusterDaemonsetQueryParams(epsId)
 	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      map[string]string{"region": region},
-		JSONBody:         utils.RemoveNil(buildUpdateContainerKubernetesClusterDaemonsetBodyParams(d)),
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+			"region":       region,
+		},
+		JSONBody: utils.RemoveNil(buildUpdateContainerKubernetesClusterDaemonsetBodyParams(d)),
 	}
 
 	_, err := client.Request("PUT", requestPath, &requestOpt)
@@ -395,7 +401,7 @@ func resourceContainerKubernetesClusterDaemonsetUpdate(ctx context.Context, d *s
 		cfg     = meta.(*config.Config)
 		region  = cfg.GetRegion(d)
 		product = "hss"
-		epsId   = cfg.GetEnterpriseProjectID(d)
+		epsId   = cfg.GetEnterpriseProjectID(d, QueryAllEpsValue)
 	)
 
 	client, err := cfg.NewServiceClient(product, region)
@@ -435,7 +441,7 @@ func resourceContainerKubernetesClusterDaemonsetDelete(ctx context.Context, d *s
 		region  = cfg.GetRegion(d)
 		product = "hss"
 		id      = d.Id()
-		epsId   = cfg.GetEnterpriseProjectID(d)
+		epsId   = cfg.GetEnterpriseProjectID(d, QueryAllEpsValue)
 	)
 
 	client, err := cfg.NewServiceClient(product, region)
@@ -449,7 +455,10 @@ func resourceContainerKubernetesClusterDaemonsetDelete(ctx context.Context, d *s
 	deletePath += buildDeleteContainerKubernetesClusterDaemonsetQueryParams(d, epsId)
 	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		MoreHeaders:      map[string]string{"region": region},
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+			"region":       region,
+		},
 	}
 
 	_, err = client.Request("DELETE", deletePath, &deleteOpt)
@@ -473,6 +482,9 @@ func getClusterDaemonset(client *golangsdk.ServiceClient, clusterId, epsId strin
 	queryPath += buildContainerKubernetesClusterDaemonsetQueryParams(epsId)
 	queryOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 
 	resp, err := client.Request("GET", queryPath, &queryOpt)
