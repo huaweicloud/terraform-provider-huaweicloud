@@ -124,7 +124,10 @@ func resourceCiCdConfigurationCreate(ctx context.Context, d *schema.ResourceData
 	requestPath += buildCiCdConfigurationQueryParams(epsId)
 	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody:         utils.RemoveNil(buildCreateCiCdConfigurationBodyParams(d)),
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		JSONBody: utils.RemoveNil(buildCreateCiCdConfigurationBodyParams(d)),
 	}
 
 	resp, err := client.Request("POST", requestPath, &requestOpt)
@@ -196,6 +199,9 @@ func resourceCiCdConfigurationRead(_ context.Context, d *schema.ResourceData, me
 	requestPath += buildCiCdConfigurationQueryParams(epsId)
 	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 
 	resp, err := client.Request("GET", requestPath, &requestOpt)
@@ -259,18 +265,23 @@ func resourceCiCdConfigurationUpdate(ctx context.Context, d *schema.ResourceData
 		return diag.Errorf("error creating HSS client: %s", err)
 	}
 
-	requestPath := client.Endpoint + "v5/{project_id}/image/cicd/configurations/{cicd_id}"
-	requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
-	requestPath = strings.ReplaceAll(requestPath, "{cicd_id}", d.Id())
-	requestPath += buildCiCdConfigurationQueryParams(epsId)
-	requestOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		JSONBody:         buildUpdateCiCdConfigurationBodyParams(d),
-	}
+	if d.HasChangeExcept("enable_force_new") {
+		requestPath := client.Endpoint + "v5/{project_id}/image/cicd/configurations/{cicd_id}"
+		requestPath = strings.ReplaceAll(requestPath, "{project_id}", client.ProjectID)
+		requestPath = strings.ReplaceAll(requestPath, "{cicd_id}", d.Id())
+		requestPath += buildCiCdConfigurationQueryParams(epsId)
+		requestOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
+			JSONBody: buildUpdateCiCdConfigurationBodyParams(d),
+		}
 
-	_, err = client.Request("PUT", requestPath, &requestOpt)
-	if err != nil {
-		return diag.Errorf("error updating HSS CiCd configuration: %s", err)
+		_, err = client.Request("PUT", requestPath, &requestOpt)
+		if err != nil {
+			return diag.Errorf("error updating HSS CiCd configuration: %s", err)
+		}
 	}
 
 	return resourceCiCdConfigurationRead(ctx, d, meta)
@@ -300,7 +311,10 @@ func resourceCiCdConfigurationDelete(_ context.Context, d *schema.ResourceData, 
 	deletePath += buildCiCdConfigurationQueryParams(epsId)
 	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody:         buildDeleteCiCdConfigurationBodyParams(d),
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		JSONBody: buildDeleteCiCdConfigurationBodyParams(d),
 	}
 
 	_, err = client.Request("POST", deletePath, &deleteOpt)

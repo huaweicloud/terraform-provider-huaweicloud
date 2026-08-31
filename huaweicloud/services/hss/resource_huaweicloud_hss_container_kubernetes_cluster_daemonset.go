@@ -409,9 +409,11 @@ func resourceContainerKubernetesClusterDaemonsetUpdate(ctx context.Context, d *s
 		return diag.Errorf("error creating HSS client: %s", err)
 	}
 
-	err = updateContainerKubernetesClusterDaemonset(client, d, epsId, region)
-	if err != nil {
-		return diag.Errorf("error updating HSS container kubernetes cluster daemonset: %s", err)
+	if d.HasChangeExcept("enable_force_new") {
+		err = updateContainerKubernetesClusterDaemonset(client, d, epsId, region)
+		if err != nil {
+			return diag.Errorf("error updating HSS container kubernetes cluster daemonset: %s", err)
+		}
 	}
 
 	return resourceContainerKubernetesClusterDaemonsetRead(ctx, d, meta)

@@ -64,6 +64,9 @@ func updatePolicySwitchStatus(client *golangsdk.ServiceClient, d *schema.Resourc
 	requestPath += fmt.Sprintf("?enterprise_project_id=%s", epsId)
 	requestOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 		JSONBody: map[string]interface{}{
 			"policy_name": d.Get("policy_name"),
 			"enable":      d.Get("enable"),
@@ -119,8 +122,10 @@ func resourcePolicySwitchStatusUpdate(ctx context.Context, d *schema.ResourceDat
 		return diag.Errorf("error creating HSS client: %s", err)
 	}
 
-	if err := updatePolicySwitchStatus(client, d, epsId); err != nil {
-		return diag.Errorf("error changing HSS policy status in update operation: %s", err)
+	if d.HasChangeExcept("enable_force_new") {
+		if err := updatePolicySwitchStatus(client, d, epsId); err != nil {
+			return diag.Errorf("error changing HSS policy status in update operation: %s", err)
+		}
 	}
 
 	return resourcePolicySwitchStatusRead(ctx, d, meta)

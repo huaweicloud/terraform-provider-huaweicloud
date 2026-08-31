@@ -131,7 +131,10 @@ func resourceEventSystemUserWhiteListCreate(ctx context.Context, d *schema.Resou
 	createPath += buildEventSystemUserWhiteListQueryParams(epsId)
 	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody:         utils.RemoveNil(buildCreateOrUpdateEventSystemUserWhiteListBodyParams(d)),
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		JSONBody: utils.RemoveNil(buildCreateOrUpdateEventSystemUserWhiteListBodyParams(d)),
 	}
 
 	_, err = client.Request("POST", createPath, &createOpt)
@@ -172,6 +175,9 @@ func resourceEventSystemUserWhiteListRead(_ context.Context, d *schema.ResourceD
 	queryPath += buildReadEventSystemUserWhiteListQueryParams(hostID, epsId)
 	queryOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
 	}
 
 	resp, err := client.Request("GET", queryPath, &queryOpt)
@@ -219,17 +225,22 @@ func resourceEventSystemUserWhiteListUpdate(ctx context.Context, d *schema.Resou
 		return diag.Errorf("error creating HSS client: %s", err)
 	}
 
-	updatePath := client.Endpoint + "v5/{project_id}/event/white-list/userlist"
-	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
-	updatePath += buildEventSystemUserWhiteListQueryParams(epsId)
-	updateOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		JSONBody:         utils.RemoveNil(buildCreateOrUpdateEventSystemUserWhiteListBodyParams(d)),
-	}
+	if d.HasChangeExcept("enable_force_new") {
+		updatePath := client.Endpoint + "v5/{project_id}/event/white-list/userlist"
+		updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+		updatePath += buildEventSystemUserWhiteListQueryParams(epsId)
+		updateOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			MoreHeaders: map[string]string{
+				"Content-Type": "application/json",
+			},
+			JSONBody: utils.RemoveNil(buildCreateOrUpdateEventSystemUserWhiteListBodyParams(d)),
+		}
 
-	_, err = client.Request("PUT", updatePath, &updateOpt)
-	if err != nil {
-		return diag.Errorf("error updating HSS event system user white list: %s", err)
+		_, err = client.Request("PUT", updatePath, &updateOpt)
+		if err != nil {
+			return diag.Errorf("error updating HSS event system user white list: %s", err)
+		}
 	}
 
 	return resourceEventSystemUserWhiteListRead(ctx, d, meta)
@@ -272,7 +283,10 @@ func resourceEventSystemUserWhiteListDelete(_ context.Context, d *schema.Resourc
 	deletePath += buildEventSystemUserWhiteListQueryParams(epsId)
 	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
-		JSONBody:         buildDeleteEventSystemUserWhiteListBodyParams(d),
+		MoreHeaders: map[string]string{
+			"Content-Type": "application/json",
+		},
+		JSONBody: buildDeleteEventSystemUserWhiteListBodyParams(d),
 	}
 
 	_, err = client.Request("DELETE", deletePath, &deleteOpt)

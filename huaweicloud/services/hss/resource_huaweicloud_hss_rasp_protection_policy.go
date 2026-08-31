@@ -367,17 +367,19 @@ func resourceRaspProtectionPolicyUpdate(ctx context.Context, d *schema.ResourceD
 		return diag.Errorf("error creating HSS client: %s", err)
 	}
 
-	updatePath := client.Endpoint + httpUrl
-	updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
-	updatePath += buildRaspProtectionPolicyUpdateQueryParams(d.Id(), policyName, epsId)
-	updateOpt := golangsdk.RequestOpts{
-		KeepResponseBody: true,
-		JSONBody:         buildRaspProtectionPolicyBodyParams(d),
-	}
+	if d.HasChangeExcept("enable_force_new") {
+		updatePath := client.Endpoint + httpUrl
+		updatePath = strings.ReplaceAll(updatePath, "{project_id}", client.ProjectID)
+		updatePath += buildRaspProtectionPolicyUpdateQueryParams(d.Id(), policyName, epsId)
+		updateOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			JSONBody:         buildRaspProtectionPolicyBodyParams(d),
+		}
 
-	_, err = client.Request("PUT", updatePath, &updateOpt)
-	if err != nil {
-		return diag.Errorf("error updating protection policy: %s", err)
+		_, err = client.Request("PUT", updatePath, &updateOpt)
+		if err != nil {
+			return diag.Errorf("error updating protection policy: %s", err)
+		}
 	}
 
 	return resourceRaspProtectionPolicyRead(ctx, d, meta)

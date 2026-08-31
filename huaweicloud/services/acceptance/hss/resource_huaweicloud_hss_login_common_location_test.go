@@ -2,6 +2,7 @@ package hss
 
 import (
 	"fmt"
+	"strconv"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -12,12 +13,10 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/hss"
 )
 
-func getLoginCommonLocationResourceFunc(cfg *config.Config, _ *terraform.ResourceState) (interface{}, error) {
+func getLoginCommonLocationResourceFunc(cfg *config.Config, state *terraform.ResourceState) (interface{}, error) {
 	var (
-		region       = acceptance.HW_REGION_NAME
-		epsId        = "all_granted_eps"
-		testAreaCode = 110109
-		product      = "hss"
+		region  = acceptance.HW_REGION_NAME
+		product = "hss"
 	)
 
 	client, err := cfg.NewServiceClient(product, region)
@@ -25,7 +24,21 @@ func getLoginCommonLocationResourceFunc(cfg *config.Config, _ *terraform.Resourc
 		return nil, fmt.Errorf("error creating HSS client: %s", err)
 	}
 
-	return hss.QueryLoginCommonLocation(client, testAreaCode, epsId)
+	areaCodeStr, ok := state.Primary.Attributes["area_code"]
+	if !ok || areaCodeStr == "" {
+		return nil, fmt.Errorf("area_code not found in resource state attributes")
+	}
+	areaCode, err := strconv.Atoi(areaCodeStr)
+	if err != nil {
+		return nil, fmt.Errorf("invalid area_code value (%s) in resource state: %s", areaCodeStr, err)
+	}
+
+	epsId := state.Primary.Attributes["enterprise_project_id"]
+	if epsId == "" {
+		epsId = hss.QueryAllEpsValue
+	}
+
+	return hss.QueryLoginCommonLocation(client, areaCode, epsId)
 }
 
 func TestAccLoginCommonLocation_basic(t *testing.T) {
@@ -74,7 +87,7 @@ func TestAccLoginCommonLocation_basic(t *testing.T) {
 func testAccLoginCommonLocation_basic() string {
 	return fmt.Sprintf(`
 resource "huaweicloud_hss_login_common_location" "test" {
-  area_code             = 110109
+  area_code             = 215  # BeiJing
   host_id_list          = ["%s"]
   enterprise_project_id = "all_granted_eps"
 }
@@ -84,7 +97,7 @@ resource "huaweicloud_hss_login_common_location" "test" {
 func testAccLoginCommonLocation_update() string {
 	return fmt.Sprintf(`
 resource "huaweicloud_hss_login_common_location" "test" {
-  area_code             = 110109
+  area_code             = 215
   host_id_list          = ["%s"]
   enterprise_project_id = "all_granted_eps"
 }
