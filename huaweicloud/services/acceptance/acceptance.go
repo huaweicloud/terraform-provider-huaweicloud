@@ -826,6 +826,7 @@ var (
 	HW_DCS_BACKUP_ID          = os.Getenv("HW_DCS_BACKUP_ID")
 	HW_DCS_BACKGROUND_TASK_ID = os.Getenv("HW_DCS_BACKGROUND_TASK_ID")
 	HW_DCS_CENTER_TASK_ID     = os.Getenv("HW_DCS_CENTER_TASK_ID")
+	HW_DCS_TASK_ID            = os.Getenv("HW_DCS_TASK_ID")
 
 	HW_ELB_GATEWAY_TYPE = os.Getenv("HW_ELB_GATEWAY_TYPE")
 
@@ -4644,6 +4645,13 @@ func TestAccPreCheckDcsCenterTaskId(t *testing.T) {
 func TestAccPreCheckDcsBackupId(t *testing.T) {
 	if HW_DCS_BACKUP_ID == "" {
 		t.Skip("HW_DCS_BACKUP_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDCSTaskId(t *testing.T) {
+	if HW_DCS_TASK_ID == "" {
+		t.Skip("HW_DCS_TASK_ID must be set for the acceptance test")
 	}
 }
 
