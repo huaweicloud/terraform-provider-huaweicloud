@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## 1.98.0 (Sep 1, 2026)
+
+* **New Resource Source:**
+  + `huaweicloud_drs_batch_select_objects` [GH-10469]
+  + `huaweicloud_geminidb_backup_batch_delete` [GH-10479]
+
+* **New Data Source:**
+  + `huaweicloud_cbh_switch_config_info` [GH-10473]
+  + `huaweicloud_rds_slow_log_statistics` [GH-10470]
+
 ## 1.97.2 (Aug 25, 2026)
 
 * **New Resource Source:**
