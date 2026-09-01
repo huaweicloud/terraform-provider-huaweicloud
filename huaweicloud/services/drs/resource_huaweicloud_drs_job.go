@@ -154,7 +154,17 @@ func ResourceDrsJob() *schema.Resource {
 				ForceNew: true,
 				Default:  14,
 			},
+			// Specifies whether to start the job after creation.
+			// Starts the job by default. Set to `false` to disable it.
 			"is_start_job": {
+				Type:        schema.TypeBool,
+				Optional:    true,
+				ForceNew:    true,
+				Description: "schema: Internal",
+			},
+			// Specifies whether to pre-check the job after creation.
+			// Pre-check is performed by default. Set to `false` to disable it.
+			"is_pre_check": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				ForceNew:    true,
@@ -284,6 +294,17 @@ func ResourceDrsJob() *schema.Resource {
 							Type:     schema.TypeString,
 							Optional: true,
 							ForceNew: true,
+						},
+
+						// This parameter is not currently exposed by the cloud service but is required for
+						// internal customers.
+						// This parameter will be available on the cloud service starting September 30,
+						// configure it using the v5 API.
+						"transformation_name_case_policy": {
+							Type:        schema.TypeString,
+							Optional:    true,
+							ForceNew:    true,
+							Description: "schema: Internal",
 						},
 					},
 				},
@@ -774,9 +795,18 @@ func resourceJobCreate(ctx context.Context, d *schema.ResourceData, meta interfa
 		}
 	}
 
-	err = preCheck(ctx, client, jobId, d.Timeout(schema.TimeoutCreate), "forStartJob")
-	if err != nil {
-		return diag.FromErr(err)
+	if _, ok := d.GetOk("policy_config.0.transformation_name_case_policy"); ok {
+		err = updateJobConfig(clientV5, buildUpdateJobConfigBodyParams(d, "policy"), "policy", d.Id())
+		if err != nil {
+			return diag.FromErr(err)
+		}
+	}
+
+	if getIsPreCheck(d) {
+		err = preCheck(ctx, client, jobId, d.Timeout(schema.TimeoutCreate), "forStartJob")
+		if err != nil {
+			return diag.FromErr(err)
+		}
 	}
 
 	if _, ok := d.GetOk("alarm_notify"); ok {
@@ -835,6 +865,10 @@ func buildUpdateJobConfigBodyParams(d *schema.ResourceData, updateType string) m
 	case "notify":
 		return map[string]interface{}{
 			"alarm_notify": buildAlarmNotify(d.Get("alarm_notify").([]interface{})),
+		}
+	case "policy":
+		return map[string]interface{}{
+			"policy_config": buildV5PolicyConfig(d.Get("policy_config").([]interface{})),
 		}
 	}
 	return nil
@@ -896,6 +930,19 @@ func buildAlarmNotify(rawArray []interface{}) map[string]interface{} {
 		"rto_delay":     utils.ValueIgnoreEmpty(raw["rto_delay"]),
 	}
 	return rst
+}
+
+func buildV5PolicyConfig(rawArray []interface{}) map[string]interface{} {
+	if len(rawArray) == 0 {
+		return nil
+	}
+	raw, ok := rawArray[0].(map[string]interface{})
+	if !ok {
+		return nil
+	}
+	return map[string]interface{}{
+		"transformation_name_case_policy": utils.ValueIgnoreEmpty(raw["transformation_name_case_policy"]),
+	}
 }
 
 func updateJobConfig(client *golangsdk.ServiceClient, jsonBody map[string]interface{}, updateType, id string) error {
@@ -1115,6 +1162,18 @@ func getIsStartJob(d *schema.ResourceData) bool {
 		return v.(bool)
 	}
 	// Omitted in configuration: keep the historical behavior of starting the job.
+	return true
+}
+
+func getIsPreCheck(d *schema.ResourceData) bool {
+	if v := utils.GetNestedObjectFromRawConfig(d.GetRawConfig(), "is_pre_check"); v != nil {
+		return v.(bool)
+	}
+	// Import/refresh may not provide RawConfig. Keep the value already stored in state.
+	if v := utils.GetNestedObjectFromRawConfig(d.GetRawState(), "is_pre_check"); v != nil {
+		return v.(bool)
+	}
+	// Omitted in configuration: keep the historical behavior of performing preCheck.
 	return true
 }
 
