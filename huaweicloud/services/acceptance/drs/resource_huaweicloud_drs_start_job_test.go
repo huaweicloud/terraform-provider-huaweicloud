@@ -173,11 +173,13 @@ resource "huaweicloud_drs_job" "test" {
   databases = [huaweicloud_rds_mysql_database.test.name]
 
   policy_config {
-    filter_ddl_policy = "drop_database"
-    conflict_policy   = "overwrite"
-    index_trans       = true
+    filter_ddl_policy               = "drop_database"
+    conflict_policy                 = "overwrite"
+    index_trans                     = true
+    transformation_name_case_policy = "lowercase"
   }
 
+  is_pre_check  = false
   is_start_job  = false
   charging_mode = "prePaid"
   period_unit   = "month"
