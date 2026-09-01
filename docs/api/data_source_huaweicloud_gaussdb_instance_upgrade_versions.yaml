@@ -8,6 +8,6 @@ host: huaweicloud.com
 tags:
     - name: GaussDB
 paths:
-    /gaussdb/v3.1/{project_id}/instances/db-upgrade/candidate-versions:
+    /v3.1/{project_id}/instances/db-upgrade/candidate-versions:
         POST:
             tag: GaussDB
