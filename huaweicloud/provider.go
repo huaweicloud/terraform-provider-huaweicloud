@@ -4922,6 +4922,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_waf_policy_v2":                           waf.ResourceWafPolicyV2(),
 			"huaweicloud_waf_policies_batch_delete":               waf.ResourcePoliciesBatchDelete(),
 			"huaweicloud_waf_policy_copy":                         waf.ResourcePolicyCopy(),
+			"huaweicloud_waf_pool":                                waf.ResourceWafPool(),
 			"huaweicloud_waf_reference_table":                     waf.ResourceWafReferenceTable(),
 			"huaweicloud_waf_rule_anti_crawler":                   waf.ResourceRuleAntiCrawler(),
 			"huaweicloud_waf_rule_blacklist":                      waf.ResourceWafRuleBlackList(),
