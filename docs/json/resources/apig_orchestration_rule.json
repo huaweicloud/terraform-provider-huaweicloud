@@ -17,14 +17,12 @@
               "instance_id": {
                 "type": "string",
                 "description": "The ID of the dedicated instance to which the orchestration rule belongs.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "is_preprocessing": {
                 "type": "bool",
                 "description": "Whether rule is a preprocessing rule.",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "map": {
                 "type": [
@@ -37,8 +35,7 @@
               "mapped_param": {
                 "type": "string",
                 "description": "The parameter configuration after orchestration, in JSON format.",
-                "optional": true,
-                "forcenew": true
+                "optional": true
               },
               "name": {
                 "type": "string",

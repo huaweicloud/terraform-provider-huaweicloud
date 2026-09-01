@@ -34,8 +34,7 @@
               "instance_id": {
                 "type": "string",
                 "description": "The ID of the dedicated instance to which the group belongs.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "name": {
                 "type": "string",

@@ -1,0 +1,103 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_drs_batch_select_objects": {
+          "block": {
+            "attributes": {
+              "all_counts": {
+                "type": "number",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "results": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "error_code": "string",
+                      "error_msg": "string",
+                      "job_id": "string",
+                      "status": "bool"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            },
+            "block_types": {
+              "jobs": {
+                "block": {
+                  "attributes": {
+                    "job_id": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "selected": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "sync_database": {
+                      "type": "bool",
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "job": {
+                      "block": {
+                        "attributes": {
+                          "id": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "object_alias_name": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "object_name": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "object_type": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "parent_id": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "select": {
+                            "type": "string",
+                            "optional": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list"
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "DRS",
+            "name": "Data Replication Service",
+            "catalog": "Databases",
+            "name_cn": "数据复制服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

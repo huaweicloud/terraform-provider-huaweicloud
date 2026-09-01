@@ -57,6 +57,10 @@
                 "type": "string",
                 "computed": true
               },
+              "release_version": {
+                "type": "number",
+                "computed": true
+              },
               "status": {
                 "type": "string",
                 "computed": true

@@ -30,6 +30,12 @@
                 "optional": true,
                 "default": true
               },
+              "resource_provider": {
+                "type": "string",
+                "description": "The resource provider.",
+                "optional": true,
+                "default": "ecs"
+              },
               "script_id": {
                 "type": "string",
                 "description": "The ID of the COC script.",
@@ -49,6 +55,12 @@
                 "type": "number",
                 "description": "The maximum time to execute the script, in seconds.",
                 "required": true
+              },
+              "type": {
+                "type": "string",
+                "description": "The resource type of the resource provider.",
+                "optional": true,
+                "default": "cloudservers"
               }
             },
             "block_types": {
@@ -65,7 +77,7 @@
                         "list",
                         "string"
                       ],
-                      "description": "The ID list of the ECS instances in this batch.",
+                      "description": "The ID list of the specified resource instances in this batch.",
                       "required": true
                     }
                   },

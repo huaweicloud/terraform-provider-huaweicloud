@@ -22,8 +22,7 @@
               "instance_id": {
                 "type": "string",
                 "description": "The ID of the dedicated instance to which the throttling policy belongs.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "max_api_requests": {
                 "type": "number",

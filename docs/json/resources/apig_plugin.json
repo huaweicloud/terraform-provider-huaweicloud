@@ -28,8 +28,7 @@
               "instance_id": {
                 "type": "string",
                 "description": "The ID of the dedicated instance to which the plugin belongs.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "name": {
                 "type": "string",
@@ -44,8 +43,7 @@
               "type": {
                 "type": "string",
                 "description": "The plugin type.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "updated_at": {
                 "type": "string",

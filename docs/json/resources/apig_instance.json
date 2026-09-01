@@ -11,8 +11,7 @@
                   "string"
                 ],
                 "description": "The name list of availability zones for the dedicated instance.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "bandwidth_size": {
                 "type": "number",
@@ -75,8 +74,7 @@
                 "type": "bool",
                 "description": "Whether public access with an IPv6 address is supported.",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "loadbalancer_provider": {
                 "type": "string",
@@ -117,8 +115,7 @@
               "subnet_id": {
                 "type": "string",
                 "description": "The ID of the VPC subnet used to create the dedicated instance.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "supported_features": {
                 "type": [
@@ -139,8 +136,7 @@
               "vpc_id": {
                 "type": "string",
                 "description": "The ID of the VPC used to create the dedicated instance.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "vpc_ingress_address": {
                 "type": "string",

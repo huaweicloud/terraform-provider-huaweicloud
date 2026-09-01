@@ -8,8 +8,7 @@
               "api_id": {
                 "type": "string",
                 "description": "The ID of the API to be published or already published.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "description": {
                 "type": "string",
@@ -19,8 +18,7 @@
               "env_id": {
                 "type": "string",
                 "description": "The ID of the environment to which the current version of the API will be published or has been published.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "env_name": {
                 "type": "string",
@@ -48,8 +46,7 @@
               "instance_id": {
                 "type": "string",
                 "description": "The ID of the dedicated instance to which the API and the environment belongs.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "publish_id": {
                 "type": "string",

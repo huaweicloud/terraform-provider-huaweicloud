@@ -5,9 +5,19 @@
         "huaweicloud_dds_instances": {
           "block": {
             "attributes": {
+              "datastore_type": {
+                "type": "string",
+                "description": "Specifies the DB version type.",
+                "optional": true
+              },
               "id": {
                 "type": "string",
                 "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the instance ID.",
+                "optional": true
               },
               "instances": {
                 "type": [
@@ -15,6 +25,10 @@
                   [
                     "object",
                     {
+                      "actions": [
+                        "list",
+                        "string"
+                      ],
                       "backup_strategy": [
                         "list",
                         [
@@ -25,19 +39,23 @@
                           }
                         ]
                       ],
+                      "created": "string",
                       "datastore": [
                         "list",
                         [
                           "object",
                           {
-                            "storage_engine": "string",
+                            "patch_available": "bool",
                             "type": "string",
-                            "version": "string"
+                            "version": "string",
+                            "whole_version": "string"
                           }
                         ]
                       ],
                       "db_username": "string",
                       "disk_encryption_id": "string",
+                      "dss_pool_id": "string",
+                      "engine": "string",
                       "enterprise_project_id": "string",
                       "groups": [
                         "list",
@@ -70,6 +88,7 @@
                         ]
                       ],
                       "id": "string",
+                      "maintenance_window": "string",
                       "mode": "string",
                       "name": "string",
                       "nodes": [
@@ -88,7 +107,9 @@
                           }
                         ]
                       ],
+                      "pay_mode": "string",
                       "port": "number",
+                      "remark": "string",
                       "security_group_id": "string",
                       "ssl": "bool",
                       "status": "string",
@@ -97,6 +118,8 @@
                         "map",
                         "string"
                       ],
+                      "time_zone": "string",
+                      "updated": "string",
                       "vpc_id": "string"
                     }
                   ]
@@ -121,6 +144,11 @@
               "subnet_id": {
                 "type": "string",
                 "description": "Specifies the subnet Network ID.",
+                "optional": true
+              },
+              "tags": {
+                "type": "string",
+                "description": "Specifies the tags of the instance.",
                 "optional": true
               },
               "vpc_id": {

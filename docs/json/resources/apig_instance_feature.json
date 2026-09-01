@@ -22,14 +22,12 @@
               "instance_id": {
                 "type": "string",
                 "description": "Specified the ID of the dedicated instance to which the feature belongs.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "name": {
                 "type": "string",
                 "description": "Specified the name of the feature.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "region": {
                 "type": "string",

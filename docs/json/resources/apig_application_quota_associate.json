@@ -12,14 +12,12 @@
               "instance_id": {
                 "type": "string",
                 "description": "The ID of the dedicated instance to which the application quota (policy) belongs.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "quota_id": {
                 "type": "string",
                 "description": "The ID of the application quota (policy).",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "region": {
                 "type": "string",

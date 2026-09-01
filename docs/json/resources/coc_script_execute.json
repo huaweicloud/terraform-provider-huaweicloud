@@ -30,6 +30,11 @@
                 "optional": true,
                 "default": true
               },
+              "resource_provider": {
+                "type": "string",
+                "optional": true,
+                "default": "ecs"
+              },
               "script_id": {
                 "type": "string",
                 "required": true
@@ -45,6 +50,11 @@
               "timeout": {
                 "type": "number",
                 "required": true
+              },
+              "type": {
+                "type": "string",
+                "optional": true,
+                "default": "cloudservers"
               }
             },
             "block_types": {

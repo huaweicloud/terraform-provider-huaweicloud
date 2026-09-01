@@ -38,8 +38,7 @@
               "instance_id": {
                 "type": "string",
                 "description": "The ID of the dedicated instance to which the custom authorizer belongs.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "is_body_send": {
                 "type": "bool",
@@ -66,7 +65,6 @@
                 "type": "string",
                 "description": "The custom authorization type",
                 "optional": true,
-                "forcenew": true,
                 "default": "FRONTEND"
               },
               "user_data": {

@@ -16,14 +16,12 @@
               "application_id": {
                 "type": "string",
                 "description": "The ID of the application authorized to access the APIs.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "env_id": {
                 "type": "string",
                 "description": "The environment ID where the APIs were published.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "id": {
                 "type": "string",
@@ -32,8 +30,7 @@
               "instance_id": {
                 "type": "string",
                 "description": "The ID of the dedicated instance to which the application and APIs belong.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "region": {
                 "type": "string",

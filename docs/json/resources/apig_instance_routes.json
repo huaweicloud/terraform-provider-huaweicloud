@@ -12,8 +12,7 @@
               "instance_id": {
                 "type": "string",
                 "description": "The ID of the dedicated instance to which the routes belong.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "nexthops": {
                 "type": [

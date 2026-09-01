@@ -22,8 +22,7 @@
               "instance_id": {
                 "type": "string",
                 "description": "The ID of the dedicated instance to which the environment belongs.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "name": {
                 "type": "string",

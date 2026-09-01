@@ -13,8 +13,7 @@
               "group_id": {
                 "type": "string",
                 "description": "The ID of the API group to which the API custom response belongs.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "id": {
                 "type": "string",
@@ -23,8 +22,7 @@
               "instance_id": {
                 "type": "string",
                 "description": "The ID of the dedicated instance to which the API group and the API custom response belongs.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "name": {
                 "type": "string",

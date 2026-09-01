@@ -1,0 +1,75 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_cbh_switch_config_info": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "switch_info": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "is_support_admin_login": "bool",
+                      "is_support_agency_authorize": "bool",
+                      "is_support_capacity_expantion": "bool",
+                      "is_support_change_security_group": "bool",
+                      "is_support_change_vpc": "bool",
+                      "is_support_cluster": "bool",
+                      "is_support_eps": "bool",
+                      "is_support_float_ipv6": "bool",
+                      "is_support_ha": "bool",
+                      "is_support_ha_expantion": "bool",
+                      "is_support_iam_login": "bool",
+                      "is_support_ipv6": "bool",
+                      "is_support_manually_ip": "bool",
+                      "is_support_ondemand": "bool",
+                      "is_support_period": "bool",
+                      "is_support_reset": "bool",
+                      "is_support_tms": "bool",
+                      "is_support_unibuy": "bool",
+                      "is_support_update_ha": "bool",
+                      "is_support_upgrade_instance": "bool"
+                    }
+                  ]
+                ],
+                "computed": true
+              },
+              "version_info": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "admin_login": "string",
+                      "float_ipv6": "string",
+                      "iam_login": "string",
+                      "require_eip": "string"
+                    }
+                  ]
+                ],
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "CBH",
+            "name": "Cloud Bastion Host",
+            "catalog": "Security & Compliance",
+            "name_cn": "云堡垒机",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}

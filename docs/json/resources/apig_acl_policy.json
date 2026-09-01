@@ -8,8 +8,7 @@
               "entity_type": {
                 "type": "string",
                 "description": "The entity type of the ACL policy.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "id": {
                 "type": "string",
@@ -18,8 +17,7 @@
               "instance_id": {
                 "type": "string",
                 "description": "The ID of the dedicated instance to which the ACL policy belongs.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "name": {
                 "type": "string",

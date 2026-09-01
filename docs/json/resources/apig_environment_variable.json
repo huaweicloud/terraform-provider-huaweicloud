@@ -8,14 +8,12 @@
               "env_id": {
                 "type": "string",
                 "description": "Specifies the ID of the environment to which the environment variable belongs.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "group_id": {
                 "type": "string",
                 "description": "Specifies the ID of the group to which the environment variable belongs.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "id": {
                 "type": "string",
@@ -24,14 +22,12 @@
               "instance_id": {
                 "type": "string",
                 "description": "Specifies the ID of the dedicated instance to which the environment variable belongs.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "name": {
                 "type": "string",
                 "description": "Specifies the name of the environment variable.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "region": {
                 "type": "string",

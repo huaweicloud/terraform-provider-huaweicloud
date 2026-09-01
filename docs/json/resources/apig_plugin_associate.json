@@ -16,8 +16,7 @@
               "env_id": {
                 "type": "string",
                 "description": "The environment ID where the API was published.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "id": {
                 "type": "string",
@@ -26,14 +25,12 @@
               "instance_id": {
                 "type": "string",
                 "description": "The ID of the dedicated instance to which the plugin belongs.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "plugin_id": {
                 "type": "string",
                 "description": "The plugin ID.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "region": {
                 "type": "string",

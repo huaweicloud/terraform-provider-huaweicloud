@@ -13,8 +13,7 @@
               "endpoint_id": {
                 "type": "string",
                 "description": "Specifies the ID of the endpoint connection.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "id": {
                 "type": "string",
@@ -23,8 +22,7 @@
               "instance_id": {
                 "type": "string",
                 "description": "Specifies the ID of the dedicated instance to which the endpoint connection belongs.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "region": {
                 "type": "string",

@@ -32,8 +32,7 @@
               "instance_id": {
                 "type": "string",
                 "description": "Specifies the ID of the dedicated instance to which the application quota belongs.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "name": {
                 "type": "string",

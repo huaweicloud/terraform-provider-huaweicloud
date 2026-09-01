@@ -82,6 +82,7 @@
               "master_az": {
                 "type": "string",
                 "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "master_job_id": {
@@ -165,6 +166,7 @@
               "slave_az": {
                 "type": "string",
                 "optional": true,
+                "computed": true,
                 "forcenew": true
               },
               "slave_job_id": {

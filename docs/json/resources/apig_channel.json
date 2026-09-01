@@ -22,8 +22,7 @@
               "instance_id": {
                 "type": "string",
                 "description": "The ID of the dedicated instance to which the channel belongs.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "member_type": {
                 "type": "string",

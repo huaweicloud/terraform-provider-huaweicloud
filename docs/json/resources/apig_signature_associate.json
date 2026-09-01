@@ -12,8 +12,7 @@
               "instance_id": {
                 "type": "string",
                 "description": "The ID of the dedicated instance to which the APIs and the signature belong.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "publish_ids": {
                 "type": [
@@ -31,8 +30,7 @@
               "signature_id": {
                 "type": "string",
                 "description": "The signature ID for APIs binding.",
-                "required": true,
-                "forcenew": true
+                "required": true
               }
             }
           },

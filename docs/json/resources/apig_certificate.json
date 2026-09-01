@@ -29,8 +29,7 @@
                 "type": "string",
                 "description": "The dedicated instance ID to which the certificate belongs.",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               },
               "name": {
                 "type": "string",
@@ -71,8 +70,7 @@
                 "type": "string",
                 "description": "The certificate type.",
                 "optional": true,
-                "computed": true,
-                "forcenew": true
+                "computed": true
               }
             }
           },

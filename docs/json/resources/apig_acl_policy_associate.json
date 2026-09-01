@@ -12,14 +12,12 @@
               "instance_id": {
                 "type": "string",
                 "description": "The ID of the dedicated instance to which the APIs and the ACL policy belong.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "policy_id": {
                 "type": "string",
                 "description": "The ACL Policy ID for APIs binding.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "publish_ids": {
                 "type": [

@@ -8,8 +8,7 @@
               "application_id": {
                 "type": "string",
                 "description": "The ID of the application to which the ACL rules belong.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "id": {
                 "type": "string",
@@ -18,8 +17,7 @@
               "instance_id": {
                 "type": "string",
                 "description": "The ID of the dedicated instance to which the application belongs.",
-                "required": true,
-                "forcenew": true
+                "required": true
               },
               "region": {
                 "type": "string",
