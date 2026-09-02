@@ -2894,6 +2894,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_waf_overviews_statistics":                 waf.DataSourceWafOverviewsStatistics(),
 			"huaweicloud_waf_policies":                             waf.DataSourceWafPolicies(),
 			"huaweicloud_waf_policy_ip_reputation":                 waf.DataSourcePolicyIpReputation(),
+			"huaweicloud_waf_pools":                                waf.DataSourceWafPools(),
 			"huaweicloud_waf_reference_tables":                     waf.DataSourceWafReferenceTables(),
 			"huaweicloud_waf_rules_anti_crawler":                   waf.DataSourceWafRulesAntiCrawler(),
 			"huaweicloud_waf_rules_blacklist":                      waf.DataSourceWafRulesBlacklist(),
