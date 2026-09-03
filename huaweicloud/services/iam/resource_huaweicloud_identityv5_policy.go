@@ -4,14 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
@@ -42,10 +39,6 @@ func ResourceV5Policy() *schema.Resource {
 		DeleteContext: resourceV5PolicyDelete,
 
 		CustomizeDiff: config.FlexibleForceNew(v5PolicyNonUpdatableParams),
-
-		Timeouts: &schema.ResourceTimeout{
-			Read: schema.DefaultTimeout(1 * time.Minute),
-		},
 
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
@@ -189,26 +182,18 @@ func resourceV5PolicyCreate(ctx context.Context, d *schema.ResourceData, meta in
 	}
 	d.SetId(policyId)
 
+	// After creation, the policy may not be immediately queryable (usually 2-3s, up to 10s).
+	_, err = PollRequest(ctx, func() (interface{}, error) {
+		return GetV5PolicyById(client, policyId)
+	})
+	if err != nil {
+		return diag.Errorf("error waiting for identity policy (%s) to be created: %s", policyId, err)
+	}
+
 	return resourceV5PolicyRead(ctx, d, meta)
 }
 
-func handlePolicyQueryError(err error) (bool, error) {
-	if err == nil {
-		return false, nil
-	}
-	if _, ok := err.(golangsdk.ErrDefault404); ok {
-		return true, err
-	}
-	if _, ok := err.(golangsdk.ErrDefault409); ok {
-		return true, err
-	}
-	return false, err
-}
-
-// isRetry is a optional parameter (defaults to false), if it is true, the function will retry the request when the
-// error is retryable (404 or 409).
-func GetV5PolicyById(ctx context.Context, client *golangsdk.ServiceClient, policyId string, timeout time.Duration,
-	isRetry ...bool) (interface{}, error) {
+func GetV5PolicyById(client *golangsdk.ServiceClient, policyId string) (interface{}, error) {
 	httpUrl := "v5/policies/{policy_id}"
 	getPath := client.Endpoint + httpUrl
 	getPath = strings.ReplaceAll(getPath, "{policy_id}", policyId)
@@ -216,24 +201,7 @@ func GetV5PolicyById(ctx context.Context, client *golangsdk.ServiceClient, polic
 		KeepResponseBody: true,
 	}
 
-	var (
-		requestResp *http.Response
-		requestErr  error
-	)
-
-	err := retry.RetryContext(ctx, timeout, func() *retry.RetryError {
-		requestResp, requestErr = client.Request("GET", getPath, &getOpt)
-		retryable, err := handlePolicyQueryError(requestErr)
-		if retryable && (len(isRetry) > 0 && isRetry[0]) {
-			// lintignore:R018
-			time.Sleep(15 * time.Second)
-			return retry.RetryableError(err)
-		}
-		if err != nil {
-			return retry.NonRetryableError(err)
-		}
-		return nil
-	})
+	requestResp, err := client.Request("GET", getPath, &getOpt)
 	if err != nil {
 		return nil, err
 	}
@@ -290,7 +258,7 @@ func listV5PolicyVersions(client *golangsdk.ServiceClient, policyId string) ([]i
 	return result, nil
 }
 
-func resourceV5PolicyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceV5PolicyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
 		cfg      = meta.(*config.Config)
 		region   = cfg.GetRegion(d)
@@ -302,7 +270,7 @@ func resourceV5PolicyRead(ctx context.Context, d *schema.ResourceData, meta inte
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
-	policy, err := GetV5PolicyById(ctx, client, policyId, d.Timeout(schema.TimeoutRead), d.IsNewResource())
+	policy, err := GetV5PolicyById(client, policyId)
 	if err != nil {
 		return common.CheckDeletedDiag(d, err, fmt.Sprintf("error retrieving identity policy (%s)", policyId))
 	}
