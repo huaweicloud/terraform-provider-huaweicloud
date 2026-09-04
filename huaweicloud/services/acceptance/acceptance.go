@@ -642,6 +642,7 @@ var (
 	HW_MODELARTS_RESOURCE_POOL_IDS                           = os.Getenv("HW_MODELARTS_RESOURCE_POOL_IDS")
 	HW_MODELARTS_RESOURCE_POOL_NAME                          = os.Getenv("HW_MODELARTS_RESOURCE_POOL_NAME")
 	HW_MODELARTS_RESOURCE_POOL_BATCH_RESIZE_NODE_NAME        = os.Getenv("HW_MODELARTS_RESOURCE_POOL_BATCH_RESIZE_NODE_NAME")
+	HW_MODELARTS_RESOURCE_POOL_QUOTA_NAME                    = os.Getenv("HW_MODELARTS_RESOURCE_POOL_QUOTA_NAME")
 	HW_MODELARTS_WORKFLOW_ID                                 = os.Getenv("HW_MODELARTS_WORKFLOW_ID")
 	HW_MODELARTS_WORKFLOW_SUBSCRIPTION_ID                    = os.Getenv("HW_MODELARTS_WORKFLOW_SUBSCRIPTION_ID")
 	HW_MODELARTS_WORKFLOW_ITEM_VERSION_ID                    = os.Getenv("HW_MODELARTS_WORKFLOW_ITEM_VERSION_ID")
@@ -3698,6 +3699,13 @@ func TestAccPreCheckModelArtsResourcePoolName(t *testing.T) {
 func TestAccPreCheckModelArtsResourcePoolBatchResize(t *testing.T) {
 	if HW_MODELARTS_RESOURCE_POOL_BATCH_RESIZE_NODE_NAME == "" {
 		t.Skip("HW_MODELARTS_RESOURCE_POOL_BATCH_RESIZE_NODE_NAME must be set for ModelArts resource pool acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckModelArtsResourcePoolQuotaName(t *testing.T) {
+	if HW_MODELARTS_RESOURCE_POOL_QUOTA_NAME == "" {
+		t.Skip("HW_MODELARTS_RESOURCE_POOL_QUOTA_NAME must be set for ModelArts resource pool acceptance test")
 	}
 }
 
