@@ -1,8 +1,3 @@
-// ---------------------------------------------------------------
-// *** AUTO GENERATED CODE ***
-// @Product DCS
-// ---------------------------------------------------------------
-
 package dcs
 
 import (
@@ -13,14 +8,12 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
-	"github.com/hashicorp/go-uuid"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
-	"github.com/chnsz/golangsdk"
-	"github.com/chnsz/golangsdk/openstack/common/tags"
 	"github.com/chnsz/golangsdk/pagination"
 
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
@@ -60,6 +53,16 @@ func DataSourceDcsInstance() *schema.Resource {
 				Type:        schema.TypeFloat,
 				Optional:    true,
 				Description: `Specifies the cache capacity. Unit: GB.`,
+			},
+			"instance_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the instance ID.`,
+			},
+			"tags": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the tags of the instance.`,
 			},
 			"instances": {
 				Type:        schema.TypeList,
@@ -206,6 +209,72 @@ func InstanceInstanceSchema() *schema.Resource {
 				Description: `Indicates the ID of the order that created the instance.`,
 			},
 			"tags": common.TagsComputedSchema(),
+			"publicip_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the EIP ID associated with the instance.`,
+			},
+			"created_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the creation time of the instance.`,
+			},
+			"updated_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the update time of the instance.`,
+			},
+			"enable_ssl": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether SSL is enabled for the instance.`,
+			},
+			"publicip_address": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the public IP address associate with the instance.`,
+			},
+			"service_upgrade": {
+				Type:        schema.TypeBool,
+				Computed:    true,
+				Description: `Indicates whether an upgrade task has been created for the instance.`,
+			},
+			"no_password_access": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates whether password-protected access is enabled for the instance.`,
+			},
+			"service_task_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the ID of the upgrade task.`,
+			},
+			"user_id": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the ID of the user to which the instance belongs.`,
+			},
+			"user_name": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the username of the instance.`,
+			},
+			"readonly_domain_name": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the read-only domain name of the instance.`,
+			},
+			"cpu_type": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `Indicates the CPU type of the instance.`,
+			},
+			"az_codes": {
+				Type:        schema.TypeList,
+				Computed:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `Indicates the availability zones where there are available resources.`,
+			},
 		},
 	}
 	return &sc
@@ -253,22 +322,23 @@ func resourceDcsInstanceRead(_ context.Context, d *schema.ResourceData, meta int
 		return diag.FromErr(err)
 	}
 
-	dataSourceId, err := uuid.GenerateUUID()
+	randomUUID, err := uuid.NewRandom()
 	if err != nil {
 		return diag.Errorf("unable to generate ID: %s", err)
 	}
-	d.SetId(dataSourceId)
+
+	d.SetId(randomUUID.String())
 
 	mErr = multierror.Append(
 		mErr,
 		d.Set("region", region),
-		d.Set("instances", flattenGetDCSInstancesResponseBodyInstance(getDCSInstancesRespBody, getDCSInstancesClient)),
+		d.Set("instances", flattenGetDCSInstancesResponseBodyInstance(getDCSInstancesRespBody)),
 	)
 
 	return diag.FromErr(mErr.ErrorOrNil())
 }
 
-func flattenGetDCSInstancesResponseBodyInstance(resp interface{}, client *golangsdk.ServiceClient) []interface{} {
+func flattenGetDCSInstancesResponseBodyInstance(resp interface{}) []interface{} {
 	if resp == nil {
 		return nil
 	}
@@ -293,16 +363,9 @@ func flattenGetDCSInstancesResponseBodyInstance(resp interface{}, client *golang
 		if securityGroupID == "securityGroupId" {
 			securityGroupID = ""
 		}
-		id := utils.PathSearch("instance_id", v, "")
-		// save tags
-		var tagMap interface{}
-		if resourceTags, err := tags.Get(client, "instances", id.(string)).Extract(); err == nil {
-			tagMap = utils.TagsToMap(resourceTags.Tags)
-		} else {
-			log.Printf("[WARN] Error fetching tags of DCS instance (%s): %s", id.(string), err)
-		}
+
 		rst = append(rst, map[string]interface{}{
-			"id":                    id,
+			"id":                    utils.PathSearch("instance_id", v, nil),
 			"name":                  utils.PathSearch("name", v, nil),
 			"engine":                utils.PathSearch("engine", v, nil),
 			"engine_version":        utils.PathSearch("engine_version", v, nil),
@@ -328,7 +391,20 @@ func flattenGetDCSInstancesResponseBodyInstance(resp interface{}, client *golang
 			"domain_name":           utils.PathSearch("domain_name", v, nil),
 			"access_user":           utils.PathSearch("access_user", v, nil),
 			"order_id":              utils.PathSearch("order_id", v, nil),
-			"tags":                  tagMap,
+			"tags":                  utils.FlattenTagsToMap(utils.PathSearch("tags", v, nil)),
+			"publicip_id":           utils.PathSearch("publicip_id", v, nil),
+			"created_at":            utils.PathSearch("created_at", v, nil),
+			"updated_at":            utils.PathSearch("updated_at", v, nil),
+			"enable_ssl":            utils.PathSearch("enable_ssl", v, nil),
+			"publicip_address":      utils.PathSearch("publicip_address", v, nil),
+			"service_upgrade":       utils.PathSearch("service_upgrade", v, nil),
+			"no_password_access":    utils.PathSearch("no_password_access", v, nil),
+			"service_task_id":       utils.PathSearch("service_task_id", v, nil),
+			"user_id":               utils.PathSearch("user_id", v, nil),
+			"user_name":             utils.PathSearch("user_name", v, nil),
+			"readonly_domain_name":  utils.PathSearch("readonly_domain_name", v, nil),
+			"cpu_type":              utils.PathSearch("cpu_type", v, nil),
+			"az_codes":              utils.PathSearch("az_codes", v, nil),
 		})
 	}
 	return rst
@@ -350,6 +426,14 @@ func buildGetDCSInstancesQueryParams(d *schema.ResourceData) string {
 
 	if v, ok := d.GetOk("capacity"); ok {
 		res = fmt.Sprintf("%s&capacity=%v", res, v)
+	}
+
+	if v, ok := d.GetOk("instance_id"); ok {
+		res = fmt.Sprintf("%s&instance_id=%v", res, v)
+	}
+
+	if v, ok := d.GetOk("tags"); ok {
+		res = fmt.Sprintf("%s&tags=%v", res, v)
 	}
 
 	if res != "" {

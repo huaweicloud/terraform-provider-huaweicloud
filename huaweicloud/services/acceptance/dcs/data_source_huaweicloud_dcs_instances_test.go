@@ -1,7 +1,6 @@
 package dcs
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
@@ -10,37 +9,112 @@ import (
 )
 
 func TestAccDatasourceDcsInstance_basic(t *testing.T) {
-	rName := "data.huaweicloud_dcs_instances.test"
-	name := acceptance.RandomAccResourceName()
-	dc := acceptance.InitDataSourceCheck(rName)
+	var (
+		dataSource = "data.huaweicloud_dcs_instances.test"
+		dc         = acceptance.InitDataSourceCheck(dataSource)
+	)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckDCSInstanceID(t)
+		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccDatasourceDcsInstance_basic(name),
+				Config: testAccDatasourceDcsInstance_basic(),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
-					resource.TestCheckResourceAttr(rName, "instances.0.name", name),
-					resource.TestCheckResourceAttr(rName, "instances.0.port", "6388"),
-					resource.TestCheckResourceAttr(rName, "instances.0.flavor", "redis.ha.xu1.tiny.r2.128"),
-					resource.TestCheckResourceAttrPair(rName, "instances.0.flavor",
-						"data.huaweicloud_dcs_flavors.test", "flavors.0.name"),
+					resource.TestCheckResourceAttrSet(dataSource, "instances.#"),
+					resource.TestCheckResourceAttrSet(dataSource, "instances.0.id"),
+					resource.TestCheckResourceAttrSet(dataSource, "instances.0.name"),
+					resource.TestCheckResourceAttrSet(dataSource, "instances.0.status"),
+					resource.TestCheckResourceAttrSet(dataSource, "instances.0.engine"),
+					resource.TestCheckResourceAttrSet(dataSource, "instances.0.engine_version"),
+					resource.TestCheckResourceAttrSet(dataSource, "instances.0.vpc_id"),
+					resource.TestCheckResourceAttrSet(dataSource, "instances.0.subnet_id"),
+					resource.TestCheckResourceAttrSet(dataSource, "instances.0.private_ip"),
+					resource.TestCheckResourceAttrSet(dataSource, "instances.0.port"),
+					resource.TestCheckResourceAttrSet(dataSource, "instances.0.created_at"),
+					resource.TestCheckResourceAttrSet(dataSource, "instances.0.updated_at"),
+					resource.TestCheckResourceAttrSet(dataSource, "instances.0.vpc_name"),
+					resource.TestCheckResourceAttrSet(dataSource, "instances.0.maintain_begin"),
+					resource.TestCheckResourceAttrSet(dataSource, "instances.0.maintain_end"),
+					resource.TestCheckResourceAttrSet(dataSource, "instances.0.max_memory"),
+					resource.TestCheckResourceAttrSet(dataSource, "instances.0.used_memory"),
+
+					resource.TestCheckOutput("is_instance_id_filter_useful", "true"),
+					resource.TestCheckOutput("is_name_filter_useful", "true"),
+					resource.TestCheckOutput("is_status_filter_useful", "true"),
+					resource.TestCheckOutput("is_private_ip_filter_useful", "true"),
 				),
 			},
 		},
 	})
 }
 
-func testAccDatasourceDcsInstance_basic(name string) string {
-	return fmt.Sprintf(`
-%s
+func testAccDatasourceDcsInstance_basic() string {
+	return `
+data "huaweicloud_dcs_instances" "test" {}
 
-data "huaweicloud_dcs_instances" "test" {
-  name     = huaweicloud_dcs_instance.instance_1.name
-  status   = "RUNNING"
-  capacity = 0.125
+// filter by instance_id
+locals {
+  instance_id = data.huaweicloud_dcs_instances.test.instances[0].id
 }
-`, testAccDcsV1Instance_basic(name))
+
+data "huaweicloud_dcs_instances" "filter_by_instance_id" {
+  instance_id = local.instance_id
+}
+
+output "is_instance_id_filter_useful" {
+  value = length(data.huaweicloud_dcs_instances.filter_by_instance_id.instances) > 0 && alltrue(
+    [for v in data.huaweicloud_dcs_instances.filter_by_instance_id.instances[*].id : v == local.instance_id]
+  )
+}
+
+// filter by name
+locals {
+  name = data.huaweicloud_dcs_instances.test.instances[0].name
+}
+
+data "huaweicloud_dcs_instances" "filter_by_name" {
+  name = local.name
+}
+
+output "is_name_filter_useful" {
+  value = length(data.huaweicloud_dcs_instances.filter_by_name.instances) > 0 && alltrue(
+    [for v in data.huaweicloud_dcs_instances.filter_by_name.instances[*].name : v == local.name]
+  )
+}
+
+// filter by status
+locals {
+  status = data.huaweicloud_dcs_instances.test.instances[0].status
+}
+
+data "huaweicloud_dcs_instances" "filter_by_status" {
+  status = local.status
+}
+
+output "is_status_filter_useful" {
+  value = length(data.huaweicloud_dcs_instances.filter_by_status.instances) > 0 && alltrue(
+    [for v in data.huaweicloud_dcs_instances.filter_by_status.instances[*].status : v == local.status]
+  )
+}
+
+// filter by private_ip
+locals {
+  private_ip = data.huaweicloud_dcs_instances.test.instances[0].private_ip
+}
+
+data "huaweicloud_dcs_instances" "filter_by_private_ip" {
+  private_ip = local.private_ip
+}
+
+output "is_private_ip_filter_useful" {
+  value = length(data.huaweicloud_dcs_instances.filter_by_private_ip.instances) > 0 && alltrue(
+    [for v in data.huaweicloud_dcs_instances.filter_by_private_ip.instances[*].private_ip : v == local.private_ip]
+  )
+}
+`
 }
