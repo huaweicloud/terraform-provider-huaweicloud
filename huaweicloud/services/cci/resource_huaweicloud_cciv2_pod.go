@@ -174,7 +174,7 @@ func ResourceV2Pod() *schema.Resource {
 				},
 			},
 			"init_containers": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Optional:    true,
 				Computed:    true,
 				Elem:        podContainersSchema(),
@@ -590,14 +590,14 @@ func podContainersSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"args": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Optional:    true,
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: `Specifies the arguments to the entrypoint of the container.`,
 			},
 			"command": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Optional:    true,
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
@@ -1082,7 +1082,7 @@ func podContainersLifecycleHandlerExecSchema() *schema.Resource {
 	sc := schema.Resource{
 		Schema: map[string]*schema.Schema{
 			"command": {
-				Type:        schema.TypeSet,
+				Type:        schema.TypeList,
 				Optional:    true,
 				Computed:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
@@ -1361,7 +1361,7 @@ func buildCreateV2PodParams(d *schema.ResourceData) map[string]interface{} {
 			"hostAliases":                   buildV2PodHostAliasesParams(d.Get("host_aliases").(*schema.Set).List()),
 			"hostname":                      utils.ValueIgnoreEmpty(d.Get("hostname")),
 			"imagePullSecrets":              buildImagePullSecretsParams(d.Get("image_pull_secrets").(*schema.Set).List()),
-			"initContainers":                buildV2PodContainersParams(d.Get("init_containers").(*schema.Set).List()),
+			"initContainers":                buildV2PodContainersParams(d.Get("init_containers").([]interface{})),
 			"nodeName":                      utils.ValueIgnoreEmpty(d.Get("node_name")),
 			"overhead":                      utils.ValueIgnoreEmpty(d.Get("overhead")),
 			"readinessGates":                buildV2PodReadinessGatesParams(d.Get("readiness_gates").(*schema.Set).List()),
@@ -1665,8 +1665,8 @@ func buildV2PodContainersParams(containers []interface{}) []interface{} {
 	containersParams := make([]interface{}, len(containers))
 	for i, v := range containers {
 		container := utils.RemoveNil(map[string]interface{}{
-			"args":                     utils.ValueIgnoreEmpty(utils.PathSearch("args", v, &schema.Set{}).(*schema.Set).List()),
-			"command":                  utils.ValueIgnoreEmpty(utils.PathSearch("command", v, &schema.Set{}).(*schema.Set).List()),
+			"args":                     utils.ValueIgnoreEmpty(utils.PathSearch("args", v, make([]interface{}, 0)).([]interface{})),
+			"command":                  utils.ValueIgnoreEmpty(utils.PathSearch("command", v, make([]interface{}, 0)).([]interface{})),
 			"name":                     utils.ValueIgnoreEmpty(utils.PathSearch("name", v, nil)),
 			"image":                    utils.ValueIgnoreEmpty(utils.PathSearch("image", v, nil)),
 			"stdin":                    utils.ValueIgnoreEmpty(utils.PathSearch("stdin", v, nil)),
@@ -1831,7 +1831,7 @@ func buildPodContainersLifecycleHandlerExecParams(exec interface{}) map[string]i
 		return nil
 	}
 	return map[string]interface{}{
-		"command": utils.PathSearch("command", exec, &schema.Set{}).(*schema.Set).List(),
+		"command": utils.PathSearch("command", exec, make([]interface{}, 0)).([]interface{}),
 	}
 }
 
@@ -2594,10 +2594,12 @@ func resourceV2PodImportState(_ context.Context, d *schema.ResourceData,
 		return nil, fmt.Errorf("invalid format specified for import ID, want '<namespace>/<name>', but '%s'", importedId)
 	}
 
-	d.Set("namespace", parts[0])
-	d.Set("name", parts[1])
+	mErr := multierror.Append(nil,
+		d.Set("namespace", parts[0]),
+		d.Set("name", parts[1]),
+	)
 
-	return []*schema.ResourceData{d}, nil
+	return []*schema.ResourceData{d}, mErr.ErrorOrNil()
 }
 
 func GetV2Pod(client *golangsdk.ServiceClient, namespace, name string) (interface{}, error) {
