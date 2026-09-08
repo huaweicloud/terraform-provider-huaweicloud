@@ -646,6 +646,8 @@ var (
 	HW_MODELARTS_WORKFLOW_ID                                 = os.Getenv("HW_MODELARTS_WORKFLOW_ID")
 	HW_MODELARTS_WORKFLOW_SUBSCRIPTION_ID                    = os.Getenv("HW_MODELARTS_WORKFLOW_SUBSCRIPTION_ID")
 	HW_MODELARTS_WORKFLOW_ITEM_VERSION_ID                    = os.Getenv("HW_MODELARTS_WORKFLOW_ITEM_VERSION_ID")
+	HW_MODELARTS_NETWORK_NAME                                = os.Getenv("HW_MODELARTS_NETWORK_NAME")
+	HW_MODELARTS_SUBNET_ID                                   = os.Getenv("HW_MODELARTS_SUBNET_ID")
 
 	HW_AOM_ALARM_EVENT_SN                        = os.Getenv("HW_AOM_ALARM_EVENT_SN")
 	HW_AOM_INSTALLER_AGENT_ID                    = os.Getenv("HW_AOM_INSTALLER_AGENT_ID")
@@ -3748,6 +3750,13 @@ func TestAccPreCheckModelArtsTrainingJobPublicResourcePoolFlavorID(t *testing.T)
 func TestAccPreCheckModelArtsWorkflowSubscription(t *testing.T) {
 	if HW_MODELARTS_WORKFLOW_SUBSCRIPTION_ID == "" || HW_MODELARTS_WORKFLOW_ITEM_VERSION_ID == "" {
 		t.Skip("HW_MODELARTS_WORKFLOW_SUBSCRIPTION_ID and HW_MODELARTS_WORKFLOW_ITEM_VERSION_ID must be set for ModelArts Workflow acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckModelArtsNetworkAvailableSubnets(t *testing.T) {
+	if HW_MODELARTS_NETWORK_NAME == "" || HW_MODELARTS_SUBNET_ID == "" {
+		t.Skip("HW_MODELARTS_NETWORK_NAME and HW_MODELARTS_SUBNET_ID must be set for ModelArts the acceptance test")
 	}
 }
 
