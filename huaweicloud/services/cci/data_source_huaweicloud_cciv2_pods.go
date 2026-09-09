@@ -1255,7 +1255,7 @@ func flattenPods(pods []interface{}) []interface{} {
 			"active_deadline_seconds":          utils.PathSearch("spec.activeDeadlineSeconds", v, nil),
 			"affinity":                         flattenPodAffinity(utils.PathSearch("spec.affinity", v, nil)),
 			"containers":                       flattenPodContainers(containers),
-			"dns_config":                       flattenPodDNSconfig(utils.PathSearch("spec.dnsConfig", v, nil)),
+			"dns_config":                       flattenPodDNSConfig(utils.PathSearch("spec.dnsConfig", v, nil)),
 			"dns_policy":                       utils.PathSearch("spec.dnsPolicy", v, nil),
 			"ephemeral_containers":             flattenPodContainers(ephemeralContainers),
 			"host_aliases":                     flattenPodHostAliases(hostAliases),
@@ -1268,7 +1268,7 @@ func flattenPods(pods []interface{}) []interface{} {
 			"restart_policy":                   utils.PathSearch("spec.restartPolicy", v, nil),
 			"scheduler_name":                   utils.PathSearch("spec.schedulerName", v, nil),
 			"termination_grace_period_seconds": int(utils.PathSearch("spec.terminationGracePeriodSeconds", v, float64(0)).(float64)),
-			"security_context":                 flattenPodseCurityContext(utils.PathSearch("spec.securityContext", v, nil)),
+			"security_context":                 flattenPodSecurityContext(utils.PathSearch("spec.securityContext", v, nil)),
 			"volumes":                          flattenPodVolumes(volumes),
 			"status":                           flattenPodStatus(utils.PathSearch("status", v, nil)),
 		}
