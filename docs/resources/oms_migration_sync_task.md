@@ -94,9 +94,6 @@ The following arguments are supported:
 * `description` - (Optional, String, ForceNew) Specifies the description of the synchronization task.
   Changing this creates a new resource.
 
-* `enable_kms` - (Optional, Bool, ForceNew) Specifies whether to enable the KMS encryption function.
-  Default value: **false**. Changing this creates a new resource.
-
 * `enable_metadata_migration` - (Optional, Bool, ForceNew) Specifies whether metadata migration is enabled.
   Default value: **false**. Even if disabled, the ContentType metadata will still be migrated
   to ensure a successful migration. Changing this creates a new resource.

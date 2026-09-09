@@ -67,7 +67,6 @@ func TestAccMigrationSyncTask_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "src_cloud_type", "HuaweiCloud"),
-					resource.TestCheckResourceAttr(resourceName, "enable_kms", "true"),
 					resource.TestCheckResourceAttr(resourceName, "status", "STOPPED"),
 					resource.TestCheckResourceAttr(resourceName, "consistency_check", "crc64"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
@@ -79,7 +78,6 @@ func TestAccMigrationSyncTask_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "src_cloud_type", "HuaweiCloud"),
-					resource.TestCheckResourceAttr(resourceName, "enable_kms", "true"),
 					resource.TestCheckResourceAttr(resourceName, "status", "SYNCHRONIZING"),
 					resource.TestCheckResourceAttr(resourceName, "consistency_check", "crc64"),
 					resource.TestCheckResourceAttrSet(resourceName, "created_at"),
@@ -103,7 +101,6 @@ resource "huaweicloud_oms_migration_sync_task" "test" {
   dst_ak                    = "%[3]s"
   dst_sk                    = "%[4]s"
   dst_bucket                = huaweicloud_obs_bucket.dest.bucket
-  enable_kms                = true
   enable_metadata_migration = true
   enable_restore            = true
   consistency_check         = "crc64" 

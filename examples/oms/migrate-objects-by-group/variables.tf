@@ -112,12 +112,6 @@ variable "group_type" {
   default     = "PREFIX"
 }
 
-variable "group_enable_kms" {
-  description = "The enable KMS of the migration task group"
-  type        = bool
-  default     = true
-}
-
 variable "group_migrate_since" {
   description = "The migrate since of the migration task group"
   type        = string

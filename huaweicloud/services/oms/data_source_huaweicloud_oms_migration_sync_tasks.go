@@ -69,10 +69,6 @@ func DataSourceMigrationSyncTasks() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"enable_kms": {
-							Type:     schema.TypeBool,
-							Computed: true,
-						},
 						"enable_metadata_migration": {
 							Type:     schema.TypeBool,
 							Computed: true,
@@ -232,7 +228,6 @@ func flattenMigrationSyncTasks(resp []interface{}) []interface{} {
 			"dst_region":                utils.PathSearch("dst_region", v, nil),
 			"description":               utils.PathSearch("description", v, nil),
 			"status":                    utils.PathSearch("status", v, nil),
-			"enable_kms":                utils.PathSearch("enable_kms", v, nil),
 			"enable_metadata_migration": utils.PathSearch("enable_metadata_migration", v, nil),
 			"enable_restore":            utils.PathSearch("enable_restore", v, nil),
 			"app_id":                    utils.PathSearch("app_id", v, nil),

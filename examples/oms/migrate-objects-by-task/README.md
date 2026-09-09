@@ -43,7 +43,6 @@ The following variables need to be configured:
 * `object_extension_name` - The extension name of the OBS object to be uploaded (default: ".txt")
 * `task_action_type` - The action type of the migration task (default: "stop")
 * `task_type` - The type of the migration task (default: "object")
-* `task_enable_kms` - Whether to enable KMS for the migration task (default: true)
 * `task_migrate_since` - The migrate since of the migration task (default: null)
 * `task_object_overwrite_mode` - The object overwrite mode of the migration task
   (default: "CRC64_COMPARISON_OVERWRITE")
@@ -199,7 +198,6 @@ Configure migration task behavior:
 
 ```hcl
 task_type                           = "object"
-task_enable_kms                     = true
 task_object_overwrite_mode          = "CRC64_COMPARISON_OVERWRITE"
 task_consistency_check              = "crc64"
 task_enable_requester_pays          = true

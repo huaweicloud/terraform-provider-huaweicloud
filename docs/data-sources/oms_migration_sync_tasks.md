@@ -66,8 +66,6 @@ The `tasks` block supports:
 
 * `status` - The synchronization task status.
 
-* `enable_kms` - Whether KMS encryption is enabled.
-
 * `enable_metadata_migration` - Whether metadata migration is enabled.
 
 * `enable_restore` - Whether automatic restoration of archived data is enabled.

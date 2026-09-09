@@ -54,7 +54,6 @@ resource "huaweicloud_oms_migration_task" "test" {
 
   start_task                     = var.task_is_start
   type                           = var.task_type
-  enable_kms                     = var.task_enable_kms
   migrate_since                  = var.task_migrate_since
   object_overwrite_mode          = var.task_object_overwrite_mode
   consistency_check              = var.task_consistency_check

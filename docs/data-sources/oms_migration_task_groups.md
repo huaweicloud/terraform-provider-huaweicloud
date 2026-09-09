@@ -70,8 +70,6 @@ The `taskgroups` block supports:
 
 * `enable_restore` - Whether automatic restoration of archived data is enabled.
 
-* `enable_kms` - Whether KMS is used to encrypt the data to be stored in the destination OBS bucket.
-
 * `task_type` - The task type.
   + **LIST**
   + **URL_LIST**

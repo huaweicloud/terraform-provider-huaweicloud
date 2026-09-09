@@ -74,7 +74,6 @@ func TestAccMigrationTaskGroup_prefix(t *testing.T) {
 						"huaweicloud_obs_bucket.dest", "bucket"),
 					resource.TestCheckResourceAttr(resourceName, "action", "stop"),
 					resource.TestCheckResourceAttr(resourceName, "type", "PREFIX"),
-					resource.TestCheckResourceAttr(resourceName, "enable_kms", "true"),
 					resource.TestCheckResourceAttr(resourceName, "description", "test task group"),
 					resource.TestCheckResourceAttr(resourceName, "migrate_since", "2023-01-02 15:04:05"),
 					resource.TestCheckResourceAttr(resourceName, "object_overwrite_mode", "CRC64_COMPARISON_OVERWRITE"),
@@ -219,7 +218,6 @@ resource "huaweicloud_oms_migration_task_group" "test" {
 
   action                         = "stop"
   type                           = "PREFIX"
-  enable_kms                     = true
   description                    = "test task group"
   migrate_since                  = "2023-01-02 15:04:05"
   object_overwrite_mode          = "CRC64_COMPARISON_OVERWRITE"
@@ -266,7 +264,6 @@ resource "huaweicloud_oms_migration_task_group" "test" {
 
   action                         = "start"
   type                           = "PREFIX"
-  enable_kms                     = true
   description                    = "test task group"
   migrate_since                  = "2023-01-02 15:04:05"
   object_overwrite_mode          = "CRC64_COMPARISON_OVERWRITE"

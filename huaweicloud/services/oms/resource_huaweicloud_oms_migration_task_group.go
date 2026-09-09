@@ -168,12 +168,6 @@ func ResourceMigrationTaskGroup() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"enable_kms": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
-			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -417,7 +411,6 @@ func buildTaskGroupCreateOpts(conf *config.Config, d *schema.ResourceData) (map[
 		"description":                    utils.ValueIgnoreEmpty(d.Get("description")),
 		"dst_node":                       dstNodeOpts,
 		"enable_failed_object_recording": d.Get("enable_failed_object_recording"),
-		"enable_kms":                     d.Get("enable_kms").(bool),
 		"bandwidth_policy":               buildBandwidthPolicyOpts(d.Get("bandwidth_policy").([]interface{})),
 		"source_cdn":                     buildSourceCdnOpts(d.Get("source_cdn").([]interface{})),
 		"migrate_since":                  migrateSinceOpt,
@@ -686,7 +679,6 @@ func resourceMigrationTaskGroupRead(_ context.Context, d *schema.ResourceData, m
 	mErr := multierror.Append(nil,
 		d.Set("region", region),
 		d.Set("type", utils.PathSearch("task_type", getTaskGroupRespBody, nil)),
-		d.Set("enable_kms", utils.PathSearch("enable_kms", getTaskGroupRespBody, nil)),
 		d.Set("description", utils.PathSearch("description", getTaskGroupRespBody, nil)),
 		d.Set("object_overwrite_mode", utils.PathSearch("object_overwrite_mode", getTaskGroupRespBody, nil)),
 		d.Set("consistency_check", utils.PathSearch("consistency_check", getTaskGroupRespBody, nil)),
