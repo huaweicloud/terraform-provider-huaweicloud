@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## 1.98.1 (Sep 9, 2026)
+
+* **New Resource Source:**
+  + `huaweicloud_modelartsv2_node_batch_bind` [GH-10488]
+  + `huaweicloud_waf_pool` [GH-10482]
+
+* **New Data Source:**
+  + `huaweicloud_dcs_offline_key_analysis_nodes` [GH-10483]
+  + `huaweicloud_dcs_replications` [GH-10498]
+  + `huaweicloud_modelarts_network_available_subnets` [GH-10495]
+  + `huaweicloud_modelarts_training_experiment_name_check` [GH-10484]
+  + `huaweicloud_modelartsv2_node_pools` [GH-10491]
+  + `huaweicloud_waf_pools` [GH-10485]
+  + `huaweicloud_waf_vulnerability_rules` [GH-10496]
+
 ## 1.98.0 (Sep 1, 2026)
 
 * **New Resource Source:**
