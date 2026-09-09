@@ -1,10 +1,8 @@
 package iam
 
 import (
-	"context"
 	"fmt"
 	"testing"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
@@ -20,7 +18,7 @@ func getV5PolicyResourceFunc(cfg *config.Config, state *terraform.ResourceState)
 		return nil, fmt.Errorf("error creating IAM client: %s", err)
 	}
 
-	return iam.GetV5PolicyById(context.Background(), client, state.Primary.ID, 10*time.Second, false)
+	return iam.GetV5PolicyById(client, state.Primary.ID)
 }
 
 func TestAccV5Policy_basic(t *testing.T) {

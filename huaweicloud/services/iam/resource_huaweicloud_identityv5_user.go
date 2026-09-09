@@ -122,6 +122,15 @@ func resourceV5UserCreate(ctx context.Context, d *schema.ResourceData, meta inte
 	}
 
 	d.SetId(userId)
+
+	// After creation, the user may not be immediately queryable (usually 2-3s, up to 10s).
+	_, err = PollRequest(ctx, func() (interface{}, error) {
+		return GetV5UserById(client, userId)
+	})
+	if err != nil {
+		return diag.Errorf("error waiting for user (%s) to be created: %s", userId, err)
+	}
+
 	return resourceV5UserRead(ctx, d, meta)
 }
 

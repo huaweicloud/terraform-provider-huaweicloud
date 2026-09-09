@@ -17,7 +17,7 @@ const (
 	iamPollInterval     = 1 * time.Second
 )
 
-// PollRequest polls an IAM resource until the request function no longer returns 404.
+// PollRequest polls an IAM resource until the request function no longer returns 404 or 409.
 func PollRequest(ctx context.Context, requestFunc func() (interface{}, error)) (interface{}, error) {
 	select {
 	case <-ctx.Done():
@@ -33,7 +33,11 @@ func PollRequest(ctx context.Context, requestFunc func() (interface{}, error)) (
 			return resp, nil
 		}
 
-		if _, ok := err.(golangsdk.ErrDefault404); !ok {
+		// Retry on 404 (resource not yet available) and 409 (temporary conflict during creation).
+		switch err.(type) {
+		case golangsdk.ErrDefault404, golangsdk.ErrDefault409:
+			// continue polling
+		default:
 			return nil, err
 		}
 

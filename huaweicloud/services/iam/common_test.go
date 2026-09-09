@@ -40,28 +40,32 @@ func TestPollRequest_successOnFirstRequest(t *testing.T) {
 	}
 }
 
-// TestPollRequest_successAfter404Retries verifies that PollRequest keeps polling when requestFunc
-// returns golangsdk.ErrDefault404, and eventually returns the successful response once the resource
-// becomes available.
+// TestPollRequest_successAfterRetryableErrors verifies that PollRequest keeps polling when
+// requestFunc returns retryable errors (404 or 409), and eventually returns the successful
+// response once the resource becomes available.
 //
-// The mock requestFunc returns 404 for the first two attempts and succeeds on the third.
+// The mock requestFunc returns 404 on the first attempt, 409 on the second, and succeeds on the third.
 // This test ensures that:
-//   - PollRequest retries on 404 instead of treating it as a terminal error.
+//   - PollRequest retries on both 404 and 409 instead of treating them as terminal errors.
 //   - requestFunc is invoked exactly three times before returning.
 //   - The final successful response is returned to the caller.
-//   - The total elapsed time includes the initial delay plus one interval wait after each 404,
-//     i.e. iamPollInitialDelay + 2*iamPollInterval.
-func TestPollRequest_successAfter404Retries(t *testing.T) {
+//   - The total elapsed time includes the initial delay plus one interval wait after each
+//     retryable error, i.e. iamPollInitialDelay + 2*iamPollInterval.
+func TestPollRequest_successAfterRetryableErrors(t *testing.T) {
 	start := time.Now()
 	expected := map[string]interface{}{"id": "test-id"}
 	attempts := 0
 
 	resp, err := PollRequest(context.Background(), func() (interface{}, error) {
 		attempts++
-		if attempts < 3 {
+		switch attempts {
+		case 1:
 			return nil, golangsdk.ErrDefault404{}
+		case 2:
+			return nil, golangsdk.ErrDefault409{}
+		default:
+			return expected, nil
 		}
-		return expected, nil
 	})
 	if err != nil {
 		t.Fatalf("unexpected error: %s", err)
@@ -73,20 +77,20 @@ func TestPollRequest_successAfter404Retries(t *testing.T) {
 		t.Fatalf("expected 3 attempts, got %d", attempts)
 	}
 
-	// Two 404 responses require two interval waits between the three request attempts.
+	// Two retryable responses require two interval waits between the three request attempts.
 	minElapsed := iamPollInitialDelay + 2*iamPollInterval
 	if elapsed := time.Since(start); elapsed < minElapsed {
 		t.Fatalf("expected elapsed time of at least %s, got %s", minElapsed, elapsed)
 	}
 }
 
-// TestPollRequest_non404Error verifies that PollRequest stops immediately when requestFunc returns
-// an error other than golangsdk.ErrDefault404.
+// TestPollRequest_nonRetryableError verifies that PollRequest stops immediately when requestFunc
+// returns an error other than golangsdk.ErrDefault404 or golangsdk.ErrDefault409.
 //
-// Non-404 errors (e.g. 403, 500, network failures) are considered non-retryable and should be
-// returned directly to the caller without entering the interval retry loop.
+// Non-retryable errors (e.g. 403, 500, network failures) should be returned directly to the caller
+// without entering the interval retry loop.
 // This test ensures that the original error is preserved and returned unchanged.
-func TestPollRequest_non404Error(t *testing.T) {
+func TestPollRequest_nonRetryableError(t *testing.T) {
 	expectedErr := errors.New("internal error")
 
 	_, err := PollRequest(context.Background(), func() (interface{}, error) {

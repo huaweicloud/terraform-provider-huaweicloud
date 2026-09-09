@@ -84,6 +84,15 @@ func resourceV5GroupCreate(ctx context.Context, d *schema.ResourceData, meta int
 	}
 
 	d.SetId(userGroupId)
+
+	// After creation, the group may not be immediately queryable (usually 2-3s, up to 10s).
+	_, err = PollRequest(ctx, func() (interface{}, error) {
+		return GetV5GroupById(client, userGroupId)
+	})
+	if err != nil {
+		return diag.Errorf("error waiting for group (%s) to be created: %s", userGroupId, err)
+	}
+
 	return resourceV5GroupRead(ctx, d, meta)
 }
 
