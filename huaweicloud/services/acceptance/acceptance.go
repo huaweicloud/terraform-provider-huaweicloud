@@ -822,6 +822,7 @@ var (
 	HW_DWS_OBS_AGENCY_NAMES = os.Getenv("HW_DWS_OBS_AGENCY_NAMES")
 
 	HW_DCS_INSTANCE_ID        = os.Getenv("HW_DCS_INSTANCE_ID")
+	HW_DCS_GROUP_ID           = os.Getenv("HW_DCS_GROUP_ID")
 	HW_DCS_BEGIN_TIME         = os.Getenv("HW_DCS_BEGIN_TIME")
 	HW_DCS_END_TIME           = os.Getenv("HW_DCS_END_TIME")
 	HW_DCS_OBS_BUCKET_NAME    = os.Getenv("HW_DCS_OBS_BUCKET_NAME")
@@ -4619,6 +4620,13 @@ func TestAccPreCheckDwsExtDataSourceAgencyNames(t *testing.T) {
 func TestAccPreCheckDCSInstanceID(t *testing.T) {
 	if HW_DCS_INSTANCE_ID == "" {
 		t.Skip("HW_DCS_INSTANCE_ID must be set for the acceptance test")
+	}
+}
+
+// lintignore:AT003
+func TestAccPreCheckDcsGroupId(t *testing.T) {
+	if HW_DCS_GROUP_ID == "" {
+		t.Skip("HW_DCS_GROUP_ID must be set for the acceptance test")
 	}
 }
 
