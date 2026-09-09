@@ -743,8 +743,8 @@ This resource provides the following timeouts configuration options:
 
 ## Import
 
-The xxx can be imported using `id`, e.g.
+The CCI pod can be imported using the `namespace` and `name`, separated by a slash (/), e.g.
 
 ```bash
-$ terraform import huaweicloud_cciv2_pod.test <id>
+$ terraform import huaweicloud_cciv2_pod.test <namespace>/<name>
 ```

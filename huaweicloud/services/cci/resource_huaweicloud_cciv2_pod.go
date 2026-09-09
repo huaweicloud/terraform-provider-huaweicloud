@@ -1309,18 +1309,18 @@ func resourceV2PodCreate(ctx context.Context, d *schema.ResourceData, meta inter
 		return diag.Errorf("error creating CCI client: %s", err)
 	}
 
-	createNetworkHttpUrl := "apis/cci/v2/namespaces/{namespace}/pods"
-	createNetworkPath := client.Endpoint + createNetworkHttpUrl
-	createNetworkPath = strings.ReplaceAll(createNetworkPath, "{namespace}", d.Get("namespace").(string))
-	createNetworkOpt := golangsdk.RequestOpts{
+	createHttpUrl := "apis/cci/v2/namespaces/{namespace}/pods"
+	createPath := client.Endpoint + createHttpUrl
+	createPath = strings.ReplaceAll(createPath, "{namespace}", d.Get("namespace").(string))
+	createOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody:         utils.RemoveNil(buildCreateV2PodParams(d)),
 	}
-	createNetworkOpt.JSONBody = utils.RemoveNil(buildCreateV2PodParams(d))
 
-	resp, err := client.Request("POST", createNetworkPath, &createNetworkOpt)
+	resp, err := client.Request("POST", createPath, &createOpt)
 	if err != nil {
-		return diag.Errorf("error creating CCI Network: %s", err)
+		return diag.Errorf("error creating CCI v2 pod: %s", err)
 	}
 
 	respBody, err := utils.FlattenResponse(resp)
@@ -1330,7 +1330,7 @@ func resourceV2PodCreate(ctx context.Context, d *schema.ResourceData, meta inter
 	ns := utils.PathSearch("metadata.namespace", respBody, "").(string)
 	name := utils.PathSearch("metadata.name", respBody, "").(string)
 	if ns == "" || name == "" {
-		return diag.Errorf("unable to find CCI Pod name or namespace from API response")
+		return diag.Errorf("unable to find CCI v2 pod name or namespace from API response")
 	}
 	d.SetId(ns + "/" + name)
 
@@ -1356,7 +1356,7 @@ func buildCreateV2PodParams(d *schema.ResourceData) map[string]interface{} {
 			"activeDeadlineSeconds":         utils.ValueIgnoreEmpty(d.Get("active_deadline_seconds")),
 			"affinity":                      buildV2PodAffinityParams(d.Get("affinity.0")),
 			"containers":                    buildV2PodContainersParams(d.Get("containers").(*schema.Set).List()),
-			"dnsConfig":                     buildV2PodDNSconfigParams(d.Get("dns_config.0")),
+			"dnsConfig":                     buildV2PodDNSConfigParams(d.Get("dns_config.0")),
 			"dnsPolicy":                     utils.ValueIgnoreEmpty(d.Get("dns_policy")),
 			"ephemeralContainers":           buildV2PodContainersParams(d.Get("ephemeral_containers").(*schema.Set).List()),
 			"hostAliases":                   buildV2PodHostAliasesParams(d.Get("host_aliases").(*schema.Set).List()),
@@ -1368,7 +1368,7 @@ func buildCreateV2PodParams(d *schema.ResourceData) map[string]interface{} {
 			"readinessGates":                buildV2PodReadinessGatesParams(d.Get("readiness_gates").(*schema.Set).List()),
 			"restartPolicy":                 utils.ValueIgnoreEmpty(d.Get("restart_policy")),
 			"schedulerName":                 utils.ValueIgnoreEmpty(d.Get("scheduler_name")),
-			"securityContext":               buildV2PodseCurityContextParams(d.Get("security_context.0")),
+			"securityContext":               buildV2PodSecurityContextParams(d.Get("security_context.0")),
 			"setHostnameAsPQDN":             utils.ValueIgnoreEmpty(d.Get("set_hostname_as_fqdn")),
 			"shareProcessNamespace":         utils.ValueIgnoreEmpty(d.Get("share_process_namespace")),
 			"terminationGracePeriodSeconds": utils.ValueIgnoreEmpty(d.Get("termination_grace_period_seconds")),
@@ -1379,19 +1379,19 @@ func buildCreateV2PodParams(d *schema.ResourceData) map[string]interface{} {
 	return bodyParams
 }
 
-func buildV2PodDNSconfigParams(dnsConfig interface{}) map[string]interface{} {
+func buildV2PodDNSConfigParams(dnsConfig interface{}) map[string]interface{} {
 	if dnsConfig == nil {
 		return nil
 	}
 	options := utils.PathSearch("options", dnsConfig, &schema.Set{}).(*schema.Set).List()
 	return map[string]interface{}{
 		"nameservers": utils.ValueIgnoreEmpty(utils.PathSearch("nameservers", dnsConfig, &schema.Set{}).(*schema.Set).List()),
-		"options":     utils.ValueIgnoreEmpty(buildV2PodDNSconfigOptionsParams(options)),
+		"options":     utils.ValueIgnoreEmpty(buildV2PodDNSConfigOptionsParams(options)),
 		"searches":    utils.ValueIgnoreEmpty(utils.PathSearch("searches", dnsConfig, &schema.Set{}).(*schema.Set).List()),
 	}
 }
 
-func buildV2PodDNSconfigOptionsParams(options []interface{}) []interface{} {
+func buildV2PodDNSConfigOptionsParams(options []interface{}) []interface{} {
 	if len(options) == 0 {
 		return nil
 	}
@@ -1435,7 +1435,7 @@ func buildV2PodReadinessGatesParams(readinessGates []interface{}) []interface{} 
 	return params
 }
 
-func buildV2PodseCurityContextParams(sc interface{}) map[string]interface{} {
+func buildV2PodSecurityContextParams(sc interface{}) map[string]interface{} {
 	if sc == nil {
 		return nil
 	}
@@ -1447,11 +1447,11 @@ func buildV2PodseCurityContextParams(sc interface{}) map[string]interface{} {
 		"runAsNonRoot":        utils.PathSearch("run_as_non_root", sc, nil),
 		"runAsUser":           utils.PathSearch("run_as_user", sc, nil),
 		"supplementalGroups":  utils.PathSearch("supplemental_groups", sc, &schema.Set{}).(*schema.Set).List(),
-		"sysctls":             buildV2PodseCurityContextSysctlsParams(sysctls),
+		"sysctls":             buildV2PodSecurityContextSysctlsParams(sysctls),
 	}
 }
 
-func buildV2PodseCurityContextSysctlsParams(sysctls []interface{}) []interface{} {
+func buildV2PodSecurityContextSysctlsParams(sysctls []interface{}) []interface{} {
 	if len(sysctls) == 0 {
 		return nil
 	}
@@ -1553,7 +1553,7 @@ func buildPodVolumesProjectedSourcesParams(sources []interface{}) []interface{} 
 	for i, v := range sources {
 		params[i] = map[string]interface{}{
 			"configMap":   buildV2PodVolumesProjectedSourcesConfigMapParams(utils.PathSearch("config_map|[0]", v, nil)),
-			"downwardAPI": buildV2PodVolumesProjectedSourcesDownwardAPIarams(utils.PathSearch("downward_api|[0]", v, nil)),
+			"downwardAPI": buildV2PodVolumesProjectedSourcesDownwardAPIParams(utils.PathSearch("downward_api|[0]", v, nil)),
 			"secret":      buildV2PodVolumesProjectedSourcesSecretParams(utils.PathSearch("secret|[0]", v, nil)),
 		}
 	}
@@ -1573,7 +1573,7 @@ func buildV2PodVolumesProjectedSourcesSecretParams(secret interface{}) map[strin
 	}
 }
 
-func buildV2PodVolumesProjectedSourcesDownwardAPIarams(downwardAPI interface{}) map[string]interface{} {
+func buildV2PodVolumesProjectedSourcesDownwardAPIParams(downwardAPI interface{}) map[string]interface{} {
 	if downwardAPI == nil {
 		return nil
 	}
@@ -1871,7 +1871,7 @@ func resourceV2PodRead(_ context.Context, d *schema.ResourceData, meta interface
 	name := d.Get("name").(string)
 	resp, err := GetV2Pod(client, ns, name)
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "error querying CCI v2 network")
+		return common.CheckDeletedDiag(d, err, "error querying CCI v2 pod")
 	}
 
 	mErr := multierror.Append(
@@ -1889,7 +1889,7 @@ func resourceV2PodRead(_ context.Context, d *schema.ResourceData, meta interface
 		d.Set("affinity", flattenPodAffinity(utils.PathSearch("spec.affinity", resp, nil))),
 		d.Set("containers", flattenPodContainers(
 			utils.PathSearch("spec.containers", resp, make([]interface{}, 0)).([]interface{}))),
-		d.Set("dns_config", flattenPodDNSconfig(utils.PathSearch("spec.dnsConfig", resp, nil))),
+		d.Set("dns_config", flattenPodDNSConfig(utils.PathSearch("spec.dnsConfig", resp, nil))),
 		d.Set("dns_policy", utils.PathSearch("spec.dnsPolicy", resp, nil)),
 		d.Set("ephemeral_containers", flattenPodContainers(
 			utils.PathSearch("spec.ephemeralContainers", resp, make([]interface{}, 0)).([]interface{}))),
@@ -1907,7 +1907,7 @@ func resourceV2PodRead(_ context.Context, d *schema.ResourceData, meta interface
 		d.Set("restart_policy", utils.PathSearch("spec.restartPolicy", resp, nil)),
 		d.Set("scheduler_name", utils.PathSearch("spec.schedulerName", resp, nil)),
 		d.Set("termination_grace_period_seconds", int(utils.PathSearch("spec.terminationGracePeriodSeconds", resp, float64(0)).(float64))),
-		d.Set("security_context", flattenPodseCurityContext(utils.PathSearch("spec.securityContext", resp, nil))),
+		d.Set("security_context", flattenPodSecurityContext(utils.PathSearch("spec.securityContext", resp, nil))),
 		d.Set("volumes", flattenPodVolumes(utils.PathSearch("spec.volumes", resp, make([]interface{}, 0)).([]interface{}))),
 		d.Set("status", flattenPodStatus(utils.PathSearch("status", resp, nil))),
 	)
@@ -2117,7 +2117,7 @@ func flattenPodVolumesProjectedSourcesConfigMap(configMap interface{}) []map[str
 	}
 }
 
-func flattenPodDNSconfig(dnsConfig interface{}) []map[string]interface{} {
+func flattenPodDNSConfig(dnsConfig interface{}) []map[string]interface{} {
 	if dnsConfig == nil || len(dnsConfig.(map[string]interface{})) == 0 {
 		return nil
 	}
@@ -2125,13 +2125,13 @@ func flattenPodDNSconfig(dnsConfig interface{}) []map[string]interface{} {
 	return []map[string]interface{}{
 		{
 			"nameservers": utils.PathSearch("nameservers", dnsConfig, make([]interface{}, 0)).([]interface{}),
-			"options":     flattenPodDNSconfigOptions(options),
+			"options":     flattenPodDNSConfigOptions(options),
 			"searches":    utils.PathSearch("searches", dnsConfig, make([]interface{}, 0)).([]interface{}),
 		},
 	}
 }
 
-func flattenPodDNSconfigOptions(options []interface{}) []interface{} {
+func flattenPodDNSConfigOptions(options []interface{}) []interface{} {
 	if len(options) == 0 {
 		return nil
 	}
@@ -2158,7 +2158,7 @@ func flattenPodAffinity(affinity interface{}) []map[string]interface{} {
 	}
 }
 
-func flattenPodseCurityContext(sc interface{}) []map[string]interface{} {
+func flattenPodSecurityContext(sc interface{}) []map[string]interface{} {
 	if sc == nil || len(sc.(map[string]interface{})) == 0 {
 		return nil
 	}
@@ -2171,12 +2171,12 @@ func flattenPodseCurityContext(sc interface{}) []map[string]interface{} {
 			"run_as_non_root":        utils.PathSearch("runAsNonRoot", sc, nil),
 			"run_as_user":            utils.PathSearch("runAsUser", sc, nil),
 			"supplemental_groups":    utils.PathSearch("supplementalGroups", sc, &schema.Set{}).(*schema.Set).List(),
-			"sysctls":                flattenPodseCurityContextSysctls(utils.PathSearch("sysctls", sc, make([]interface{}, 0)).([]interface{})),
+			"sysctls":                flattenPodSecurityContextSysctls(utils.PathSearch("sysctls", sc, make([]interface{}, 0)).([]interface{})),
 		},
 	}
 }
 
-func flattenPodseCurityContextSysctls(sysctls []interface{}) []interface{} {
+func flattenPodSecurityContextSysctls(sysctls []interface{}) []interface{} {
 	if len(sysctls) == 0 {
 		return nil
 	}
@@ -2480,19 +2480,19 @@ func resourceV2PodUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 		return diag.Errorf("error creating CCI client: %s", err)
 	}
 
-	updateNetworkHttpUrl := "apis/cci/v2/namespaces/{namespace}/pods//{name}"
-	updateNetworkPath := client.Endpoint + updateNetworkHttpUrl
-	updateNetworkPath = strings.ReplaceAll(updateNetworkPath, "{namespace}", d.Get("namespace").(string))
-	updateNetworkPath = strings.ReplaceAll(updateNetworkPath, "{name}", d.Get("name").(string))
-	updateNetworkOpt := golangsdk.RequestOpts{
+	updateHttpUrl := "apis/cci/v2/namespaces/{namespace}/pods//{name}"
+	updatePath := client.Endpoint + updateHttpUrl
+	updatePath = strings.ReplaceAll(updatePath, "{namespace}", d.Get("namespace").(string))
+	updatePath = strings.ReplaceAll(updatePath, "{name}", d.Get("name").(string))
+	updateOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
+		JSONBody:         utils.RemoveNil(buildCreateV2PodParams(d)),
 	}
-	updateNetworkOpt.JSONBody = utils.RemoveNil(buildCreateV2PodParams(d))
 
-	_, err = client.Request("PUT", updateNetworkPath, &updateNetworkOpt)
+	_, err = client.Request("PUT", updatePath, &updateOpt)
 	if err != nil {
-		return diag.Errorf("error updating CCI v2 Network: %s", err)
+		return diag.Errorf("error updating CCI v2 pod: %s", err)
 	}
 	return resourceV2PodRead(ctx, d, meta)
 }
@@ -2507,18 +2507,18 @@ func resourceV2PodDelete(ctx context.Context, d *schema.ResourceData, meta inter
 
 	ns := d.Get("namespace").(string)
 	name := d.Get("name").(string)
-	deleteNetworkHttpUrl := "apis/cci/v2/namespaces/{namespace}/pods/{name}"
-	deleteNetworkPath := client.Endpoint + deleteNetworkHttpUrl
-	deleteNetworkPath = strings.ReplaceAll(deleteNetworkPath, "{namespace}", ns)
-	deleteNetworkPath = strings.ReplaceAll(deleteNetworkPath, "{name}", name)
-	deleteNetworkOpt := golangsdk.RequestOpts{
+	deleteHttpUrl := "apis/cci/v2/namespaces/{namespace}/pods/{name}"
+	deletePath := client.Endpoint + deleteHttpUrl
+	deletePath = strings.ReplaceAll(deletePath, "{namespace}", ns)
+	deletePath = strings.ReplaceAll(deletePath, "{name}", name)
+	deleteOpt := golangsdk.RequestOpts{
 		KeepResponseBody: true,
 		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
-	_, err = client.Request("DELETE", deleteNetworkPath, &deleteNetworkOpt)
+	_, err = client.Request("DELETE", deletePath, &deleteOpt)
 	if err != nil {
-		return diag.Errorf("error deleting CCI v2 network: %s", err)
+		return diag.Errorf("error deleting CCI v2 pod: %s", err)
 	}
 
 	err = waitForDeleteV2PodStatus(ctx, client, ns, name, d.Timeout(schema.TimeoutDelete))
