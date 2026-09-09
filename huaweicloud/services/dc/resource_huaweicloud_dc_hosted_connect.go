@@ -7,6 +7,7 @@ package dc
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
@@ -193,22 +194,23 @@ func hostedConnectWaitingForStateCompleted(ctx context.Context, client *golangsd
 			}
 			status := utils.PathSearch(`hosted_connect.status`, createHostedConnectWaitingRespBody, "").(string)
 
-			targetStatus := []string{
-				"BUILD",
+			successStatus := []string{
+				"ACTIVE",
 			}
-			if utils.StrSliceContains(targetStatus, status) {
+			if utils.StrSliceContains(successStatus, status) {
 				return createHostedConnectWaitingRespBody, "COMPLETED", nil
 			}
 
-			pendingStatus := []string{
-				"PENDING_CREATE",
-				"PENDING_UPDATE",
+			errorStatus := []string{
+				"DOWN",
+				"ERROR",
 			}
-			if utils.StrSliceContains(pendingStatus, status) {
-				return createHostedConnectWaitingRespBody, "PENDING", nil
+			if utils.StrSliceContains(errorStatus, status) {
+				return createHostedConnectWaitingRespBody, "ERROR",
+					fmt.Errorf("DC hosted connect is in (%s) status", status)
 			}
 
-			return createHostedConnectWaitingRespBody, status, nil
+			return createHostedConnectWaitingRespBody, "PENDING", nil
 		},
 		Timeout:      t,
 		Delay:        10 * time.Second,
@@ -397,20 +399,7 @@ func deleteHostedConnectWaitingForStateCompleted(ctx context.Context, client *go
 				return nil, "ERROR", err
 			}
 
-			deleteHostedConnectWaitingRespBody, err := utils.FlattenResponse(deleteHostedConnectWaitingResp)
-			if err != nil {
-				return nil, "ERROR", err
-			}
-			status := utils.PathSearch(`hosted_connect.status`, deleteHostedConnectWaitingRespBody, "").(string)
-
-			pendingStatus := []string{
-				"PENDING_DELETE",
-			}
-			if utils.StrSliceContains(pendingStatus, status) {
-				return deleteHostedConnectWaitingRespBody, "PENDING", nil
-			}
-
-			return deleteHostedConnectWaitingRespBody, status, nil
+			return deleteHostedConnectWaitingResp, "PENDING", nil
 		},
 		Timeout:      t,
 		Delay:        10 * time.Second,
