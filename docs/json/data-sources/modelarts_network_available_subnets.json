@@ -1,0 +1,66 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_modelarts_network_available_subnets": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "The subnet name.",
+                "computed": true
+              },
+              "network_id": {
+                "type": "string",
+                "description": "The subnet ID.",
+                "computed": true
+              },
+              "network_name": {
+                "type": "string",
+                "description": "Specifies the network ID.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "subnet_id": {
+                "type": "string",
+                "description": "Specifies the subnet ID.",
+                "required": true
+              },
+              "subnets": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "cidr": "string",
+                      "ip_version": "number",
+                      "total_ips": "number",
+                      "used_ips": "number"
+                    }
+                  ]
+                ],
+                "description": "The number of available network IP addresses of the subnet.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "ModelArts",
+            "name": "ModelArts",
+            "catalog": "AI",
+            "name_cn": "AI开发平台",
+            "catalog_cn": "人工智能"
+          }
+        }
+      }
+    }
+  }
+}

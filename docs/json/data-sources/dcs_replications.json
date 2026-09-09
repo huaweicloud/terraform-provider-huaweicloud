@@ -1,0 +1,69 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_dcs_replications": {
+          "block": {
+            "attributes": {
+              "group_id": {
+                "type": "string",
+                "description": "Specifies the ID of the shard.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the ID of the DCS instance.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "replications": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "az_code": "string",
+                      "dimensions": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "name": "string",
+                            "value": "string"
+                          }
+                        ]
+                      ],
+                      "id": "string",
+                      "is_replication": "bool",
+                      "node_id": "string",
+                      "replication_ip": "string",
+                      "role": "string",
+                      "status": "string"
+                    }
+                  ]
+                ],
+                "description": "Indicates the list of replications.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DCS",
+            "name": "Distributed Cache Service",
+            "catalog": "Middleware",
+            "name_cn": "分布式缓存服务",
+            "catalog_cn": "应用中间件"
+          }
+        }
+      }
+    }
+  }
+}

@@ -14,6 +14,11 @@
                 "type": "string",
                 "computed": true
               },
+              "instance_id": {
+                "type": "string",
+                "description": "Specifies the instance ID.",
+                "optional": true
+              },
               "instances": {
                 "type": [
                   "list",
@@ -25,10 +30,17 @@
                         "list",
                         "string"
                       ],
+                      "az_codes": [
+                        "list",
+                        "string"
+                      ],
                       "capacity": "number",
                       "charging_mode": "string",
+                      "cpu_type": "string",
+                      "created_at": "string",
                       "description": "string",
                       "domain_name": "string",
+                      "enable_ssl": "bool",
                       "engine": "string",
                       "engine_version": "string",
                       "enterprise_project_id": "string",
@@ -38,11 +50,17 @@
                       "maintain_end": "string",
                       "max_memory": "number",
                       "name": "string",
+                      "no_password_access": "string",
                       "order_id": "string",
                       "port": "number",
                       "private_ip": "string",
+                      "publicip_address": "string",
+                      "publicip_id": "string",
+                      "readonly_domain_name": "string",
                       "security_group_id": "string",
                       "security_group_name": "string",
+                      "service_task_id": "string",
+                      "service_upgrade": "bool",
                       "status": "string",
                       "subnet_id": "string",
                       "subnet_name": "string",
@@ -50,7 +68,10 @@
                         "map",
                         "string"
                       ],
+                      "updated_at": "string",
                       "used_memory": "number",
+                      "user_id": "string",
+                      "user_name": "string",
                       "vpc_id": "string",
                       "vpc_name": "string"
                     }
@@ -76,6 +97,11 @@
               "status": {
                 "type": "string",
                 "description": "Specifies the cache instance status.",
+                "optional": true
+              },
+              "tags": {
+                "type": "string",
+                "description": "Specifies the tags of the instance.",
                 "optional": true
               }
             }

@@ -36,12 +36,6 @@
                 "forcenew": true,
                 "default": true
               },
-              "enable_kms": {
-                "type": "bool",
-                "optional": true,
-                "computed": true,
-                "forcenew": true
-              },
               "enable_metadata_migration": {
                 "type": "bool",
                 "optional": true,

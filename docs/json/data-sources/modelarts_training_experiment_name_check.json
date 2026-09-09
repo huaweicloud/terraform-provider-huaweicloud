@@ -1,0 +1,45 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_modelarts_training_experiment_name_check": {
+          "block": {
+            "attributes": {
+              "experiment_name": {
+                "type": "string",
+                "description": "The name of the training experiment to be checked.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_duplicate": {
+                "type": "bool",
+                "description": "Whether the training experiment name is duplicate.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the ModelArts service is located.",
+                "computed": true
+              },
+              "workspace_id": {
+                "type": "string",
+                "description": "The ID of the workspace to which the training experiment belongs.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "ModelArts",
+            "name": "ModelArts",
+            "catalog": "AI",
+            "name_cn": "AI开发平台",
+            "catalog_cn": "人工智能"
+          }
+        }
+      }
+    }
+  }
+}

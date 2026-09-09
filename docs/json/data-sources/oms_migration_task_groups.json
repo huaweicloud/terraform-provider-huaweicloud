@@ -54,7 +54,6 @@
                       ],
                       "dst_storage_policy": "string",
                       "enable_failed_object_recording": "bool",
-                      "enable_kms": "bool",
                       "enable_metadata_migration": "bool",
                       "enable_requester_pays": "bool",
                       "enable_restore": "bool",

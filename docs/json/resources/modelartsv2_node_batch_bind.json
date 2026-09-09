@@ -1,0 +1,54 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_modelartsv2_node_batch_bind": {
+          "block": {
+            "attributes": {
+              "drain": {
+                "type": "bool",
+                "description": "Whether to drain the nodes during the bind operation.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "pool_id": {
+                "type": "string",
+                "description": "The ID of the resource pool to which the nodes belong.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the resource pool is located.",
+                "computed": true
+              }
+            },
+            "block_types": {
+              "nodes": {
+                "block": {
+                  "attributes": {
+                    "name": {
+                      "type": "string",
+                      "description": "The name of the node to be bound.",
+                      "required": true
+                    },
+                    "quota_name": {
+                      "type": "string",
+                      "description": "The ID of the logical sub-pool to which the node is bound.",
+                      "optional": true
+                    }
+                  },
+                  "description": "The list of nodes to be bound to the logical sub-pool."
+                },
+                "nesting_mode": "list",
+                "min_items": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

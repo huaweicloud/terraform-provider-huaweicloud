@@ -454,7 +454,7 @@
                               "attributes": {
                                 "args": {
                                   "type": [
-                                    "set",
+                                    "list",
                                     "string"
                                   ],
                                   "description": "Specifies the arguments to the entrypoint of the container.",
@@ -463,7 +463,7 @@
                                 },
                                 "command": {
                                   "type": [
-                                    "set",
+                                    "list",
                                     "string"
                                   ],
                                   "description": "Specifies the command of the container.",
@@ -605,7 +605,7 @@
                                                 "attributes": {
                                                   "command": {
                                                     "type": [
-                                                      "set",
+                                                      "list",
                                                       "string"
                                                     ],
                                                     "description": "The command line to execute inside the container.",
@@ -687,7 +687,7 @@
                                                 "attributes": {
                                                   "command": {
                                                     "type": [
-                                                      "set",
+                                                      "list",
                                                       "string"
                                                     ],
                                                     "description": "The command line to execute inside the container.",
@@ -805,7 +805,7 @@
                                           "attributes": {
                                             "command": {
                                               "type": [
-                                                "set",
+                                                "list",
                                                 "string"
                                               ],
                                               "description": "The command line to execute inside the container.",
@@ -941,7 +941,7 @@
                                           "attributes": {
                                             "command": {
                                               "type": [
-                                                "set",
+                                                "list",
                                                 "string"
                                               ],
                                               "description": "The command line to execute inside the container.",
@@ -1144,7 +1144,7 @@
                                           "attributes": {
                                             "command": {
                                               "type": [
-                                                "set",
+                                                "list",
                                                 "string"
                                               ],
                                               "description": "The command line to execute inside the container.",

@@ -1,0 +1,308 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_modelartsv2_node_pools": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "node_pools": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "metadata": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "name": "string"
+                          }
+                        ]
+                      ],
+                      "spec": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "resources": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "azs": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "az": "string",
+                                        "count": "number"
+                                      }
+                                    ]
+                                  ],
+                                  "count": "number",
+                                  "creating_step": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "step": "number",
+                                        "type": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "data_volumes": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "count": "number",
+                                        "extend_params": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "volume_group": "string"
+                                            }
+                                          ]
+                                        ],
+                                        "size": "string",
+                                        "volume_type": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "extend_params": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "docker_base_size": "string",
+                                        "label_policy_on_existing_nodes": "string",
+                                        "node_pool_name": "string",
+                                        "post_install": "string",
+                                        "runtime": "string",
+                                        "tag_policy_on_existing_nodes": "string",
+                                        "taint_policy_on_existing_nodes": "string",
+                                        "x_parameter_plane_subnet": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "flavor": "string",
+                                  "labels": [
+                                    "map",
+                                    "string"
+                                  ],
+                                  "max_count": "number",
+                                  "network": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "security_groups": [
+                                          "list",
+                                          "string"
+                                        ],
+                                        "subnet": "string",
+                                        "vpc": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "node_pool": "string",
+                                  "os": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "auto_match": "string",
+                                        "image_id": "string",
+                                        "image_type": "string",
+                                        "name": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "root_volume": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "size": "string",
+                                        "volume_type": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "tags": [
+                                    "map",
+                                    "string"
+                                  ],
+                                  "taints": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "effect": "string",
+                                        "key": "string",
+                                        "value": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "volume_group_configs": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "docker_thin_pool": "string",
+                                        "lvm_config": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "lv_type": "string",
+                                              "path": "string"
+                                            }
+                                          ]
+                                        ],
+                                        "types": [
+                                          "list",
+                                          "string"
+                                        ],
+                                        "volume_group": "string"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ],
+                      "status": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "resources": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "abnormal": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "azs": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "az": "string",
+                                              "count": "number"
+                                            }
+                                          ]
+                                        ],
+                                        "count": "number",
+                                        "flavor": "string",
+                                        "max_count": "number",
+                                        "node_pool": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "available": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "azs": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "az": "string",
+                                              "count": "number"
+                                            }
+                                          ]
+                                        ],
+                                        "count": "number",
+                                        "flavor": "string",
+                                        "max_count": "number",
+                                        "node_pool": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "creating": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "azs": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "az": "string",
+                                              "count": "number"
+                                            }
+                                          ]
+                                        ],
+                                        "count": "number",
+                                        "flavor": "string",
+                                        "max_count": "number",
+                                        "node_pool": "string"
+                                      }
+                                    ]
+                                  ],
+                                  "deleting": [
+                                    "list",
+                                    [
+                                      "object",
+                                      {
+                                        "azs": [
+                                          "list",
+                                          [
+                                            "object",
+                                            {
+                                              "az": "string",
+                                              "count": "number"
+                                            }
+                                          ]
+                                        ],
+                                        "count": "number",
+                                        "flavor": "string",
+                                        "max_count": "number",
+                                        "node_pool": "string"
+                                      }
+                                    ]
+                                  ]
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The list of the node pools.",
+                "computed": true
+              },
+              "pool_name": {
+                "type": "string",
+                "description": "The resource pool name.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the node pools are located.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

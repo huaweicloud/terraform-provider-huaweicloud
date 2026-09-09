@@ -30,7 +30,6 @@
                       "dst_bucket": "string",
                       "dst_region": "string",
                       "dst_storage_policy": "string",
-                      "enable_kms": "bool",
                       "enable_metadata_migration": "bool",
                       "enable_restore": "bool",
                       "last_start_time": "number",
