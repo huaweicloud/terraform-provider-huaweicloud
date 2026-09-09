@@ -1336,8 +1336,9 @@ func resourceV2PodCreate(ctx context.Context, d *schema.ResourceData, meta inter
 
 	err = waitForCreateV2PodStatus(ctx, client, ns, name, d.Timeout(schema.TimeoutCreate))
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.Errorf("error waiting for the CCI v2 pod (%s/%s) creation to complete: %s", ns, name, err)
 	}
+
 	return resourceV2PodRead(ctx, d, meta)
 }
 
@@ -2520,9 +2521,9 @@ func resourceV2PodDelete(ctx context.Context, d *schema.ResourceData, meta inter
 		return diag.Errorf("error deleting CCI v2 network: %s", err)
 	}
 
-	err = waitForDeleteV2PodStatus(ctx, client, ns, name, d.Timeout(schema.TimeoutCreate))
+	err = waitForDeleteV2PodStatus(ctx, client, ns, name, d.Timeout(schema.TimeoutDelete))
 	if err != nil {
-		return diag.FromErr(err)
+		return diag.Errorf("error waiting for the CCI v2 pod (%s/%s) deletion to complete: %s", ns, name, err)
 	}
 
 	return nil
@@ -2538,10 +2539,8 @@ func waitForCreateV2PodStatus(ctx context.Context, client *golangsdk.ServiceClie
 		Delay:        10 * time.Second,
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
-	if err != nil {
-		return fmt.Errorf("error waiting for the status of the CCI network to complete: %s", err)
-	}
-	return nil
+
+	return err
 }
 
 func refreshCreateV2PodStatus(client *golangsdk.ServiceClient, ns, name string) retry.StateRefreshFunc {
@@ -2550,9 +2549,16 @@ func refreshCreateV2PodStatus(client *golangsdk.ServiceClient, ns, name string) 
 		if err != nil {
 			return nil, "ERROR", err
 		}
-		status := utils.PathSearch("status.phase", resp, "").(string)
-		if status == "Running" {
+
+		phase := utils.PathSearch("status.phase", resp, "").(string)
+		successPhases := []string{"Running", "Succeeded"}
+
+		if utils.StrSliceContains(successPhases, phase) {
 			return resp, "Completed", nil
+		}
+
+		if phase == "Failed" {
+			return resp, "ERROR", fmt.Errorf("CCI v2 pod is in (%s) phase", phase)
 		}
 
 		return resp, "Pending", nil
@@ -2569,18 +2575,19 @@ func waitForDeleteV2PodStatus(ctx context.Context, client *golangsdk.ServiceClie
 		Delay:        10 * time.Second,
 	}
 	_, err := stateConf.WaitForStateContext(ctx)
-	if err != nil {
-		return fmt.Errorf("error waiting for the status of the CCI v2 network to complete: %s", err)
-	}
-	return nil
+
+	return err
 }
 
 func refreshDeleteV2PodStatus(client *golangsdk.ServiceClient, ns, name string) retry.StateRefreshFunc {
 	return func() (interface{}, string, error) {
 		resp, err := GetV2Pod(client, ns, name)
-		if _, ok := err.(golangsdk.ErrDefault404); ok {
-			log.Printf("[DEBUG] successfully deleted CCI pod: %s", name)
-			return "", "Deleted", nil
+		if err != nil {
+			if _, ok := err.(golangsdk.ErrDefault404); ok {
+				log.Printf("[DEBUG] successfully deleted CCI v2 pod: %s", name)
+				return "", "Deleted", nil
+			}
+			return nil, "ERROR", err
 		}
 		return resp, "Pending", nil
 	}
