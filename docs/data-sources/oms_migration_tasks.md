@@ -58,8 +58,6 @@ The `tasks` block supports:
 
 * `enable_failed_object_recording` - Whether the function of recording failed objects is enabled.
 
-* `enable_kms` - Whether KMS is used to encrypt the data to be stored in the destination OBS bucket.
-
 * `enable_metadata_migration` - Whether metadata migration is enabled.
 
 * `enable_restore` - Whether automatic restoration of archived data is enabled.

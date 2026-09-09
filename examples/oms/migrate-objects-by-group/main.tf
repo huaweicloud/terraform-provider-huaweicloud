@@ -54,7 +54,6 @@ resource "huaweicloud_oms_migration_task_group" "test" {
 
   action                         = var.group_action_type
   type                           = var.group_type
-  enable_kms                     = var.group_enable_kms
   migrate_since                  = var.group_migrate_since
   object_overwrite_mode          = var.group_object_overwrite_mode
   consistency_check              = var.group_consistency_check

@@ -43,7 +43,6 @@ The following variables need to be configured:
 * `object_extension_name` - The extension name of the OBS object to be uploaded (default: ".txt")
 * `group_action_type` - The action type of the migration task group (default: "stop")
 * `group_type` - The type of the migration task group (default: "PREFIX")
-* `group_enable_kms` - Whether to enable KMS for the migration task group (default: true)
 * `group_migrate_since` - The migrate since of the migration task group (default: null)
 * `group_object_overwrite_mode` - The object overwrite mode of the migration task group
   (default: "CRC64_COMPARISON_OVERWRITE")
@@ -199,7 +198,6 @@ Configure migration group behavior:
 
 ```hcl
 group_type                           = "PREFIX"
-group_enable_kms                     = true
 group_object_overwrite_mode          = "CRC64_COMPARISON_OVERWRITE"
 group_consistency_check              = "crc64"
 group_enable_requester_pays          = true

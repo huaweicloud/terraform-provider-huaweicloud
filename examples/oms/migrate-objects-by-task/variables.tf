@@ -112,12 +112,6 @@ variable "task_type" {
   default     = "prefix"
 }
 
-variable "task_enable_kms" {
-  description = "The enable KMS of the migration task"
-  type        = bool
-  default     = true
-}
-
 variable "task_migrate_since" {
   description = "The migrate since of the migration task"
   type        = string

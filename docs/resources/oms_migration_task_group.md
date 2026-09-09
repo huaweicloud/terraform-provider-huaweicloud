@@ -41,7 +41,6 @@ resource "huaweicloud_oms_migration_task_group" "test" {
   }
 
   type                           = "PREFIX"
-  enable_kms                     = true
   description                    = "test task group"
   migrate_since                  = "2023-01-02 15:04:05"
   object_overwrite_mode          = "CRC64_COMPARISON_OVERWRITE"
@@ -148,9 +147,6 @@ The following arguments are supported:
   + **PREFIX**: indicates that the system will migrate the objects with a specific prefix.
 
   The default value is **PREFIX**. Changing this creates a new resource.
-
-* `enable_kms` - (Optional, Bool, ForceNew) Specifies whether to enable the KMS encryption function.
-  Default value: **false**. Changing this creates a new resource.
 
 * `description` - (Optional, String, ForceNew) Specifies the description of the task group. The message cannot
   exceed 255 characters. The following special characters are not allowed: ^<>&"'.

@@ -197,11 +197,6 @@ func ResourceMigrationTask() *schema.Resource {
 				Optional: true,
 				Default:  true,
 			},
-			"enable_kms": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: true,
-			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -506,7 +501,6 @@ func buildcreateTaskBodyParams(d *schema.ResourceData, cfg *config.Config) (map[
 	bodyParams := map[string]interface{}{
 		"task_type":                      d.Get("type"),
 		"src_node":                       buildSrcNodeOpts(d.Get("source_object").([]interface{})),
-		"enable_kms":                     d.Get("enable_kms").(bool),
 		"description":                    utils.ValueIgnoreEmpty(d.Get("description").(string)),
 		"bandwidth_policy":               buildBandwidthPolicyOpts(d.Get("bandwidth_policy").([]interface{})),
 		"smn_config":                     buildSmnConfigOpts(d.Get("smn_config").([]interface{})),
@@ -638,7 +632,6 @@ func resourceMigrationTaskRead(_ context.Context, d *schema.ResourceData, meta i
 
 	mErr := multierror.Append(nil,
 		d.Set("type", utils.PathSearch("task_type", getTaskRespBody, nil)),
-		d.Set("enable_kms", utils.PathSearch("enable_kms", getTaskRespBody, nil)),
 		d.Set("description", utils.PathSearch("description", getTaskRespBody, nil)),
 		d.Set("bandwidth_policy", flattenBandwidthPolicy(getTaskRespBody)),
 		d.Set("source_cdn", flattenSourceCdn(getTaskRespBody)),

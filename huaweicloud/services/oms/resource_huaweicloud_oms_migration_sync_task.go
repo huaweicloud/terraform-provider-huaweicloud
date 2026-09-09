@@ -82,11 +82,6 @@ func ResourceMigrationSyncTask() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
-			"enable_kms": {
-				Type:     schema.TypeBool,
-				Optional: true,
-				ForceNew: true,
-			},
 			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -261,7 +256,6 @@ func buildcreateSyncTaskBodyParams(d *schema.ResourceData, region string) map[st
 		"dst_ak":                    d.Get("dst_ak"),
 		"dst_sk":                    d.Get("dst_sk"),
 		"description":               utils.ValueIgnoreEmpty(d.Get("description")),
-		"enable_kms":                d.Get("enable_kms"),
 		"enable_restore":            d.Get("enable_restore"),
 		"enable_metadata_migration": d.Get("enable_metadata_migration"),
 		"app_id":                    utils.ValueIgnoreEmpty(d.Get("app_id")),
@@ -317,7 +311,6 @@ func resourceMigrationSyncTaskRead(_ context.Context, d *schema.ResourceData, me
 		d.Set("dst_bucket", utils.PathSearch("dst_bucket", getSyncTaskRespBody, nil)),
 		d.Set("description", utils.PathSearch("description", getSyncTaskRespBody, nil)),
 		d.Set("status", utils.PathSearch("status", getSyncTaskRespBody, nil)),
-		d.Set("enable_kms", utils.PathSearch("enable_kms", getSyncTaskRespBody, nil)),
 		d.Set("enable_metadata_migration", utils.PathSearch("enable_metadata_migration", getSyncTaskRespBody, nil)),
 		d.Set("enable_restore", utils.PathSearch("enable_restore", getSyncTaskRespBody, nil)),
 		d.Set("app_id", utils.PathSearch("app_id", getSyncTaskRespBody, nil)),

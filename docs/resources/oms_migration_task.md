@@ -78,9 +78,6 @@ The following arguments are supported:
 
 * `start_task` - (Optional, Bool) Specifies whether to start the task. Default value: **true**.
 
-* `enable_kms` - (Optional, Bool, ForceNew) Specifies whether to enable the KMS encryption function.
-  Default value: **false**. Changing this creates a new resource.
-
 * `description` - (Optional, String, ForceNew) Specifies the description of the task.
   Changing this creates a new resource.
 

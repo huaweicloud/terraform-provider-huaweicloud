@@ -146,10 +146,6 @@ func DataSourceMigrationTaskGroups() *schema.Resource {
 							Type:     schema.TypeBool,
 							Computed: true,
 						},
-						"enable_kms": {
-							Type:     schema.TypeBool,
-							Computed: true,
-						},
 						"task_type": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -434,7 +430,6 @@ func flattenMigrationTaskGroups(resp []interface{}) []interface{} {
 			"enable_metadata_migration":      utils.PathSearch("enable_metadata_migration", v, nil),
 			"enable_failed_object_recording": utils.PathSearch("enable_failed_object_recording", v, nil),
 			"enable_restore":                 utils.PathSearch("enable_restore", v, nil),
-			"enable_kms":                     utils.PathSearch("enable_kms", v, nil),
 			"task_type":                      utils.PathSearch("task_type", v, nil),
 			"bandwidth_policy": flattenBandwidthPolicyResp(
 				utils.PathSearch("bandwidth_policy", v, make([]interface{}, 0)).([]interface{})),

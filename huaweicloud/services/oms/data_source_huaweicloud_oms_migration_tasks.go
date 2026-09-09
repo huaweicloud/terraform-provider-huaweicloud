@@ -93,10 +93,6 @@ func DataSourceMigrationTasks() *schema.Resource {
 							Type:     schema.TypeBool,
 							Computed: true,
 						},
-						"enable_kms": {
-							Type:     schema.TypeBool,
-							Computed: true,
-						},
 						"enable_metadata_migration": {
 							Type:     schema.TypeBool,
 							Computed: true,
@@ -442,7 +438,6 @@ func flattenMigrationTasks(resp []interface{}) []interface{} {
 			"description":                    utils.PathSearch("description", v, nil),
 			"dst_node":                       flattenDstNodeResp(utils.PathSearch("dst_node", v, nil)),
 			"enable_failed_object_recording": utils.PathSearch("enable_failed_object_recording", v, nil),
-			"enable_kms":                     utils.PathSearch("enable_kms", v, nil),
 			"enable_metadata_migration":      utils.PathSearch("enable_metadata_migration", v, nil),
 			"enable_restore":                 utils.PathSearch("enable_restore", v, nil),
 			"error_reason":                   flattenErrorReasonResp(utils.PathSearch("error_reason", v, nil)),
