@@ -2,12 +2,13 @@ package filters
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"reflect"
+	"strconv"
 	"strings"
 
-	"github.com/thedevsaddam/gojsonq"
 	"github.com/tidwall/gjson"
 )
 
@@ -20,23 +21,14 @@ type QueryCond struct {
 }
 
 type JsonFilter struct {
-	query    *gojsonq.JSONQ
 	node     string
 	jsonData any
 	queries  []QueryCond
 	filter   Filter
 }
 
-//nolint:unused
-func (f *JsonFilter) GetQ() *gojsonq.JSONQ {
-	return f.query
-}
-
 func New() *JsonFilter {
 	return &JsonFilter{
-		query: gojsonq.New().
-			Macro("has", has).
-			Macro("hasContains", hasContain),
 		queries: make([]QueryCond, 0),
 		filter:  nil,
 	}
@@ -83,23 +75,36 @@ func (f *JsonFilter) GetFilter() Filter {
 
 func (f *JsonFilter) Get() (any, error) {
 	dt := reflect.TypeOf(f.jsonData)
-	if dt.Kind() == reflect.Slice {
+	if dt != nil && dt.Kind() == reflect.Slice {
 		return f.filterSlice()
 	}
 	return f.filterJson()
 }
 
 func (f *JsonFilter) filterSlice() (any, error) {
-	b, err := json.Marshal(f.jsonData)
-	if err != nil {
-		return f.jsonData, err
+	if len(f.queries) > 0 || f.filter != nil {
+		items, err := normalizeSliceViaJSON(f.jsonData)
+		if err != nil {
+			return f.jsonData, err
+		}
+
+		var filtered interface{} = items
+		if len(f.queries) > 0 {
+			filtered = filterArrayItems(items, f.queries)
+		}
+		return f.applyFilter(filtered), nil
 	}
 
-	query := f.query.JSONString(string(b))
-	for _, q := range f.queries {
-		query = query.Where(q.Key, q.Operator, q.Value)
+	rv := reflect.ValueOf(f.jsonData)
+	if rv.Kind() != reflect.Slice && rv.Kind() != reflect.Array {
+		return f.jsonData, nil
 	}
-	return f.applyFilter(query.Get()), nil
+
+	items := make([]interface{}, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		items[i] = rv.Index(i).Interface()
+	}
+	return f.applyFilter(items), nil
 }
 
 func (f *JsonFilter) filterJson() (any, error) {
@@ -107,28 +112,214 @@ func (f *JsonFilter) filterJson() (any, error) {
 		return nil, fmt.Errorf("`From` cannot be empty")
 	}
 
-	b, err := json.Marshal(f.jsonData)
-	if err != nil {
-		return f.jsonData, err
-	}
-
-	query := f.query.JSONString(string(b)).From(f.node)
-
-	for _, q := range f.queries {
-		query = query.Where(q.Key, q.Operator, q.Value)
-	}
-
-	if f.node == "" {
-		return query.Get(), nil
-	}
-
-	switch mp := f.jsonData.(type) {
-	case map[string]interface{}:
-		mp = putMap(f.node, mp, f.applyFilter(query.Get()))
-		return mp, nil
-	default:
+	mp, ok := f.jsonData.(map[string]interface{})
+	if !ok {
 		return nil, fmt.Errorf("failed to parse object")
 	}
+
+	if len(f.queries) > 0 || f.filter != nil {
+		normalized, err := normalizeViaJSON(mp)
+		if err != nil {
+			return nil, fmt.Errorf("failed to normalize filter data: %w", err)
+		}
+		mp = normalized
+	}
+
+	nodeValue, err := getNestedValue(mp, f.node, ".")
+	var filtered interface{}
+	if err != nil {
+		filtered = nil
+	} else if arr, ok := normalizeToInterfaceSlice(nodeValue); ok {
+		if len(f.queries) == 0 {
+			filtered = arr
+		} else {
+			filtered = filterArrayItems(arr, f.queries)
+		}
+	} else {
+		filtered = nodeValue
+	}
+
+	mp = putMap(f.node, mp, f.applyFilter(filtered))
+	return mp, nil
+}
+
+func normalizeToInterfaceSlice(v interface{}) ([]interface{}, bool) {
+	if arr, ok := v.([]interface{}); ok {
+		return arr, true
+	}
+
+	rv := reflect.ValueOf(v)
+	if rv.Kind() != reflect.Slice && rv.Kind() != reflect.Array {
+		return nil, false
+	}
+
+	result := make([]interface{}, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		result[i] = rv.Index(i).Interface()
+	}
+	return result, true
+}
+
+func filterArrayItems(items []interface{}, queries []QueryCond) []interface{} {
+	result := make([]interface{}, 0)
+	for _, item := range items {
+		vm, ok := item.(map[string]interface{})
+		if !ok {
+			continue
+		}
+		if matchMapConditions(vm, queries) {
+			result = append(result, vm)
+		}
+	}
+	return result
+}
+
+func matchMapConditions(vm map[string]interface{}, queries []QueryCond) bool {
+	for _, q := range queries {
+		nv, err := getNestedValue(vm, q.Key, ".")
+		if err != nil {
+			return false
+		}
+		matched, err := matchCondition(nv, q.Operator, q.Value)
+		if err != nil || !matched {
+			return false
+		}
+	}
+	return true
+}
+
+func matchCondition(x interface{}, operator string, y interface{}) (bool, error) {
+	switch operator {
+	case "=":
+		return equalValues(x, y), nil
+	case "contains":
+		return strContainsCondition(x, y)
+	case "has":
+		return has(x, y)
+	case "hasContains":
+		return hasContain(x, y)
+	default:
+		return false, fmt.Errorf("invalid operator %s", operator)
+	}
+}
+
+func equalValues(x, y interface{}) bool {
+	fx, okX := toFloat64(x)
+	fy, okY := toFloat64(y)
+	if okX && okY {
+		return fx == fy
+	}
+	return reflect.DeepEqual(x, y)
+}
+
+func normalizeViaJSON(data any) (map[string]interface{}, error) {
+	b, err := json.Marshal(data)
+	if err != nil {
+		return nil, err
+	}
+
+	var result map[string]interface{}
+	if err := json.Unmarshal(b, &result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func normalizeSliceViaJSON(data any) ([]interface{}, error) {
+	b, err := json.Marshal(data)
+	if err != nil {
+		return nil, err
+	}
+
+	var result []interface{}
+	if err := json.Unmarshal(b, &result); err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func strContainsCondition(x, y interface{}) (bool, error) {
+	xv, okX := x.(string)
+	if !okX {
+		return false, fmt.Errorf("%v must be string", x)
+	}
+	yv, okY := y.(string)
+	if !okY {
+		return false, fmt.Errorf("%v must be string", y)
+	}
+	return strings.Contains(strings.ToLower(xv), strings.ToLower(yv)), nil
+}
+
+func toFloat64(v interface{}) (float64, bool) {
+	switch u := v.(type) {
+	case int:
+		return float64(u), true
+	case int8:
+		return float64(u), true
+	case int16:
+		return float64(u), true
+	case int32:
+		return float64(u), true
+	case int64:
+		return float64(u), true
+	case float32:
+		return float64(u), true
+	case float64:
+		return u, true
+	default:
+		return 0, false
+	}
+}
+
+func isIndex(in string) bool {
+	return strings.HasPrefix(in, "[") && strings.HasSuffix(in, "]")
+}
+
+func getIndex(in string) (int, error) {
+	if !isIndex(in) {
+		return -1, fmt.Errorf("invalid index")
+	}
+	is := strings.TrimLeft(in, "[")
+	is = strings.TrimRight(is, "]")
+	return strconv.Atoi(is)
+}
+
+func getNestedValue(input interface{}, node, separator string) (interface{}, error) {
+	pp := strings.Split(node, separator)
+	for _, n := range pp {
+		if isIndex(n) {
+			arr, ok := input.([]interface{})
+			if !ok {
+				return nil, fmt.Errorf("invalid node name %s", n)
+			}
+			indx, err := getIndex(n)
+			if err != nil {
+				return input, err
+			}
+			arrLen := len(arr)
+			if arrLen == 0 || indx > arrLen-1 {
+				return nil, errors.New("empty array")
+			}
+			input = arr[indx]
+		} else {
+			validNode := false
+			if mp, ok := input.(map[string]interface{}); ok {
+				input, ok = mp[n]
+				validNode = ok
+			}
+
+			if mp, ok := input.(map[string][]interface{}); ok {
+				input, ok = mp[n]
+				validNode = ok
+			}
+
+			if !validNode {
+				return nil, fmt.Errorf("invalid node name %s", n)
+			}
+		}
+	}
+
+	return input, nil
 }
 
 func (f *JsonFilter) applyFilter(slice any) any {
@@ -222,6 +413,15 @@ func has(x interface{}, y interface{}) (bool, error) {
 	}
 }
 
+func valueIsNil(v reflect.Value) bool {
+	switch v.Kind() {
+	case reflect.Interface, reflect.Pointer, reflect.Map, reflect.Slice, reflect.Chan, reflect.Func:
+		return v.IsNil()
+	default:
+		return false
+	}
+}
+
 func mapHas(x interface{}, y interface{}) (bool, error) {
 	xRef := reflect.ValueOf(x)
 	yRef := reflect.ValueOf(y)
@@ -231,7 +431,7 @@ func mapHas(x interface{}, y interface{}) (bool, error) {
 	for _, k := range yRef.MapKeys() {
 		yVal := yRef.MapIndex(k)
 		xVal := xRef.MapIndex(k)
-		if xVal.IsValid() && !xVal.IsNil() && isEqual(xVal, yVal) {
+		if xVal.IsValid() && !valueIsNil(xVal) && isEqual(xVal, yVal) {
 			continue
 		}
 		return false, nil
@@ -303,7 +503,7 @@ func mapHasContain(x interface{}, y interface{}) (bool, error) {
 	for _, k := range keys {
 		yVal := yRef.MapIndex(k)
 		xVal := xRef.MapIndex(k)
-		if xVal.IsValid() && !xVal.IsNil() && isEqual(xVal, yVal) {
+		if xVal.IsValid() && !valueIsNil(xVal) && isEqual(xVal, yVal) {
 			return true, nil
 		}
 	}
