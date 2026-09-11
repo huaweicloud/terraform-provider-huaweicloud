@@ -72,6 +72,169 @@ func TestAccObsBucketObject_source(t *testing.T) {
 				),
 			},
 			{
+				// This step checks whether the content_type is correctly determined
+				// as "image/png" based on the key's suffix.
+				Config: testAccBucketObject_source_step4(name, name+".png", tmpFile.Name()),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "content_type", "image/png"),
+					resource.TestCheckResourceAttr(resourceName, "tags.%", "0"),
+					resource.TestCheckResourceAttr(resourceName, "metadata.%", "0"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccBucketObjectImportStateIdFunc(),
+				ImportStateVerifyIgnore: []string{
+					"encryption", "source",
+				},
+			},
+		},
+	})
+}
+
+// In this case the uploaded object has a .jpg suffix and we determine whether the content_type can correctly be identified
+// as "image/jpeg", instead of "binary/octet-stream", without it being explicitly set by the user.
+func TestAccObsBucketObject_sourceWithSuffix(t *testing.T) {
+	name := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_obs_bucket_object.test"
+
+	tmpFile, err := os.CreateTemp("", "tf-acc-obs-obj-source*.jpg")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(tmpFile.Name())
+
+	// write some data to the tempfile
+	err = os.WriteFile(tmpFile.Name(), []byte("initial object state"), 0600)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckOBS(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckObsBucketObjectDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBucketObjectWithSuffix_source_step1(name, tmpFile.Name()),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckObsBucketObjectExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "key", name),
+					resource.TestCheckResourceAttr(resourceName, "content_type", "image/jpeg"),
+					resource.TestCheckResourceAttr(resourceName, "storage_class", "STANDARD"),
+					resource.TestCheckResourceAttr(resourceName, "tags.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "metadata.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "metadata.x-obs-meta-test1", "meta test1"),
+				),
+			},
+			{
+				// update with encryption
+				Config: testAccBucketObjectWithSuffix_source_step2(name, tmpFile.Name()),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "encryption", "true"),
+					resource.TestCheckResourceAttr(resourceName, "content_type", "image/jpeg"),
+					resource.TestCheckResourceAttr(resourceName, "tags.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "metadata.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "metadata.x-obs-meta-test-update", "update meta test1"),
+				),
+			},
+			{
+				// update with encryption
+				Config: testAccBucketObjectWithSuffix_source_step3(name, tmpFile.Name()),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "content_type", "image/jpeg"),
+					resource.TestCheckResourceAttr(resourceName, "tags.%", "0"),
+					resource.TestCheckResourceAttr(resourceName, "metadata.%", "0"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testAccBucketObjectImportStateIdFunc(),
+				ImportStateVerifyIgnore: []string{
+					"encryption", "source",
+				},
+			},
+		},
+	})
+}
+
+// A large file (> 5GB) is uploaded to test the multipart upload functionality.
+// Note that this test will take longer to run and will consume more bandwidth.
+func TestAccObsBucketObject_sourceWithSuffixAndLargeFile(t *testing.T) {
+	name := acceptance.RandomAccResourceNameWithDash()
+	resourceName := "huaweicloud_obs_bucket_object.test"
+
+	tmpFile, err := os.CreateTemp("", "tf-acc-obs-obj-source*.jpg")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(tmpFile.Name())
+
+	// write some data to the tempfile
+	err = os.WriteFile(tmpFile.Name(), []byte("initial object state"), 0600)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Make the file large
+	size := int64(5.5 * 1024 * 1024 * 1024) // 5.5 GB
+	err = tmpFile.Truncate(size)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck: func() {
+			acceptance.TestAccPreCheck(t)
+			acceptance.TestAccPreCheckOBS(t)
+		},
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckObsBucketObjectDestroy,
+		Steps: []resource.TestStep{
+			{
+				Config: testAccBucketObjectWithSuffix_source_step1(name, tmpFile.Name()),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckObsBucketObjectExists(resourceName),
+					resource.TestCheckResourceAttr(resourceName, "key", name),
+					resource.TestCheckResourceAttr(resourceName, "content_type", "image/jpeg"),
+					resource.TestCheckResourceAttr(resourceName, "storage_class", "STANDARD"),
+					resource.TestCheckResourceAttr(resourceName, "tags.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "metadata.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "metadata.x-obs-meta-test1", "meta test1"),
+				),
+			},
+			{
+				// update with encryption
+				Config: testAccBucketObjectWithSuffix_source_step2(name, tmpFile.Name()),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "encryption", "true"),
+					resource.TestCheckResourceAttr(resourceName, "content_type", "image/jpeg"),
+					resource.TestCheckResourceAttr(resourceName, "tags.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "tags.owner", "terraform"),
+					resource.TestCheckResourceAttr(resourceName, "metadata.%", "1"),
+					resource.TestCheckResourceAttr(resourceName, "metadata.x-obs-meta-test-update", "update meta test1"),
+				),
+			},
+			{
+				// update with encryption
+				Config: testAccBucketObjectWithSuffix_source_step3(name, tmpFile.Name()),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr(resourceName, "content_type", "image/jpeg"),
+					resource.TestCheckResourceAttr(resourceName, "tags.%", "0"),
+					resource.TestCheckResourceAttr(resourceName, "metadata.%", "0"),
+				),
+			},
+			{
 				ResourceName:      resourceName,
 				ImportState:       true,
 				ImportStateVerify: true,
@@ -302,6 +465,77 @@ resource "huaweicloud_obs_bucket_object" "test" {
   key          = "%[2]s"
   source       = "%[3]s"
   content_type = "binary/octet-stream"
+  encryption   = true
+
+  tags = {}
+}
+`, testAccBucketObject_base(name), name, source)
+}
+
+func testAccBucketObject_source_step4(bucketName, name, source string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_obs_bucket_object" "test" {
+  bucket       = huaweicloud_obs_bucket.test.bucket
+  key          = "%[2]s"
+  source       = "%[3]s"
+  encryption   = true
+
+  tags = {}
+}
+`, testAccBucketObject_base(bucketName), name, source)
+}
+
+func testAccBucketObjectWithSuffix_source_step1(name, source string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_obs_bucket_object" "test" {
+  bucket       = huaweicloud_obs_bucket.test.bucket
+  key          = "%[2]s"
+  source       = "%[3]s"
+
+  tags = {
+    foo = "bar"
+  }
+
+  metadata = {
+    "x-obs-meta-test1" = "meta test1"
+  }
+}
+`, testAccBucketObject_base(name), name, source)
+}
+
+func testAccBucketObjectWithSuffix_source_step2(name, source string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_obs_bucket_object" "test" {
+  bucket       = huaweicloud_obs_bucket.test.bucket
+  key          = "%[2]s"
+  source       = "%[3]s"
+  encryption   = true
+
+  tags = {
+    owner = "terraform"
+  }
+
+  metadata = {
+    "x-obs-meta-test-update" = "update meta test1"
+  }
+}
+`, testAccBucketObject_base(name), name, source)
+}
+
+func testAccBucketObjectWithSuffix_source_step3(name, source string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_obs_bucket_object" "test" {
+  bucket       = huaweicloud_obs_bucket.test.bucket
+  key          = "%[2]s"
+  source       = "%[3]s"
   encryption   = true
 
   tags = {}
