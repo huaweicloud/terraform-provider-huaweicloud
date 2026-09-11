@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 1.98.2 (Sep 11, 2026)
+
+* **New Data Source:**
+  + `huaweicloud_waf_rules` [GH-10502]
+
 ## 1.98.1 (Sep 9, 2026)
 
 * **New Resource Source:**
