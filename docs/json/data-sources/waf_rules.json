@@ -1,0 +1,53 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_waf_rules": {
+          "block": {
+            "attributes": {
+              "enterprise_project_id": {
+                "type": "string",
+                "description": "Specifies the enterprise project ID to which the rules belong.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "policy_ids": {
+                "type": "string",
+                "description": "Specifies the ID list of the policies to be queried.",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the rules.",
+                "computed": true
+              },
+              "rule_type": {
+                "type": "string",
+                "description": "Specifies the type of the rules to be queried.",
+                "required": true
+              },
+              "rules": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "All rules that matched the filter parameters.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "WAF",
+            "name": "Web Application Firewall",
+            "catalog": "Security & Compliance",
+            "name_cn": "Web应用防火墙",
+            "catalog_cn": "安全与合规"
+          }
+        }
+      }
+    }
+  }
+}
