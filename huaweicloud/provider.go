@@ -3382,6 +3382,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_cbr_change_order":             cbr.ResourceChangeOrder(),
 			"huaweicloud_cbr_update_backup":            cbr.ResourceUpdateBackup(),
 			"huaweicloud_cbr_vault_set_resource":       cbr.ResourceVaultSetResource(),
+			"huaweicloud_cbr_vault_policies_associate": cbr.ResourceVaultPoliciesAssociate(),
 
 			"huaweicloud_cbh_instance":                   cbh.ResourceCBHInstance(),
 			"huaweicloud_cbh_reset_login_mode":           cbh.ResourceResetLoginMode(),
