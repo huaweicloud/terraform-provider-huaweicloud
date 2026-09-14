@@ -227,3 +227,111 @@ func (rc *ResourceCheck) CheckMultiResourcesExists(count int) resource.TestCheck
 		return nil
 	}
 }
+
+/*
+MultiResourcesImportSteps builds ImportState TestSteps for multiple resources created by count.
+
+Unlike CheckMultiResourcesExists, import verification is driven by TestStep rather than TestCheckFunc,
+so this helper returns a list of TestSteps that can be appended to the Steps of a TestCase.
+
+	Parameters:
+	  count: the expected number of resources that will be created.
+	  opts:  optional import behaviors, such as ignored fields or a custom import ID builder.
+
+	Example (default, using resource ID):
+	  rc.MultiResourcesImportSteps(2)
+
+	Example (ignore fields):
+	  rc.MultiResourcesImportSteps(2, acceptance.WithImportStateVerifyIgnore("password"))
+
+	Example (composite import ID, e.g. <instance_id>/<id>):
+	  rc.MultiResourcesImportSteps(2, acceptance.WithImportIDAttributes("instance_id", "id"))
+
+	Example (fully custom composition):
+	  rc.MultiResourcesImportSteps(2, acceptance.WithImportStateIDFunc(func(rs *terraform.ResourceState) (string, error) {
+	      return fmt.Sprintf("%s/%s", rs.Primary.Attributes["vault_id"], rs.Primary.Attributes["policy_id"]), nil
+	  }))
+*/
+func (rc *ResourceCheck) MultiResourcesImportSteps(count int, opts ...MultiResourcesImportOption) []resource.TestStep {
+	steps := make([]resource.TestStep, 0, count)
+	for i := 0; i < count; i++ {
+		// terraform.State stores counted resources as "type.name.index".
+		stateName := fmt.Sprintf("%s.%d", rc.resourceName, i)
+		// terraform import requires HCL address syntax: "type.name[index]".
+		importAddr := fmt.Sprintf("%s[%d]", rc.resourceName, i)
+
+		step := resource.TestStep{
+			ResourceName:      importAddr,
+			ImportState:       true,
+			ImportStateVerify: true,
+			// Always set ImportStateIdFunc so the SDK does not look up ResourceName
+			// (HCL address) in terraform.State, which uses the dotted index key.
+			ImportStateIdFunc: defaultImportStateIdFunc(stateName),
+		}
+		for _, opt := range opts {
+			opt(stateName, &step)
+		}
+		steps = append(steps, step)
+	}
+	return steps
+}
+
+func defaultImportStateIdFunc(stateName string) resource.ImportStateIdFunc {
+	return func(s *terraform.State) (string, error) {
+		rs, ok := s.RootModule().Resources[stateName]
+		if !ok {
+			return "", fmt.Errorf("resource (%s) not found", stateName)
+		}
+		if rs.Primary.ID == "" {
+			return "", fmt.Errorf("no ID is set for the resource: %s", stateName)
+		}
+		return rs.Primary.ID, nil
+	}
+}
+
+// MultiResourcesImportOption customizes a generated import TestStep.
+// The resourceName argument is the terraform.State key (type.name.index).
+type MultiResourcesImportOption func(resourceName string, step *resource.TestStep)
+
+// WithImportStateVerifyIgnore ignores the specified attributes during ImportStateVerify.
+func WithImportStateVerifyIgnore(fields ...string) MultiResourcesImportOption {
+	return func(_ string, step *resource.TestStep) {
+		step.ImportStateVerifyIgnore = fields
+	}
+}
+
+// WithImportStateIDFunc sets a custom import ID builder based on the current resource state.
+// Use this when the import ID is a composite value that cannot be derived from Primary.ID alone.
+func WithImportStateIDFunc(build func(rs *terraform.ResourceState) (string, error)) MultiResourcesImportOption {
+	return func(resourceName string, step *resource.TestStep) {
+		step.ImportStateIdFunc = func(s *terraform.State) (string, error) {
+			rs, ok := s.RootModule().Resources[resourceName]
+			if !ok {
+				return "", fmt.Errorf("resource (%s) not found", resourceName)
+			}
+			if rs.Primary.ID == "" {
+				return "", fmt.Errorf("no ID is set for the resource: %s", resourceName)
+			}
+			return build(rs)
+		}
+	}
+}
+
+// WithImportIDAttributes builds a composite import ID by joining the specified attribute keys with "/".
+// The special key "id" uses rs.Primary.ID. This covers the common "<attr1>/<attr2>" import format.
+func WithImportIDAttributes(keys ...string) MultiResourcesImportOption {
+	return WithImportStateIDFunc(func(rs *terraform.ResourceState) (string, error) {
+		parts := make([]string, 0, len(keys))
+		for _, key := range keys {
+			value := rs.Primary.ID
+			if key != "id" {
+				value = rs.Primary.Attributes[key]
+			}
+			if value == "" {
+				return "", fmt.Errorf("invalid format specified for import ID, attribute (%s) is empty", key)
+			}
+			parts = append(parts, value)
+		}
+		return strings.Join(parts, "/"), nil
+	})
+}
