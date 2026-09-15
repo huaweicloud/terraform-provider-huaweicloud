@@ -28,7 +28,7 @@ func getEipProtectionResourceFunc(cfg *config.Config, state *terraform.ResourceS
 	if err != nil {
 		return nil, fmt.Errorf("error getting protected EIPs: %s", err)
 	}
-	if !cfw.ProtectedEipExist(resp) {
+	if !cfw.ProtectedEipExist(resp, state.Primary.ID) {
 		return nil, golangsdk.ErrDefault404{}
 	}
 	return resp, nil
@@ -39,6 +39,8 @@ func TestAccEipProtection_basic(t *testing.T) {
 		obj interface{}
 
 		rName       = "huaweicloud_cfw_eip_protection.test"
+		rName1      = "huaweicloud_cfw_eip_protection.test.0"
+		rName2      = "huaweicloud_cfw_eip_protection.test.1"
 		basicConfig = testEipProtection_base()
 
 		rc = acceptance.InitResourceCheck(
@@ -51,29 +53,39 @@ func TestAccEipProtection_basic(t *testing.T) {
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck: func() {
 			acceptance.TestAccPreCheck(t)
-			acceptance.TestAccPreCheckCfw(t)
+			// This test case requires setting at least two different firewall instance IDs.
+			acceptance.TestAccPreCheckCfwIds(t, 2)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		CheckDestroy:      rc.CheckResourceDestroy(),
-		Steps: []resource.TestStep{
+		Steps: append([]resource.TestStep{
 			{
 				Config: testEipProtection_basic_step1(basicConfig),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
+					rc.CheckMultiResourcesExists(2),
+					resource.TestCheckResourceAttrPair(rName1, "object_id",
+						"data.huaweicloud_cfw_firewalls.test.0", "records.0.protect_objects.0.object_id"),
+					resource.TestCheckResourceAttr(rName1, "protected_eip.#", "2"),
+					resource.TestCheckTypeSetElemAttrPair(rName1, "protected_eip.*.id", "huaweicloud_vpc_eip.test.0", "id"),
+					resource.TestCheckTypeSetElemAttrPair(rName1, "protected_eip.*.id", "huaweicloud_vpc_eip.test.1", "id"),
+					resource.TestCheckResourceAttrPair(rName2, "object_id",
+						"data.huaweicloud_cfw_firewalls.test.1", "records.0.protect_objects.0.object_id"),
+					resource.TestCheckResourceAttr(rName2, "protected_eip.#", "2"),
+					resource.TestCheckTypeSetElemAttrPair(rName2, "protected_eip.*.id", "huaweicloud_vpc_eip.test.2", "id"),
+					resource.TestCheckTypeSetElemAttrPair(rName2, "protected_eip.*.id", "huaweicloud_vpc_eip.test.3", "id"),
 				),
 			},
 			{
 				Config: testEipProtection_basic_step2(basicConfig),
 				Check: resource.ComposeTestCheckFunc(
-					rc.CheckResourceExists(),
+					rc.CheckMultiResourcesExists(2),
+					resource.TestCheckResourceAttr(rName1, "protected_eip.#", "1"),
+					resource.TestCheckTypeSetElemAttrPair(rName1, "protected_eip.*.id", "huaweicloud_vpc_eip.test.1", "id"),
+					resource.TestCheckResourceAttr(rName2, "protected_eip.#", "1"),
+					resource.TestCheckTypeSetElemAttrPair(rName2, "protected_eip.*.id", "huaweicloud_vpc_eip.test.3", "id"),
 				),
 			},
-			{
-				ResourceName:      rName,
-				ImportState:       true,
-				ImportStateVerify: true,
-			},
-		},
+		}, rc.MultiResourcesImportSteps(2)...),
 	})
 }
 
@@ -81,14 +93,22 @@ func testEipProtection_base() string {
 	name := acceptance.RandomAccResourceName()
 
 	return fmt.Sprintf(`
-%[1]s
+locals {
+  fw_instance_ids = slice(split(",", "%[1]s"), 0, 2)
+}
+
+data "huaweicloud_cfw_firewalls" "test" {
+  count          = length(local.fw_instance_ids)
+  fw_instance_id = local.fw_instance_ids[count.index]
+}
 
 resource "huaweicloud_vpc_eip" "test" {
-  count = 3
+  count = 4
 
   publicip {
     type = "5_bgp"
   }
+
   bandwidth {
     share_type  = "PER"
     name        = "%[2]s_${count.index}"
@@ -96,7 +116,7 @@ resource "huaweicloud_vpc_eip" "test" {
     charge_mode = "traffic"
   }
 }
-`, testAccDatasourceFirewalls_basic(), name)
+`, acceptance.HW_CFW_INSTANCE_IDS, name)
 }
 
 func testEipProtection_basic_step1(basicConfig string) string {
@@ -104,10 +124,11 @@ func testEipProtection_basic_step1(basicConfig string) string {
 %[1]s
 
 resource "huaweicloud_cfw_eip_protection" "test" {
-  object_id = data.huaweicloud_cfw_firewalls.test.records[0].protect_objects[0].object_id
+  count     = length(local.fw_instance_ids)
+  object_id = data.huaweicloud_cfw_firewalls.test[count.index].records[0].protect_objects[0].object_id
 
   dynamic "protected_eip" {
-    for_each = slice(huaweicloud_vpc_eip.test[*], 0, 2)
+    for_each = slice(huaweicloud_vpc_eip.test[*], count.index * 2, count.index * 2 + 2)
     content {
       id          = protected_eip.value.id
       public_ipv4 = protected_eip.value.address
@@ -122,10 +143,11 @@ func testEipProtection_basic_step2(basicConfig string) string {
 %[1]s
 
 resource "huaweicloud_cfw_eip_protection" "test" {
-  object_id = data.huaweicloud_cfw_firewalls.test.records[0].protect_objects[0].object_id
+  count     = length(local.fw_instance_ids)
+  object_id = data.huaweicloud_cfw_firewalls.test[count.index].records[0].protect_objects[0].object_id
 
   dynamic "protected_eip" {
-    for_each = slice(huaweicloud_vpc_eip.test[*], 1, 3)
+    for_each = slice(huaweicloud_vpc_eip.test[*], count.index * 2 + 1, count.index * 2 + 2)
     content {
       id          = protected_eip.value.id
       public_ipv4 = protected_eip.value.address
