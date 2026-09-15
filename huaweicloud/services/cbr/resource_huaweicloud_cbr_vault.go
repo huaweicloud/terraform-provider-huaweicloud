@@ -1287,6 +1287,9 @@ func resourceVaultUpdate(ctx context.Context, d *schema.ResourceData, meta inter
 		if err := updatePoliciesBinding(client, vaultId, oPolicies, nPolicies); err != nil {
 			return diag.FromErr(err)
 		}
+		// Avoid hitting cache nodes belonging to the same process to make sure the API response data is updated.
+		// lintignore:R018
+		time.Sleep(30 * time.Second)
 	}
 
 	if d.HasChange("tags") {
