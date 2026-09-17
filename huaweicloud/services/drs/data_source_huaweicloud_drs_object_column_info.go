@@ -202,11 +202,11 @@ func flattenObjectWithColumnInfos(resp interface{}) []interface{} {
 			"alias_name":        utils.PathSearch("alias_name", v, nil),
 			"notices":           utils.PathSearch("notices", v, make([]interface{}, 0)),
 			"extend_info":       utils.PathSearch("extend_info", v, nil),
-			"is_support_expand": utils.PathSearch("is_support_expand", v, nil),
-			"has_column_info":   utils.PathSearch("has_column_info", v, nil),
-			"is_preset":         utils.PathSearch("is_preset", v, nil),
+			"is_support_expand": utils.StringToBool(utils.PathSearch("is_support_expand", v, nil)),
+			"has_column_info":   utils.StringToBool(utils.PathSearch("has_column_info", v, nil)),
+			"is_preset":         utils.StringToBool(utils.PathSearch("is_preset", v, nil)),
 			"token_count":       utils.PathSearch("token_count", v, nil),
-			"is_sent":           utils.PathSearch("is_sent", v, nil),
+			"is_sent":           utils.StringToBool(utils.PathSearch("is_sent", v, nil)),
 			"sent_alias_name":   utils.PathSearch("sent_alias_name", v, nil),
 		})
 	}
