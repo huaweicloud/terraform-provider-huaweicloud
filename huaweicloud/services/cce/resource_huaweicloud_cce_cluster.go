@@ -918,45 +918,48 @@ func resourceClusterRead(_ context.Context, d *schema.ResourceData, meta interfa
 		mErr = multierror.Append(mErr, d.Set("charging_mode", "prePaid"))
 	}
 
-	// duration -1 is equal to the maximum value 1827 days
-	opts := clusters.GetCertOpts{Duration: -1}
-	r := clusters.GetCert(cceClient, d.Id(), opts)
+	// The certificate endpoint issues a new client certificate on every call.
+	// Keep the certificate already stored in state during refreshes to avoid
+	// perpetual drift. Fetch it only after creation or import, when state does
+	// not contain a kubeconfig yet.
+	if _, ok := d.GetOk("kube_config_raw"); !ok {
+		// duration -1 is equal to the maximum value 1827 days
+		opts := clusters.GetCertOpts{Duration: -1}
+		r := clusters.GetCert(cceClient, d.Id(), opts)
 
-	kubeConfigRaw, err := utils.JsonMarshal(r.Body)
+		cert, err := r.Extract()
+		if err != nil {
+			return diag.Errorf("error retrieving CCE cluster certificate: %s", err)
+		}
 
-	if err != nil {
-		log.Printf("error marshaling r.Body: %s", err)
+		kubeConfigRaw, err := utils.JsonMarshal(r.Body)
+		if err != nil {
+			return diag.Errorf("error marshaling CCE cluster certificate: %s", err)
+		}
+		mErr = multierror.Append(mErr, d.Set("kube_config_raw", string(kubeConfigRaw)))
+
+		// Set Certificate Clusters
+		var clusterList []map[string]interface{}
+		for _, clusterObj := range cert.Clusters {
+			clusterCert := make(map[string]interface{})
+			clusterCert["name"] = clusterObj.Name
+			clusterCert["server"] = clusterObj.Cluster.Server
+			clusterCert["certificate_authority_data"] = clusterObj.Cluster.CertAuthorityData
+			clusterList = append(clusterList, clusterCert)
+		}
+		mErr = multierror.Append(mErr, d.Set("certificate_clusters", clusterList))
+
+		// Set Certificate Users
+		var userList []map[string]interface{}
+		for _, userObj := range cert.Users {
+			userCert := make(map[string]interface{})
+			userCert["name"] = userObj.Name
+			userCert["client_certificate_data"] = userObj.User.ClientCertData
+			userCert["client_key_data"] = userObj.User.ClientKeyData
+			userList = append(userList, userCert)
+		}
+		mErr = multierror.Append(mErr, d.Set("certificate_users", userList))
 	}
-
-	mErr = multierror.Append(mErr, d.Set("kube_config_raw", string(kubeConfigRaw)))
-
-	cert, err := r.Extract()
-
-	if err != nil {
-		log.Printf("error retrieving CCE cluster certificate: %s", err)
-	}
-
-	// Set Certificate Clusters
-	var clusterList []map[string]interface{}
-	for _, clusterObj := range cert.Clusters {
-		clusterCert := make(map[string]interface{})
-		clusterCert["name"] = clusterObj.Name
-		clusterCert["server"] = clusterObj.Cluster.Server
-		clusterCert["certificate_authority_data"] = clusterObj.Cluster.CertAuthorityData
-		clusterList = append(clusterList, clusterCert)
-	}
-	mErr = multierror.Append(mErr, d.Set("certificate_clusters", clusterList))
-
-	// Set Certificate Users
-	var userList []map[string]interface{}
-	for _, userObj := range cert.Users {
-		userCert := make(map[string]interface{})
-		userCert["name"] = userObj.Name
-		userCert["client_certificate_data"] = userObj.User.ClientCertData
-		userCert["client_key_data"] = userObj.User.ClientKeyData
-		userList = append(userList, userCert)
-	}
-	mErr = multierror.Append(mErr, d.Set("certificate_users", userList))
 
 	// Set masters
 	var masterList []map[string]interface{}
