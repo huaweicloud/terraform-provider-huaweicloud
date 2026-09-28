@@ -2282,12 +2282,13 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_rc_providers":          rc.DataSourceRcProviders(),
 			"huaweicloud_rc_resource_count":     rc.DataSourceRcResourceCount(),
-			"huaweicloud_rc_resource_summaries": rc.DataSourceRcResourceSummaries(),
-			"huaweicloud_rc_run_query":          rc.DataSourceRcRunQuery(),
-			"huaweicloud_rc_schemas":            rc.DataSourceRcSchemas(),
+			"huaweicloud_rc_resource_groups":    rc.DataSourceRcResourceGroups(),
 			"huaweicloud_rc_resource_relations": rc.DataSourceRcResourceRelations(),
+			"huaweicloud_rc_resource_summaries": rc.DataSourceRcResourceSummaries(),
 			"huaweicloud_rc_resource_tags":      rc.DataSourceRcResourceTags(),
 			"huaweicloud_rc_resources":          rc.DataSourceRcResources(),
+			"huaweicloud_rc_run_query":          rc.DataSourceRcRunQuery(),
+			"huaweicloud_rc_schemas":            rc.DataSourceRcSchemas(),
 			"huaweicloud_rc_service_resources":  rc.DataSourceRcServiceResources(),
 			"huaweicloud_rc_stored_queries":     rc.DataSourceRcStoredQueries(),
 
@@ -4557,6 +4558,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_ram_resource_share_permission": ram.ResourceSharePermission(),
 
 			"huaweicloud_rc_resource_batch_add": rc.ResourceResourceBatchAdd(),
+			"huaweicloud_rc_resource_group":     rc.ResourceRcResourceGroup(),
 			"huaweicloud_rc_resource_remove":    rc.ResourceResourceRemove(),
 			"huaweicloud_rc_stored_query":       rc.ResourceRcStoredQuery(),
 
