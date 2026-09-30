@@ -2286,6 +2286,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_rc_run_query":          rc.DataSourceRcRunQuery(),
 			"huaweicloud_rc_schemas":            rc.DataSourceRcSchemas(),
 			"huaweicloud_rc_resource_relations": rc.DataSourceRcResourceRelations(),
+			"huaweicloud_rc_resource_tags":      rc.DataSourceRcResourceTags(),
+			"huaweicloud_rc_resources":          rc.DataSourceRcResources(),
+			"huaweicloud_rc_service_resources":  rc.DataSourceRcServiceResources(),
 			"huaweicloud_rc_stored_queries":     rc.DataSourceRcStoredQueries(),
 
 			"huaweicloud_rds_flavors":                            rds.DataSourceRdsFlavors(),
