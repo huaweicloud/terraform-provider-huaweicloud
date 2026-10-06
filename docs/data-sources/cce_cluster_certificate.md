@@ -40,6 +40,9 @@ In addition to all arguments above, the following attributes are exported:
 
 * `kube_config_raw` - Raw Kubernetes config to be used by kubectl and other compatible tools.
 
+  -> This attribute contains the private key of the cluster's admin client certificate and is therefore sensitive.
+     An `output` that references it must be declared with `sensitive = true`.
+
 * `current_context` - The current context of the cluster certificate.
 
 * `clusters` - The clusters information of the cluster certificate.
@@ -47,6 +50,9 @@ In addition to all arguments above, the following attributes are exported:
 
 * `users` - The users information of cluster the certificate.
   The [users](#CCECluster_users) structure is documented below.
+
+  -> `client_key_data` is the private key of the cluster's admin client certificate, so this whole attribute is
+     sensitive. An `output` that references it must be declared with `sensitive = true`.
 
 * `contexts` - The contexts information of the cluster certificate.
   The [contexts](#CCECluster_contexts) structure is documented below.
