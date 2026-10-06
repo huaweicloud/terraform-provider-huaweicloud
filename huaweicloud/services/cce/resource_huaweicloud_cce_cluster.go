@@ -418,8 +418,9 @@ func ResourceCluster() *schema.Resource {
 				Computed: true,
 			},
 			"kube_config_raw": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:      schema.TypeString,
+				Computed:  true,
+				Sensitive: true,
 			},
 			"support_istio": {
 				Type:     schema.TypeBool,
@@ -451,8 +452,9 @@ func ResourceCluster() *schema.Resource {
 				},
 			},
 			"certificate_users": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:      schema.TypeList,
+				Computed:  true,
+				Sensitive: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
