@@ -434,9 +434,15 @@ In addition to all arguments above, the following attributes are exported:
 
 * `certificate_users` - The certificate users. Structure is documented below.
 
+  -> `client_key_data` is the private key of the cluster's admin client certificate, so this whole attribute is
+     sensitive. An `output` that references it must be declared with `sensitive = true`.
+
 * `eni_subnet_cidr` - The ENI network segment. This value is valid when only one eni_subnet_id is specified.
 
 * `kube_config_raw` - Raw Kubernetes config to be used by kubectl and other compatible tools.
+
+  -> This attribute contains the private key of the cluster's admin client certificate and is therefore sensitive.
+     An `output` that references it must be declared with `sensitive = true`.
 
 * `support_istio` - Whether Istio is supported in the cluster.
 
