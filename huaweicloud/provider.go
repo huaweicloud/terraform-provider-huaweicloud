@@ -108,6 +108,7 @@ import (
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/organizations"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rabbitmq"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/ram"
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rc"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rds"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rfs"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/services/rgc"
@@ -4543,6 +4544,9 @@ func Provider() *schema.Provider {
 			"huaweicloud_ram_resource_share":            ram.ResourceRAMShare(),
 			"huaweicloud_ram_resource_share_accepter":   ram.ResourceShareAccepter(),
 			"huaweicloud_ram_resource_share_permission": ram.ResourceSharePermission(),
+
+			"huaweicloud_rc_resource_batch_add": rc.ResourceResourceBatchAdd(),
+			"huaweicloud_rc_resource_remove":    rc.ResourceResourceRemove(),
 
 			"huaweicloud_rds_mysql_account":                   rds.ResourceMysqlAccount(),
 			"huaweicloud_rds_mysql_binlog":                    rds.ResourceMysqlBinlog(),
