@@ -20,6 +20,7 @@ import (
 var v2NodeBatchUnsubscribeNonUpdatableParams = []string{
 	"resource_pool_name",
 	"node_ids",
+	"resource_ids",
 }
 
 // @API BSS POST /v2/orders/suscriptions/resources/query
@@ -55,7 +56,13 @@ func ResourceV2NodeBatchUnsubscribe() *schema.Resource {
 				Type:        schema.TypeList,
 				Required:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `The ID list of resource nodes to be deleted.`,
+				Description: `The ID list of resource nodes that used to refresh the deleting status.`,
+			},
+			"resource_ids": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				Elem:        &schema.Schema{Type: schema.TypeString},
+				Description: `The ID list of resources to be deleted.`,
 			},
 			"enable_force_new": {
 				Type:         schema.TypeString,
@@ -98,12 +105,20 @@ func waitForV2NodeBatchUnsubscribeCompleted(ctx context.Context, client *golangs
 	return err
 }
 
+func buildDeleteResourceIds(deleteNodeIds, deleteResourceIds []interface{}) []interface{} {
+	if len(deleteResourceIds) > 0 {
+		return deleteResourceIds
+	}
+	return deleteNodeIds
+}
+
 func resourceV2NodeBatchUnsubscribeCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	var (
-		cfg              = meta.(*config.Config)
-		region           = cfg.GetRegion(d)
-		resourcePoolName = d.Get("resource_pool_name").(string)
-		deleteNodeIds    = d.Get("node_ids").([]interface{})
+		cfg               = meta.(*config.Config)
+		region            = cfg.GetRegion(d)
+		resourcePoolName  = d.Get("resource_pool_name").(string)
+		deleteNodeIds     = d.Get("node_ids").([]interface{})
+		deleteResourceIds = d.Get("resource_ids").([]interface{})
 	)
 
 	client, err := cfg.NewServiceClient("bssv2", cfg.GetRegion(d))
@@ -111,7 +126,7 @@ func resourceV2NodeBatchUnsubscribeCreate(ctx context.Context, d *schema.Resourc
 		return diag.Errorf("error creating BSS client: %s", err)
 	}
 	// Delete
-	err = cbc.UnsubscribePrePaidResources(client, deleteNodeIds)
+	err = cbc.UnsubscribePrePaidResources(client, buildDeleteResourceIds(deleteNodeIds, deleteResourceIds))
 	if err != nil {
 		return diag.FromErr(err)
 	}
