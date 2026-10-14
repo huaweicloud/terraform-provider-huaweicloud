@@ -141,6 +141,30 @@ func DataSourceASConfigurations() *schema.Resource {
 										Elem:        &schema.Schema{Type: schema.TypeString},
 										Description: "The key/value pairs to make available from within the instance.",
 									},
+									"tags": {
+										Type:        schema.TypeList,
+										Computed:    true,
+										Description: "The list of tags of the AS configuration.",
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"key": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The tag key.",
+												},
+												"value": {
+													Type:        schema.TypeString,
+													Computed:    true,
+													Description: "The tag value.",
+												},
+											},
+										},
+									},
+									"tag_transmission_policy": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: "The tag transmission policy. OVERRIDE means use configuration tags when scaling out, SUPPRESS means use group tags.",
+									},
 								},
 							},
 						},
@@ -342,24 +366,41 @@ func flattenDataSourceConfigurations(configurationList []configurations.Configur
 func flattenInstanceConfigs(instanceConfig configurations.InstanceConfig) []map[string]interface{} {
 	return []map[string]interface{}{
 		{
-			"charging_mode":          normalizeAsConfigurationChargingMode(instanceConfig.MarketType),
-			"instance_id":            instanceConfig.InstanceID,
-			"flavor":                 instanceConfig.FlavorRef,
-			"image":                  instanceConfig.ImageRef,
-			"key_name":               instanceConfig.SSHKey,
-			"flavor_priority_policy": instanceConfig.FlavorPriorityPolicy,
-			"ecs_group_id":           instanceConfig.ServerGroupID,
-			"user_data":              instanceConfig.UserData,
-			"metadata":               instanceConfig.Metadata,
-			"disk":                   flattenAsInstanceDisks(instanceConfig.Disk),
-			"public_ip":              flattenAsInstancePublicIP(instanceConfig.PublicIp.Eip),
-			"security_group_ids":     flattenAsSecurityGroupIDs(instanceConfig.SecurityGroups),
-			"personality":            flattenAsInstancePersonality(instanceConfig.Personality),
-			"key_fingerprint":        instanceConfig.KeyFingerprint,
-			"tenancy":                instanceConfig.Tenancy,
-			"dedicated_host_id":      instanceConfig.DedicatedHostID,
+			"charging_mode":            normalizeAsConfigurationChargingMode(instanceConfig.MarketType),
+			"instance_id":              instanceConfig.InstanceID,
+			"flavor":                   instanceConfig.FlavorRef,
+			"image":                    instanceConfig.ImageRef,
+			"key_name":                 instanceConfig.SSHKey,
+			"flavor_priority_policy":   instanceConfig.FlavorPriorityPolicy,
+			"ecs_group_id":             instanceConfig.ServerGroupID,
+			"user_data":                instanceConfig.UserData,
+			"metadata":                 instanceConfig.Metadata,
+			"disk":                     flattenAsInstanceDisks(instanceConfig.Disk),
+			"public_ip":                flattenAsInstancePublicIP(instanceConfig.PublicIp.Eip),
+			"security_group_ids":       flattenAsSecurityGroupIDs(instanceConfig.SecurityGroups),
+			"personality":              flattenAsInstancePersonality(instanceConfig.Personality),
+			"key_fingerprint":          instanceConfig.KeyFingerprint,
+			"tenancy":                  instanceConfig.Tenancy,
+			"dedicated_host_id":        instanceConfig.DedicatedHostID,
+			"tags":                     flattenDataSourceConfigTags(instanceConfig.Tags),
+			"tag_transmission_policy":  instanceConfig.TagTransmissionPolicy,
 		},
 	}
+}
+
+func flattenDataSourceConfigTags(tags []configurations.ResourceTag) []map[string]interface{} {
+	if len(tags) == 0 {
+		return nil
+	}
+
+	result := make([]map[string]interface{}, len(tags))
+	for i, tag := range tags {
+		result[i] = map[string]interface{}{
+			"key":   tag.Key,
+			"value": tag.Value,
+		}
+	}
+	return result
 }
 
 func normalizeDataSourceConfigurationStatus(groupIDs string) string {
