@@ -148,9 +148,14 @@ var nodePoolSchema = map[string]*schema.Schema{
 		Optional: true,
 		Elem:     &schema.Schema{Type: schema.TypeString},
 	},
-	"scall_enable": {
+	"scale_enable": {
 		Type:     schema.TypeBool,
 		Optional: true,
+	},
+	"scall_enable": {
+		Type:       schema.TypeBool,
+		Optional:   true,
+		Deprecated: "use scale_enable instead",
 	},
 	"min_node_count": {
 		Type:     schema.TypeInt,
@@ -598,7 +603,12 @@ func buildNodePoolCreateOpts(d *schema.ResourceData, cfg *config.Config) (*nodep
 				ServerEnterpriseProjectID: cfg.GetEnterpriseProjectID(d),
 			},
 			Autoscaling: nodepools.AutoscalingSpec{
-				Enable:                d.Get("scall_enable").(bool),
+				Enable: func() bool {
+					if v := d.GetRawConfig().GetAttr("scale_enable"); !v.IsNull() {
+						return v.True()
+					}
+					return d.Get("scall_enable").(bool)
+				}(),
 				MinNodeCount:          d.Get("min_node_count").(int),
 				MaxNodeCount:          d.Get("max_node_count").(int),
 				ScaleDownCooldownTime: d.Get("scale_down_cooldown_time").(int),
@@ -714,6 +724,7 @@ func resourceNodePoolRead(_ context.Context, d *schema.ResourceData, meta interf
 		d.Set("os", s.Spec.NodeTemplate.Os),
 		d.Set("billing_mode", s.Spec.NodeTemplate.BillingMode),
 		d.Set("key_pair", s.Spec.NodeTemplate.Login.SshKey),
+		d.Set("scale_enable", s.Spec.Autoscaling.Enable),
 		d.Set("scall_enable", s.Spec.Autoscaling.Enable),
 		d.Set("min_node_count", s.Spec.Autoscaling.MinNodeCount),
 		d.Set("max_node_count", s.Spec.Autoscaling.MaxNodeCount),
@@ -898,7 +909,12 @@ func buildNodePoolUpdateOpts(d *schema.ResourceData, cfg *config.Config) (*nodep
 			InitialNodeCount:       initialNodeCount,
 			IgnoreInitialNodeCount: d.Get("ignore_initial_node_count").(bool),
 			Autoscaling: nodepools.AutoscalingSpec{
-				Enable:                d.Get("scall_enable").(bool),
+				Enable: func() bool {
+					if v := d.GetRawConfig().GetAttr("scale_enable"); !v.IsNull() {
+						return v.True()
+					}
+					return d.Get("scall_enable").(bool)
+				}(),
 				MinNodeCount:          d.Get("min_node_count").(int),
 				MaxNodeCount:          d.Get("max_node_count").(int),
 				ScaleDownCooldownTime: d.Get("scale_down_cooldown_time").(int),
