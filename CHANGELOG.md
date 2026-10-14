@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## 1.99.0 (Oct 14, 2026)
+
+* **New Resource Source:**
+  + `huaweicloud_cbr_vault_policies_associate` [GH-10506]
+
 ## 1.98.2 (Sep 11, 2026)
 
 * **New Data Source:**
