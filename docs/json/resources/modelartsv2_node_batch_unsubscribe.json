@@ -14,13 +14,21 @@
                   "list",
                   "string"
                 ],
-                "description": "The ID list of resource nodes to be deleted.",
+                "description": "The ID list of resource nodes that used to refresh the deleting status.",
                 "required": true
               },
               "region": {
                 "type": "string",
                 "description": "The region where the resource nodes are located.",
                 "computed": true
+              },
+              "resource_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The ID list of resources to be deleted.",
+                "optional": true
               },
               "resource_pool_name": {
                 "type": "string",

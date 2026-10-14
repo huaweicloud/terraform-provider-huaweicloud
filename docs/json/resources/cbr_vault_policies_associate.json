@@ -1,0 +1,56 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_cbr_vault_policies_associate": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to associate the policies to the vault.",
+                "computed": true
+              },
+              "vault_id": {
+                "type": "string",
+                "description": "Specifies the ID of the CBR vault to which the policies will be associated.",
+                "required": true
+              }
+            },
+            "block_types": {
+              "policies": {
+                "block": {
+                  "attributes": {
+                    "destination_vault_id": {
+                      "type": "string",
+                      "description": "Specifies the destination vault ID when associating a replication policy.",
+                      "optional": true
+                    },
+                    "id": {
+                      "type": "string",
+                      "description": "Specifies the ID of the policy to associate with the vault.",
+                      "required": true
+                    }
+                  },
+                  "description": "Specifies the policy details to associate with the CBR vault."
+                },
+                "nesting_mode": "set",
+                "min_items": 1
+              }
+            }
+          },
+          "product": {
+            "short": "CBR",
+            "name": "Cloud Backup and Recovery",
+            "catalog": "Storage",
+            "name_cn": "云备份",
+            "catalog_cn": "存储"
+          }
+        }
+      }
+    }
+  }
+}
