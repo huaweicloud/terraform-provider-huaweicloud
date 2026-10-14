@@ -38,6 +38,11 @@ type Configuration struct {
 	CreateTime     string         `json:"create_time"`
 }
 
+type ResourceTag struct {
+	Key   string `json:"key"`
+	Value string `json:"value"`
+}
+
 type InstanceConfig struct {
 	FlavorRef            string `json:"flavorRef"`
 	ImageRef             string `json:"imageRef"`
@@ -51,11 +56,13 @@ type InstanceConfig struct {
 	DedicatedHostID      string `json:"dedicated_host_id"`
 	MarketType           string `json:"market_type"`
 	FlavorPriorityPolicy string `json:"multi_flavor_priority_policy"`
+	TagTransmissionPolicy string `json:"tag_transmission_policy"`
 
 	Disk           []Disk          `json:"disk"`
 	PublicIp       PublicIp        `json:"public_ip"`
 	SecurityGroups []SecurityGroup `json:"security_groups"`
 	Personality    []Personality   `json:"personality"`
+	Tags           []ResourceTag   `json:"tags"`
 
 	UserData string                 `json:"user_data"`
 	Metadata map[string]interface{} `json:"metadata"`

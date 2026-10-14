@@ -284,6 +284,32 @@ func ResourceASConfiguration() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
+						"tags": {
+							Type:     schema.TypeList,
+							Optional: true,
+							ForceNew: true,
+							MaxItems: 20,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"key": {
+										Type:     schema.TypeString,
+										Required: true,
+										ForceNew: true,
+									},
+									"value": {
+										Type:     schema.TypeString,
+										Required: true,
+										ForceNew: true,
+									},
+								},
+							},
+						},
+						"tag_transmission_policy": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+							ForceNew: true,
+						},
 					},
 				},
 			},
@@ -380,6 +406,22 @@ func buildSecurityGroupIDsOpts(secGroups []interface{}) []configurations.Securit
 	return res
 }
 
+func buildTagsOpts(tagsRaw []interface{}) []configurations.ResourceTagOpts {
+	if len(tagsRaw) == 0 {
+		return nil
+	}
+
+	tags := make([]configurations.ResourceTagOpts, len(tagsRaw))
+	for i, v := range tagsRaw {
+		tagMap := v.(map[string]interface{})
+		tags[i] = configurations.ResourceTagOpts{
+			Key:   tagMap["key"].(string),
+			Value: tagMap["value"].(string),
+		}
+	}
+	return tags
+}
+
 func buildMetadataOpts(configDataMap map[string]interface{}) map[string]interface{} {
 	metadataMap := configDataMap["metadata"].(map[string]interface{})
 	adminPass := configDataMap["admin_pass"].(string)
@@ -400,19 +442,21 @@ func buildMetadataOpts(configDataMap map[string]interface{}) map[string]interfac
 
 func buildInstanceConfig(configDataMap map[string]interface{}) configurations.InstanceConfigOpts {
 	instanceConfigOpts := configurations.InstanceConfigOpts{
-		InstanceID:           configDataMap["instance_id"].(string),
-		FlavorRef:            configDataMap["flavor"].(string),
-		ImageRef:             configDataMap["image"].(string),
-		SSHKey:               configDataMap["key_name"].(string),
-		FlavorPriorityPolicy: configDataMap["flavor_priority_policy"].(string),
-		ServerGroupID:        configDataMap["ecs_group_id"].(string),
-		Tenancy:              configDataMap["tenancy"].(string),
-		DedicatedHostID:      configDataMap["dedicated_host_id"].(string),
-		UserData:             []byte(configDataMap["user_data"].(string)),
-		Metadata:             buildMetadataOpts(configDataMap),
-		SecurityGroups:       buildSecurityGroupIDsOpts(configDataMap["security_group_ids"].([]interface{})),
-		Personality:          buildPersonalityOpts(configDataMap["personality"].([]interface{})),
-		Disk:                 buildDiskOpts(configDataMap["disk"].([]interface{})),
+		InstanceID:            configDataMap["instance_id"].(string),
+		FlavorRef:             configDataMap["flavor"].(string),
+		ImageRef:              configDataMap["image"].(string),
+		SSHKey:                configDataMap["key_name"].(string),
+		FlavorPriorityPolicy:  configDataMap["flavor_priority_policy"].(string),
+		ServerGroupID:         configDataMap["ecs_group_id"].(string),
+		Tenancy:               configDataMap["tenancy"].(string),
+		DedicatedHostID:       configDataMap["dedicated_host_id"].(string),
+		TagTransmissionPolicy: configDataMap["tag_transmission_policy"].(string),
+		UserData:              []byte(configDataMap["user_data"].(string)),
+		Metadata:              buildMetadataOpts(configDataMap),
+		SecurityGroups:        buildSecurityGroupIDsOpts(configDataMap["security_group_ids"].([]interface{})),
+		Personality:           buildPersonalityOpts(configDataMap["personality"].([]interface{})),
+		Disk:                  buildDiskOpts(configDataMap["disk"].([]interface{})),
+		Tags:                  buildTagsOpts(configDataMap["tags"].([]interface{})),
 	}
 
 	if mode, ok := configDataMap["charging_mode"]; ok && mode.(string) == "spot" {
@@ -596,25 +640,42 @@ func getASGroupsByConfiguration(asClient *golangsdk.ServiceClient, configuration
 func flattenInstanceConfig(instanceConfig configurations.InstanceConfig, d *schema.ResourceData) []map[string]interface{} {
 	return []map[string]interface{}{
 		{
-			"charging_mode":          normalizeConfigurationChargingMode(instanceConfig.MarketType),
-			"instance_id":            instanceConfig.InstanceID,
-			"flavor":                 instanceConfig.FlavorRef,
-			"image":                  instanceConfig.ImageRef,
-			"key_name":               instanceConfig.SSHKey,
-			"flavor_priority_policy": instanceConfig.FlavorPriorityPolicy,
-			"ecs_group_id":           instanceConfig.ServerGroupID,
-			"tenancy":                instanceConfig.Tenancy,
-			"dedicated_host_id":      instanceConfig.DedicatedHostID,
-			"user_data":              d.Get("instance_config.0.user_data"),
-			"admin_pass":             d.Get("instance_config.0.admin_pass"),
-			"metadata":               d.Get("instance_config.0.metadata"),
-			"disk":                   flattenInstanceDisks(instanceConfig.Disk),
-			"public_ip":              flattenInstancePublicIP(instanceConfig.PublicIp.Eip),
-			"security_group_ids":     flattenSecurityGroupIDs(instanceConfig.SecurityGroups),
-			"personality":            flattenInstancePersonality(instanceConfig.Personality),
-			"key_fingerprint":        instanceConfig.KeyFingerprint,
+			"charging_mode":            normalizeConfigurationChargingMode(instanceConfig.MarketType),
+			"instance_id":              instanceConfig.InstanceID,
+			"flavor":                   instanceConfig.FlavorRef,
+			"image":                    instanceConfig.ImageRef,
+			"key_name":                 instanceConfig.SSHKey,
+			"flavor_priority_policy":   instanceConfig.FlavorPriorityPolicy,
+			"ecs_group_id":             instanceConfig.ServerGroupID,
+			"tenancy":                  instanceConfig.Tenancy,
+			"dedicated_host_id":        instanceConfig.DedicatedHostID,
+			"user_data":                d.Get("instance_config.0.user_data"),
+			"admin_pass":               d.Get("instance_config.0.admin_pass"),
+			"metadata":                 d.Get("instance_config.0.metadata"),
+			"disk":                     flattenInstanceDisks(instanceConfig.Disk),
+			"public_ip":                flattenInstancePublicIP(instanceConfig.PublicIp.Eip),
+			"security_group_ids":       flattenSecurityGroupIDs(instanceConfig.SecurityGroups),
+			"personality":              flattenInstancePersonality(instanceConfig.Personality),
+			"key_fingerprint":          instanceConfig.KeyFingerprint,
+			"tags":                     flattenInstanceConfigTags(instanceConfig.Tags),
+			"tag_transmission_policy":  instanceConfig.TagTransmissionPolicy,
 		},
 	}
+}
+
+func flattenInstanceConfigTags(tags []configurations.ResourceTag) []map[string]interface{} {
+	if len(tags) == 0 {
+		return nil
+	}
+
+	result := make([]map[string]interface{}, len(tags))
+	for i, tag := range tags {
+		result[i] = map[string]interface{}{
+			"key":   tag.Key,
+			"value": tag.Value,
+		}
+	}
+	return result
 }
 
 func flattenInstanceDisks(disks []configurations.Disk) []map[string]interface{} {
