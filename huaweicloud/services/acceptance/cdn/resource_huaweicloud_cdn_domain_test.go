@@ -1864,3 +1864,170 @@ func testDomainImportState(name string) resource.ImportStateIdFunc {
 		return rs.Primary.Attributes["name"], nil
 	}
 }
+
+func TestAccDomain_flowLimitStrategy(t *testing.T) {
+	var (
+		obj          interface{}
+		resourceName = "huaweicloud_cdn_domain.test"
+		domainName   = generateDomainName()
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getDomainFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccDomain_flowLimitStrategy_step1(domainName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", domainName),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.flow_limit_strategy.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.flow_limit_strategy.0.strategy_type", "instant"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.flow_limit_strategy.0.item_type", "bandwidth"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.flow_limit_strategy.0.limit_value", "10000000"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.flow_limit_strategy.0.alarm_percent_threshold", "80"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.flow_limit_strategy.0.ban_time", "1440"),
+				),
+			},
+			{
+				Config: testAccDomain_flowLimitStrategy_step2(domainName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", domainName),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.flow_limit_strategy.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.flow_limit_strategy.0.strategy_type", "day"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.flow_limit_strategy.0.item_type", "traffic"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.flow_limit_strategy.0.limit_value", "20000000"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.flow_limit_strategy.0.alarm_percent_threshold", "70"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.flow_limit_strategy.0.ban_time", "720"),
+				),
+			},
+			{
+				Config: testAccDomain_flowLimitStrategy_step3(domainName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", domainName),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.flow_limit_strategy.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.flow_limit_strategy.0.enabled", "false"),
+				),
+			},
+			{
+				Config: testAccDomain_flowLimitStrategy_step4(domainName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "name", domainName),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.flow_limit_strategy.#", "1"),
+					resource.TestCheckResourceAttr(resourceName, "configs.0.flow_limit_strategy.0.enabled", "false"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateIdFunc: testDomainImportState(resourceName),
+				ImportStateVerifyIgnore: []string{
+					"configs.0.flow_limit_strategy",
+				},
+			},
+		},
+	})
+}
+
+func testAccDomain_flowLimitStrategy_step1(domainName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_cdn_domain" "test" {
+  name         = "%[1]s"
+  type         = "wholeSite"
+  service_area = "outside_mainland_china"
+
+  sources {
+    active      = 1
+    origin      = "100.254.53.75"
+    origin_type = "ipaddr"
+  }
+
+  configs {
+    flow_limit_strategy {
+      strategy_type           = "instant"
+      item_type               = "bandwidth"
+      limit_value             = 10000000
+      alarm_percent_threshold = 80
+      ban_time                = 1440
+    }
+  }
+}
+`, domainName)
+}
+
+func testAccDomain_flowLimitStrategy_step2(domainName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_cdn_domain" "test" {
+  name         = "%[1]s"
+  type         = "wholeSite"
+  service_area = "outside_mainland_china"
+
+  sources {
+    active      = 1
+    origin      = "100.254.53.75"
+    origin_type = "ipaddr"
+  }
+
+  configs {
+    flow_limit_strategy {
+      strategy_type           = "day"
+      item_type               = "traffic"
+      limit_value             = 20000000
+      alarm_percent_threshold = 70
+      ban_time                = 720
+    }
+  }
+}
+`, domainName)
+}
+
+func testAccDomain_flowLimitStrategy_step3(domainName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_cdn_domain" "test" {
+  name         = "%[1]s"
+  type         = "wholeSite"
+  service_area = "outside_mainland_china"
+
+  sources {
+    active      = 1
+    origin      = "100.254.53.75"
+    origin_type = "ipaddr"
+  }
+
+  configs {
+    flow_limit_strategy {
+      enabled = false
+    }
+  }
+}
+`, domainName)
+}
+
+func testAccDomain_flowLimitStrategy_step4(domainName string) string {
+	return fmt.Sprintf(`
+resource "huaweicloud_cdn_domain" "test" {
+  name         = "%[1]s"
+  type         = "wholeSite"
+  service_area = "outside_mainland_china"
+
+  sources {
+    active      = 1
+    origin      = "100.254.53.75"
+    origin_type = "ipaddr"
+  }
+
+  configs {}
+}
+`, domainName)
+}

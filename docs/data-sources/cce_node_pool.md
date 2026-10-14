@@ -65,7 +65,7 @@ In addition to all arguments above, the following attributes are exported:
 * `extension_scale_groups` - The configurations of extended scaling groups in the node pool.
   The [extension_scale_groups](#extension_scale_groups_struct) structure is documented below.
 
-* `scall_enable` - Whether auto-scaling is enabled.
+* `scale_enable` - Whether auto-scaling is enabled.
 
 * `min_node_count` - Minimum number of nodes allowed if auto-scaling is enabled.
 

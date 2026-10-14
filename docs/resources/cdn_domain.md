@@ -523,6 +523,17 @@ The `configs` block support:
 * `client_cert` - (Optional, List) Specifies the client certificate configuration.
   The [client_cert](#client_cert_object) structure is documented below.
 
+* `flow_limit_strategy` - (Optional, List) Specifies the flow limit strategy configuration. When the actual usage
+  exceeds the limit threshold, the domain name will be disabled to effectively prevent high bills caused by traffic
+  theft or malicious attacks. The [flow_limit_strategy](#flow_limit_strategy_object) structure is documented below.
+
+  -> Due to the delay of monitoring data, the domain name will be disabled about 10 minutes after the usage reaches
+  the threshold.
+
+  -> If the flow limit strategy has been configured on the cloud but is not declared in the configuration, the
+  existing configuration will be kept during the update to avoid unexpected changes. To clear the existing
+  configuration, declare a `flow_limit_strategy` block with `enabled` set to **false**.
+
 <a name="https_settings_object"></a>
 The `https_settings` block support:
 
@@ -1120,6 +1131,42 @@ The `client_cert` block support:
 
   -> 1. CDN will allow all client requests that hold the CA certificate by default.
   <br/>2. A maximum of `100` domain names can be configured. Multiple domain names can be separated by “,” or “|”.
+
+<a name="flow_limit_strategy_object"></a>
+The `flow_limit_strategy` block support:
+
+* `enabled` - (Optional, Bool) Specifies whether to enable the flow limit strategy. Defaults to **true**.
+  If set to **false**, the flow limit strategy configured on the cloud will be cleared, and the other fields in this
+  block can be omitted.
+
+* `strategy_type` - (Optional, String) Specifies the usage statistics type. Valid values are:
+    + **instant**: Instant usage.
+    + **hour**: Cumulative usage (hour).
+    + **day**: Cumulative usage (day).
+
+  This field is required when `enabled` is set to **true**.
+
+* `item_type` - (Optional, String) Specifies the usage limit type. Valid values are:
+    + **bandwidth**: Bandwidth limit, in bit/s.
+    + **traffic**: Traffic limit, in byte.
+
+  This field is required when `enabled` is set to **true**.
+
+* `limit_value` - (Optional, Int) Specifies the usage limit threshold. The domain name will be disabled after the
+  domain usage reaches the threshold. The value must be a positive integer.
+  This field is required when `enabled` is set to **true**.
+
+* `alarm_percent_threshold` - (Optional, Int) Specifies the usage alarm threshold. An alarm will be sent after the
+  domain usage reaches the threshold. The value ranges from `10` to `90`.
+
+* `ban_time` - (Optional, Int) Specifies the domain name ban period, in minutes. Valid values are:
+    + `0`: Do not automatically unban, the domain name needs to be manually unbanned.
+    + `60`: 60 minutes, i.e. 1 hour.
+    + `720`: 720 minutes, i.e. 12 hours.
+    + `1440`: 1440 minutes, i.e. 24 hours.
+    + `4320`: 4320 minutes, i.e. 3 days.
+
+  Defaults to `0`.
 
 <a name="cache_settings_object"></a>
 The `cache_settings` block support:
