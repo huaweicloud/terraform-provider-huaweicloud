@@ -137,8 +137,9 @@ func DataSourceCCEClusterV3() *schema.Resource {
 				},
 			},
 			"kube_config_raw": {
-				Type:     schema.TypeString,
-				Computed: true,
+				Type:      schema.TypeString,
+				Computed:  true,
+				Sensitive: true,
 			},
 			"certificate_clusters": {
 				Type:     schema.TypeList,
@@ -162,8 +163,9 @@ func DataSourceCCEClusterV3() *schema.Resource {
 				},
 			},
 			"certificate_users": {
-				Type:     schema.TypeList,
-				Computed: true,
+				Type:      schema.TypeList,
+				Computed:  true,
+				Sensitive: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"name": {
