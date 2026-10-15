@@ -284,26 +284,7 @@ func ResourceASConfiguration() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"tags": {
-							Type:     schema.TypeList,
-							Optional: true,
-							ForceNew: true,
-							MaxItems: 20,
-							Elem: &schema.Resource{
-								Schema: map[string]*schema.Schema{
-									"key": {
-										Type:     schema.TypeString,
-										Required: true,
-										ForceNew: true,
-									},
-									"value": {
-										Type:     schema.TypeString,
-										Required: true,
-										ForceNew: true,
-									},
-								},
-							},
-						},
+						"tags": common.TagsSchema(),
 						"tag_transmission_policy": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -406,18 +387,17 @@ func buildSecurityGroupIDsOpts(secGroups []interface{}) []configurations.Securit
 	return res
 }
 
-func buildTagsOpts(tagsRaw []interface{}) []configurations.ResourceTagOpts {
+func buildTagsOpts(tagsRaw map[string]interface{}) []configurations.ResourceTagOpts {
 	if len(tagsRaw) == 0 {
 		return nil
 	}
 
-	tags := make([]configurations.ResourceTagOpts, len(tagsRaw))
-	for i, v := range tagsRaw {
-		tagMap := v.(map[string]interface{})
-		tags[i] = configurations.ResourceTagOpts{
-			Key:   tagMap["key"].(string),
-			Value: tagMap["value"].(string),
-		}
+	tags := make([]configurations.ResourceTagOpts, 0, len(tagsRaw))
+	for k, v := range tagsRaw {
+		tags = append(tags, configurations.ResourceTagOpts{
+			Key:   k,
+			Value: v.(string),
+		})
 	}
 	return tags
 }
@@ -441,6 +421,10 @@ func buildMetadataOpts(configDataMap map[string]interface{}) map[string]interfac
 }
 
 func buildInstanceConfig(configDataMap map[string]interface{}) configurations.InstanceConfigOpts {
+	tagTransmissionPolicy := configDataMap["tag_transmission_policy"].(string)
+	if tagTransmissionPolicy == "" {
+		tagTransmissionPolicy = "SUPPRESS"
+	}
 	instanceConfigOpts := configurations.InstanceConfigOpts{
 		InstanceID:            configDataMap["instance_id"].(string),
 		FlavorRef:             configDataMap["flavor"].(string),
@@ -450,13 +434,13 @@ func buildInstanceConfig(configDataMap map[string]interface{}) configurations.In
 		ServerGroupID:         configDataMap["ecs_group_id"].(string),
 		Tenancy:               configDataMap["tenancy"].(string),
 		DedicatedHostID:       configDataMap["dedicated_host_id"].(string),
-		TagTransmissionPolicy: configDataMap["tag_transmission_policy"].(string),
+		TagTransmissionPolicy: tagTransmissionPolicy,
 		UserData:              []byte(configDataMap["user_data"].(string)),
 		Metadata:              buildMetadataOpts(configDataMap),
 		SecurityGroups:        buildSecurityGroupIDsOpts(configDataMap["security_group_ids"].([]interface{})),
 		Personality:           buildPersonalityOpts(configDataMap["personality"].([]interface{})),
 		Disk:                  buildDiskOpts(configDataMap["disk"].([]interface{})),
-		Tags:                  buildTagsOpts(configDataMap["tags"].([]interface{})),
+		Tags:                  buildTagsOpts(configDataMap["tags"].(map[string]interface{})),
 	}
 
 	if mode, ok := configDataMap["charging_mode"]; ok && mode.(string) == "spot" {
@@ -520,7 +504,73 @@ func resourceASConfigurationUpdate(ctx context.Context, d *schema.ResourceData, 
 			return diag.FromErr(err)
 		}
 	}
+
+	// update tags
+	if d.HasChange("instance_config.0.tags") {
+		oldTag, newTag := d.GetChange("instance_config.0.tags")
+		oldRaw := oldTag.(map[string]interface{})
+		if len(oldRaw) > 0 {
+			tagList := expandConfigurationTags(oldRaw)
+			if tagErr := deleteASConfigurationTags(asClient, d.Id(), tagList); tagErr != nil {
+				return diag.Errorf("error deleting tags of AS configuration %s: %s", d.Id(), tagErr)
+			}
+		}
+
+		newRaw := newTag.(map[string]interface{})
+		if len(newRaw) > 0 {
+			tagList := expandConfigurationTags(newRaw)
+			if tagErr := createASConfigurationTags(asClient, d.Id(), tagList); tagErr != nil {
+				return diag.Errorf("error setting tags of AS configuration %s: %s", d.Id(), tagErr)
+			}
+		}
+	}
+
 	return resourceASConfigurationRead(ctx, d, meta)
+}
+
+func expandConfigurationTags(tagMap map[string]interface{}) []map[string]string {
+	tagList := make([]map[string]string, 0, len(tagMap))
+	for k, v := range tagMap {
+		tag := map[string]string{
+			"key":   k,
+			"value": v.(string),
+		}
+		tagList = append(tagList, tag)
+	}
+
+	return tagList
+}
+
+func createASConfigurationTags(client *golangsdk.ServiceClient, configID string, tagList []map[string]string) error {
+	url := client.Endpoint + "autoscaling-api/v1/{project_id}/scaling_configuration_tag/{id}/tags/action"
+	url = strings.ReplaceAll(url, "{project_id}", client.ProjectID)
+	url = strings.ReplaceAll(url, "{id}", configID)
+
+	_, err := client.Request("POST", url, &golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes:          []int{204},
+		JSONBody: map[string]interface{}{
+			"tags":   tagList,
+			"action": "create",
+		},
+	})
+	return err
+}
+
+func deleteASConfigurationTags(client *golangsdk.ServiceClient, configID string, tagList []map[string]string) error {
+	url := client.Endpoint + "autoscaling-api/v1/{project_id}/scaling_configuration_tag/{id}/tags/action"
+	url = strings.ReplaceAll(url, "{project_id}", client.ProjectID)
+	url = strings.ReplaceAll(url, "{id}", configID)
+
+	_, err := client.Request("POST", url, &golangsdk.RequestOpts{
+		KeepResponseBody: true,
+		OkCodes:          []int{204},
+		JSONBody: map[string]interface{}{
+			"tags":   tagList,
+			"action": "delete",
+		},
+	})
+	return err
 }
 
 func modifyASConfigurationImageRef(client *golangsdk.ServiceClient, d *schema.ResourceData) error {
@@ -640,40 +690,37 @@ func getASGroupsByConfiguration(asClient *golangsdk.ServiceClient, configuration
 func flattenInstanceConfig(instanceConfig configurations.InstanceConfig, d *schema.ResourceData) []map[string]interface{} {
 	return []map[string]interface{}{
 		{
-			"charging_mode":            normalizeConfigurationChargingMode(instanceConfig.MarketType),
-			"instance_id":              instanceConfig.InstanceID,
-			"flavor":                   instanceConfig.FlavorRef,
-			"image":                    instanceConfig.ImageRef,
-			"key_name":                 instanceConfig.SSHKey,
-			"flavor_priority_policy":   instanceConfig.FlavorPriorityPolicy,
-			"ecs_group_id":             instanceConfig.ServerGroupID,
-			"tenancy":                  instanceConfig.Tenancy,
-			"dedicated_host_id":        instanceConfig.DedicatedHostID,
-			"user_data":                d.Get("instance_config.0.user_data"),
-			"admin_pass":               d.Get("instance_config.0.admin_pass"),
-			"metadata":                 d.Get("instance_config.0.metadata"),
-			"disk":                     flattenInstanceDisks(instanceConfig.Disk),
-			"public_ip":                flattenInstancePublicIP(instanceConfig.PublicIp.Eip),
-			"security_group_ids":       flattenSecurityGroupIDs(instanceConfig.SecurityGroups),
-			"personality":              flattenInstancePersonality(instanceConfig.Personality),
-			"key_fingerprint":          instanceConfig.KeyFingerprint,
-			"tags":                     flattenInstanceConfigTags(instanceConfig.Tags),
-			"tag_transmission_policy":  instanceConfig.TagTransmissionPolicy,
+			"charging_mode":           normalizeConfigurationChargingMode(instanceConfig.MarketType),
+			"instance_id":             instanceConfig.InstanceID,
+			"flavor":                  instanceConfig.FlavorRef,
+			"image":                   instanceConfig.ImageRef,
+			"key_name":                instanceConfig.SSHKey,
+			"flavor_priority_policy":  instanceConfig.FlavorPriorityPolicy,
+			"ecs_group_id":            instanceConfig.ServerGroupID,
+			"tenancy":                 instanceConfig.Tenancy,
+			"dedicated_host_id":       instanceConfig.DedicatedHostID,
+			"user_data":               d.Get("instance_config.0.user_data"),
+			"admin_pass":              d.Get("instance_config.0.admin_pass"),
+			"metadata":                d.Get("instance_config.0.metadata"),
+			"disk":                    flattenInstanceDisks(instanceConfig.Disk),
+			"public_ip":               flattenInstancePublicIP(instanceConfig.PublicIp.Eip),
+			"security_group_ids":      flattenSecurityGroupIDs(instanceConfig.SecurityGroups),
+			"personality":             flattenInstancePersonality(instanceConfig.Personality),
+			"key_fingerprint":         instanceConfig.KeyFingerprint,
+			"tags":                    flattenInstanceConfigTags(instanceConfig.Tags),
+			"tag_transmission_policy": instanceConfig.TagTransmissionPolicy,
 		},
 	}
 }
 
-func flattenInstanceConfigTags(tags []configurations.ResourceTag) []map[string]interface{} {
+func flattenInstanceConfigTags(tags []configurations.ResourceTag) map[string]string {
 	if len(tags) == 0 {
 		return nil
 	}
 
-	result := make([]map[string]interface{}, len(tags))
-	for i, tag := range tags {
-		result[i] = map[string]interface{}{
-			"key":   tag.Key,
-			"value": tag.Value,
-		}
+	result := make(map[string]string, len(tags))
+	for _, tag := range tags {
+		result[tag.Key] = tag.Value
 	}
 	return result
 }

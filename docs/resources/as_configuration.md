@@ -284,6 +284,14 @@ password authentication.
   more files and their contents. The [personality](#instance_config_personality_object) structure is documented below.
   Changing this will create a new resource.
 
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the AS configuration.
+  The tags are inherited by the new instances during scaling out when `tag_transmission_policy` is set to `OVERRIDE`.
+
+* `tag_transmission_policy` - (Optional, String, ForceNew) Specifies the tag transmission policy, which determines
+  whether the tags of the AS configuration (value `OVERRIDE`) or the tags of the AS group (value `SUPPRESS`) are
+  inherited by the new instances during scaling out. Defaults to `SUPPRESS`.
+  Changing this will create a new resource.
+
 <a name="instance_config_disk_object"></a>
 The `disk` block supports:
 
