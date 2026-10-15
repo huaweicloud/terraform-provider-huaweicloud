@@ -400,6 +400,95 @@ func TestAccASConfiguration_dataDiskImage(t *testing.T) {
 	})
 }
 
+func TestAccASConfiguration_tags(t *testing.T) {
+	var (
+		obj          interface{}
+		rName        = acceptance.RandomAccResourceName()
+		resourceName = "huaweicloud_as_configuration.acc_as_config"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getASConfigurationResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccASConfiguration_tags(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "scaling_configuration_name", rName),
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.tags.foo", "bar"),
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.tags.key", "value"),
+				),
+			},
+			{
+				Config: testAccASConfiguration_tagsUpdate(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "scaling_configuration_name", rName),
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.tags.foo", "bar1"),
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.tags.new_key", "new_value"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"instance_config.0.metadata",
+					"instance_config.0.user_data",
+				},
+			},
+		},
+	})
+}
+
+func TestAccASConfiguration_tagTransmissionPolicy(t *testing.T) {
+	var (
+		obj          interface{}
+		rName        = acceptance.RandomAccResourceName()
+		resourceName = "huaweicloud_as_configuration.acc_as_config"
+	)
+
+	rc := acceptance.InitResourceCheck(
+		resourceName,
+		&obj,
+		getASConfigurationResourceFunc,
+	)
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      rc.CheckResourceDestroy(),
+		Steps: []resource.TestStep{
+			{
+				Config: testAccASConfiguration_tagTransmissionPolicy(rName),
+				Check: resource.ComposeTestCheckFunc(
+					rc.CheckResourceExists(),
+					resource.TestCheckResourceAttr(resourceName, "scaling_configuration_name", rName),
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.tag_transmission_policy", "OVERRIDE"),
+					resource.TestCheckResourceAttr(resourceName, "instance_config.0.tags.foo", "bar"),
+				),
+			},
+			{
+				ResourceName:      resourceName,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"instance_config.0.metadata",
+					"instance_config.0.user_data",
+				},
+			},
+		},
+	})
+}
+
 //nolint:revive
 func testAccASConfiguration_base(rName string) string {
 	return fmt.Sprintf(`
@@ -408,7 +497,7 @@ func testAccASConfiguration_base(rName string) string {
 data "huaweicloud_availability_zones" "test" {}
 
 data "huaweicloud_images_image" "test" {
-  name        = "Ubuntu 18.04 server 64bit"
+  name_regex  = "Ubuntu 18.04 server 64bit"
   visibility  = "public"
   most_recent = true
 }
@@ -811,6 +900,87 @@ EOT
           charging_mode = "traffic"
         }
       }
+    }
+  }
+}
+`, testAccASConfiguration_base(rName), rName)
+}
+
+func testAccASConfiguration_tags(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_as_configuration" "acc_as_config"{
+  scaling_configuration_name = "%s"
+  instance_config {
+    image              = data.huaweicloud_images_image.test.id
+    flavor             = data.huaweicloud_compute_flavors.test.ids[0]
+    key_name           = huaweicloud_kps_keypair.acc_key.id
+    security_group_ids = [huaweicloud_networking_secgroup.test.id]
+
+    tags = {
+      foo = "bar"
+      key = "value"
+    }
+
+    disk {
+      size        = 40
+      volume_type = "SSD"
+      disk_type   = "SYS"
+    }
+  }
+}
+`, testAccASConfiguration_base(rName), rName)
+}
+
+func testAccASConfiguration_tagsUpdate(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_as_configuration" "acc_as_config"{
+  scaling_configuration_name = "%s"
+  instance_config {
+    image              = data.huaweicloud_images_image.test.id
+    flavor             = data.huaweicloud_compute_flavors.test.ids[0]
+    key_name           = huaweicloud_kps_keypair.acc_key.id
+    security_group_ids = [huaweicloud_networking_secgroup.test.id]
+
+    tags = {
+      foo     = "bar1"
+      new_key = "new_value"
+    }
+
+    disk {
+      size        = 40
+      volume_type = "SSD"
+      disk_type   = "SYS"
+    }
+  }
+}
+`, testAccASConfiguration_base(rName), rName)
+}
+
+func testAccASConfiguration_tagTransmissionPolicy(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_as_configuration" "acc_as_config"{
+  scaling_configuration_name = "%s"
+  instance_config {
+    image              = data.huaweicloud_images_image.test.id
+    flavor             = data.huaweicloud_compute_flavors.test.ids[0]
+    key_name           = huaweicloud_kps_keypair.acc_key.id
+    security_group_ids = [huaweicloud_networking_secgroup.test.id]
+
+    tag_transmission_policy = "OVERRIDE"
+    tags = {
+      foo = "bar"
+    }
+
+    disk {
+      size        = 40
+      volume_type = "SSD"
+      disk_type   = "SYS"
     }
   }
 }
