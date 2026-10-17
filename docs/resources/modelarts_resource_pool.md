@@ -386,7 +386,11 @@ The `volume_group_configs` block supports:
   + **vg-everest-localvolume-persistent**
   + **vg-everest-localvolume-ephemeral**
 
-* `docker_thin_pool` - (Optional, Int) Specifies the percentage of container volumes to data volumes on resource pool nodes.
+* `docker_thin_pool` - (Optional, Int) Specifies the percentage of container volumes to data volumes on resource pool
+  nodes.
+
+* `mode` - (Optional, String) Specifies the disk ratio partitioning mode. When set to share, it indicates the shared
+  mode.
 
 * `lvm_config` - (Optional, List) Specifies the configuration of the LVM management.  
   The [lvm_config](#ModelartsResourcePool_Resources_volume_group_configs_lvm_config) structure is documented below.
@@ -414,6 +418,8 @@ The `os` block supports:
 * `image_id` - (Optional, String) Specifies the image ID.
 
 * `image_type` - (Optional, String) Specifies the image type.
+
+* `auto_match` - (Optional, String) The system image auto matching strategy.
 
 <a name="ModelartsResourcePool_Resources_driver"></a>
 The `driver` block supports:
