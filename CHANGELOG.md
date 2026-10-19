@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.99.1 (Oct 19, 2026)
+
+ENHANCEMENTS:
+
+* feat(modelarts): support os autoMatch and volume mode [GH-10521]
+
 ## 1.99.0 (Oct 14, 2026)
 
 * **New Resource Source:**
