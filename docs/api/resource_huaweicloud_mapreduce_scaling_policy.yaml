@@ -8,9 +8,12 @@ host: huaweicloud.com
 tags:
     - name: MRS
 paths:
-    /v1.1/{project_id}/autoscaling-policy/{cluster_id}:
+    /v2/{project_id}/autoscaling-policy/{cluster_id}:
+        DELETE:
+            tag: MRS
+        GET:
+            tag: MRS
         POST:
             tag: MRS
-    /v2/{project_id}/autoscaling-policy/{cluster_id}:
-        GET:
+        PUT:
             tag: MRS
