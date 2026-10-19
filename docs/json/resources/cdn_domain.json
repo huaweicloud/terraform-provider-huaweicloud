@@ -377,6 +377,40 @@
                       },
                       "nesting_mode": "set"
                     },
+                    "flow_limit_strategy": {
+                      "block": {
+                        "attributes": {
+                          "alarm_percent_threshold": {
+                            "type": "number",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "ban_time": {
+                            "type": "number",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "enabled": {
+                            "type": "bool",
+                            "optional": true,
+                            "default": true
+                          },
+                          "item_type": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "limit_value": {
+                            "type": "number",
+                            "optional": true
+                          },
+                          "strategy_type": {
+                            "type": "string",
+                            "optional": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "set"
+                    },
                     "force_redirect": {
                       "block": {
                         "attributes": {

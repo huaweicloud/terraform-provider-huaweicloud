@@ -299,6 +299,12 @@
                     "os": {
                       "block": {
                         "attributes": {
+                          "auto_match": {
+                            "type": "string",
+                            "description": "The system image auto matching strategy.",
+                            "optional": true,
+                            "computed": true
+                          },
                           "image_id": {
                             "type": "string",
                             "description": "The image ID.",
@@ -377,6 +383,12 @@
                           "docker_thin_pool": {
                             "type": "number",
                             "description": "The percentage of container volumes to data volumes on resource pool nodes.",
+                            "optional": true,
+                            "computed": true
+                          },
+                          "mode": {
+                            "type": "string",
+                            "description": "The disk ratio partitioning mode. When set to share, it indicates the shared mode.",
                             "optional": true,
                             "computed": true
                           },
