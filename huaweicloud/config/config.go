@@ -1,12 +1,10 @@
 package config
 
 import (
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
-	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -279,29 +277,6 @@ func (c *Config) SetServiceEndpoint(service, endpoint string) {
 	}
 }
 
-func retryBackoffFunc(ctx context.Context, _ *golangsdk.ErrUnexpectedResponseCode, e error, retries uint) error {
-	minutes := int(math.Pow(2, float64(retries)))
-	if minutes > 30 { // won't wait more than 30 minutes
-		minutes = 30
-	}
-
-	log.Printf("[WARN] Received StatusTooManyRequests response code, try to sleep %d minutes", minutes)
-	sleep := time.Duration(minutes) * time.Minute
-
-	if ctx != nil {
-		select {
-		case <-time.After(sleep):
-		case <-ctx.Done():
-			return e
-		}
-	} else {
-		// lintignore:R018
-		time.Sleep(sleep)
-	}
-
-	return nil
-}
-
 func getObsEndpoint(c *Config, region string) string {
 	if endpoint, ok := c.Endpoints["obs"]; ok {
 		// replace the region in customizing OBS endpoint
@@ -465,6 +440,7 @@ func (c *Config) newServiceClientByName(client *golangsdk.ProviderClient, catalo
 	clone.ProjectID = projectID
 	clone.AKSKAuthOptions.ProjectId = projectID
 	clone.AKSKAuthOptions.Region = region
+	applyServiceRetryBackoff(clone, catalog.Product)
 
 	sc := &golangsdk.ServiceClient{
 		ProviderClient: clone,
@@ -501,6 +477,7 @@ func (c *Config) newServiceClientByEndpoint(client *golangsdk.ProviderClient, sr
 	// Copy the client to prevent interference with the original data.
 	clone := new(golangsdk.ProviderClient)
 	*clone = *client
+	applyServiceRetryBackoff(clone, catalog.Product)
 	sc := &golangsdk.ServiceClient{
 		ProviderClient: clone,
 		Endpoint:       endpoint,
