@@ -164,7 +164,7 @@ func genClient(c *Config, ao golangsdk.AuthOptionsProvider) (*golangsdk.Provider
 
 	if c.MaxRetries > 0 {
 		client.MaxBackoffRetries = uint(c.MaxRetries)
-		client.RetryBackoffFunc = retryBackoffFunc
+		client.RetryBackoffFunc = newRetryBackoffFunc(defaultRetryInitialBackoff)
 	}
 
 	// Validate authentication normally.
