@@ -1,12 +1,445 @@
 package filters
 
 import (
+	"encoding/json"
 	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/tidwall/gjson"
 )
+
+// simulateAPIResponse unmarshals data the same way HttpHelper.doFilter does, converting JSON numbers to float64.
+func simulateAPIResponse(t *testing.T, data map[string]interface{}) map[string]interface{} {
+	t.Helper()
+
+	b, err := json.Marshal(data)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var result map[string]interface{}
+	if err := json.Unmarshal(b, &result); err != nil {
+		t.Fatal(err)
+	}
+	return result
+}
+
+func TestFilterContainsOperator(t *testing.T) {
+	data := simulateAPIResponse(t, map[string]interface{}{
+		"topics": []interface{}{
+			map[string]interface{}{"name": "MyTopic", "user_desc": "Test Description"},
+			map[string]interface{}{"name": "Other", "user_desc": "No match"},
+			map[string]interface{}{"name": "prefix-mytopic-suffix", "user_desc": "Another"},
+		},
+	})
+
+	rst, err := New().
+		Data(data).
+		From("topics").
+		Where("name", "contains", "mytopic").
+		Get()
+
+	assert.NoError(t, err)
+	items := rst.(map[string]interface{})["topics"].([]interface{})
+	assert.Len(t, items, 2)
+	assert.Equal(t, "MyTopic", items[0].(map[string]interface{})["name"])
+	assert.Equal(t, "prefix-mytopic-suffix", items[1].(map[string]interface{})["name"])
+}
+
+func TestFilterContainsOperatorCaseInsensitive(t *testing.T) {
+	data := simulateAPIResponse(t, map[string]interface{}{
+		"users": []interface{}{
+			map[string]interface{}{"user_name": "AdminUser", "user_desc": "DESC"},
+			map[string]interface{}{"user_name": "guest", "user_desc": "other"},
+		},
+	})
+
+	rst, err := New().
+		Data(data).
+		From("users").
+		Where("user_name", "contains", "ADMIN").
+		Where("user_desc", "contains", "desc").
+		Get()
+
+	assert.NoError(t, err)
+	items := rst.(map[string]interface{})["users"].([]interface{})
+	assert.Len(t, items, 1)
+	assert.Equal(t, "AdminUser", items[0].(map[string]interface{})["user_name"])
+}
+
+func TestFilterEqualNumericTypeCoercion(t *testing.T) {
+	data := simulateAPIResponse(t, map[string]interface{}{
+		"items": []interface{}{
+			map[string]interface{}{"id": "rule-1", "status": 1, "white": 0},
+			map[string]interface{}{"id": "rule-2", "status": 0, "white": 1},
+			map[string]interface{}{"id": "rule-3", "status": 1, "white": 1},
+		},
+	})
+
+	rst, err := New().
+		Data(data).
+		From("items").
+		Where("status", "=", 1).
+		Where("white", "=", 0).
+		Get()
+
+	assert.NoError(t, err)
+	items := rst.(map[string]interface{})["items"].([]interface{})
+	assert.Len(t, items, 1)
+	assert.Equal(t, "rule-1", items[0].(map[string]interface{})["id"])
+}
+
+func TestFilterEqualBool(t *testing.T) {
+	data := simulateAPIResponse(t, map[string]interface{}{
+		"identity_providers": []interface{}{
+			map[string]interface{}{"id": "provider-1", "enabled": true},
+			map[string]interface{}{"id": "provider-2", "enabled": false},
+		},
+	})
+
+	rst, err := New().
+		Data(data).
+		From("identity_providers").
+		Where("enabled", "=", true).
+		Get()
+
+	assert.NoError(t, err)
+	items := rst.(map[string]interface{})["identity_providers"].([]interface{})
+	assert.Len(t, items, 1)
+	assert.Equal(t, "provider-1", items[0].(map[string]interface{})["id"])
+}
+
+func TestFilterNestedWhereKey(t *testing.T) {
+	data := simulateAPIResponse(t, map[string]interface{}{
+		"targets": []interface{}{
+			map[string]interface{}{
+				"target_id": "t1",
+				"obs":       map[string]interface{}{"bucket": "my-bucket"},
+			},
+			map[string]interface{}{
+				"target_id": "t2",
+				"obs":       map[string]interface{}{"bucket": "other-bucket"},
+			},
+		},
+	})
+
+	rst, err := New().
+		Data(data).
+		From("targets").
+		Where("obs.bucket", "=", "my-bucket").
+		Get()
+
+	assert.NoError(t, err)
+	items := rst.(map[string]interface{})["targets"].([]interface{})
+	assert.Len(t, items, 1)
+	assert.Equal(t, "t1", items[0].(map[string]interface{})["target_id"])
+}
+
+func TestFilterNestedFromPath(t *testing.T) {
+	data := simulateAPIResponse(t, map[string]interface{}{
+		"job_list": map[string]interface{}{
+			"jobs": []interface{}{
+				map[string]interface{}{"job_id": 101, "name": "job-a"},
+				map[string]interface{}{"job_id": 102, "name": "job-b"},
+			},
+		},
+	})
+
+	rst, err := New().
+		Data(data).
+		From("job_list.jobs").
+		Where("job_id", "=", 101).
+		Get()
+
+	assert.NoError(t, err)
+	items := rst.(map[string]interface{})["job_list"].(map[string]interface{})["jobs"].([]interface{})
+	assert.Len(t, items, 1)
+	assert.Equal(t, "job-a", items[0].(map[string]interface{})["name"])
+}
+
+func TestFilterHasOperatorProduction(t *testing.T) {
+	data := simulateAPIResponse(t, map[string]interface{}{
+		"products": []interface{}{
+			map[string]interface{}{
+				"type":          "cluster",
+				"charging_mode": []interface{}{"prePaid", "postPaid"},
+				"arch_types":    []interface{}{"x86"},
+			},
+			map[string]interface{}{
+				"type":          "cluster",
+				"charging_mode": []interface{}{"postPaid"},
+				"arch_types":    []interface{}{"arm"},
+			},
+			map[string]interface{}{
+				"type":          "cluster",
+				"charging_mode": []interface{}{"prePaid"},
+				"arch_types":    []interface{}{"x86", "arm"},
+			},
+		},
+	})
+
+	rst, err := New().
+		Data(data).
+		From("products").
+		Where("charging_mode", "has", "prePaid").
+		Where("arch_types", "has", "x86").
+		Get()
+
+	assert.NoError(t, err)
+	items := rst.(map[string]interface{})["products"].([]interface{})
+	assert.Len(t, items, 2)
+}
+
+func TestFilterInvalidFromPath(t *testing.T) {
+	original := map[string]interface{}{
+		"items": []interface{}{
+			map[string]interface{}{"id": "1"},
+			map[string]interface{}{"id": "2"},
+		},
+	}
+	data := simulateAPIResponse(t, original)
+
+	rst, err := New().
+		Data(data).
+		From("nonexistent").
+		Where("id", "=", "1").
+		Get()
+
+	assert.NoError(t, err)
+	assert.NotNil(t, rst)
+
+	// Current behavior: invalid From path does not return an error.
+	// The original collection remains available and no items are filtered in-place.
+	items := rst.(map[string]interface{})["items"].([]interface{})
+	assert.Len(t, items, 2)
+}
+
+func TestFilterSliceWithWhere(t *testing.T) {
+	data := []interface{}{
+		map[string]interface{}{"name": "Tom", "age": 20},
+		map[string]interface{}{"name": "Jerry", "age": 10},
+		map[string]interface{}{"name": "Tommy", "age": 30},
+	}
+
+	rst, err := New().
+		Data(data).
+		Where("name", "contains", "tom").
+		Get()
+
+	assert.NoError(t, err)
+	items, ok := rst.([]interface{})
+	assert.True(t, ok)
+	assert.Len(t, items, 2)
+}
+
+func TestFilterWhereNilValueSkipped(t *testing.T) {
+	data := simulateAPIResponse(t, map[string]interface{}{
+		"items": []interface{}{
+			map[string]interface{}{"id": "1", "status": 1},
+			map[string]interface{}{"id": "2", "status": 2},
+		},
+	})
+
+	rst, err := New().
+		Data(data).
+		From("items").
+		Where("status", "=", nil).
+		Where("id", "=", "1").
+		Get()
+
+	assert.NoError(t, err)
+	items := rst.(map[string]interface{})["items"].([]interface{})
+	assert.Len(t, items, 1)
+	assert.Equal(t, "1", items[0].(map[string]interface{})["id"])
+}
+
+func TestFilterEqualString(t *testing.T) {
+	data := simulateAPIResponse(t, map[string]interface{}{
+		"items": []interface{}{
+			map[string]interface{}{"id": "rule-1", "name": "alpha"},
+			map[string]interface{}{"id": "rule-2", "name": "beta"},
+		},
+	})
+
+	rst, err := New().
+		Data(data).
+		From("items").
+		Where("id", "=", "rule-1").
+		Get()
+
+	assert.NoError(t, err)
+	items := rst.(map[string]interface{})["items"].([]interface{})
+	assert.Len(t, items, 1)
+	assert.Equal(t, "rule-1", items[0].(map[string]interface{})["id"])
+	assert.Equal(t, "alpha", items[0].(map[string]interface{})["name"])
+}
+
+func TestFilterNestedWhereDeepKey(t *testing.T) {
+	data := simulateAPIResponse(t, map[string]interface{}{
+		"job_list": map[string]interface{}{
+			"jobs": []interface{}{
+				map[string]interface{}{
+					"job_id": 101,
+					"job_config": map[string]interface{}{
+						"cu_number":       4,
+						"parallel_number": 2,
+					},
+				},
+				map[string]interface{}{
+					"job_id": 102,
+					"job_config": map[string]interface{}{
+						"cu_number":       8,
+						"parallel_number": 2,
+					},
+				},
+			},
+		},
+	})
+
+	rst, err := New().
+		Data(data).
+		From("job_list.jobs").
+		Where("job_config.cu_number", "=", 4).
+		Where("job_config.parallel_number", "=", 2).
+		Get()
+
+	assert.NoError(t, err)
+	items := rst.(map[string]interface{})["job_list"].(map[string]interface{})["jobs"].([]interface{})
+	assert.Len(t, items, 1)
+	assert.Equal(t, float64(101), items[0].(map[string]interface{})["job_id"])
+}
+
+func TestFilterCustomGjsonArrayFilter(t *testing.T) {
+	data := simulateAPIResponse(t, map[string]interface{}{
+		"products": []interface{}{
+			map[string]interface{}{
+				"product_id": "p1",
+				"type":       "cluster",
+				"ios": []interface{}{
+					map[string]interface{}{"io_spec": "dms.physical.storage.high", "type": "evs"},
+					map[string]interface{}{"io_spec": "dms.physical.storage.ultra", "type": "evs"},
+				},
+			},
+			map[string]interface{}{
+				"product_id": "p2",
+				"type":       "cluster",
+				"ios": []interface{}{
+					map[string]interface{}{"io_spec": "dms.physical.storage.ultra", "type": "evs"},
+				},
+			},
+			map[string]interface{}{
+				"product_id": "p3",
+				"type":       "cluster",
+				"ios":        []interface{}{},
+			},
+		},
+	})
+
+	rst, err := New().
+		Data(data).
+		From("products").
+		Where("type", "=", "cluster").
+		Filter(func(item gjson.Result) bool {
+			ios := item.Get("ios")
+			if !ios.Exists() || !ios.IsArray() {
+				return false
+			}
+			for _, io := range ios.Array() {
+				if io.Get("io_spec").String() == "dms.physical.storage.high" {
+					return true
+				}
+			}
+			return false
+		}).
+		Get()
+
+	assert.NoError(t, err)
+	items := rst.(map[string]interface{})["products"].([]interface{})
+	assert.Len(t, items, 1)
+	assert.Equal(t, "p1", items[0].(map[string]interface{})["product_id"])
+}
+
+func TestFilterEmptyResult(t *testing.T) {
+	data := simulateAPIResponse(t, map[string]interface{}{
+		"items": []interface{}{
+			map[string]interface{}{"id": "rule-1", "status": 1},
+			map[string]interface{}{"id": "rule-2", "status": 1},
+		},
+	})
+
+	rst, err := New().
+		Data(data).
+		From("items").
+		Where("id", "=", "nonexistent-id").
+		Get()
+
+	assert.NoError(t, err)
+	items, ok := rst.(map[string]interface{})["items"].([]interface{})
+	assert.True(t, ok, "filtered node should remain a slice")
+	assert.NotNil(t, items, "empty result should be an empty slice, not nil")
+	assert.Len(t, items, 0)
+}
+
+func TestEqualValuesNumericNormalization(t *testing.T) {
+	testCases := []struct {
+		name string
+		x    any
+		y    any
+		want bool
+	}{
+		{name: "float64 and int64", x: float64(1), y: int64(1), want: true},
+		{name: "int and float64", x: int(1), y: float64(1), want: true},
+		{name: "float64 and int", x: float64(1), y: int(1), want: true},
+		{name: "string and float64", x: "1", y: float64(1), want: false},
+		{name: "bool and int", x: true, y: 1, want: false},
+		{name: "equal strings", x: "rule-1", y: "rule-1", want: true},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			assert.Equal(t, tc.want, equalValues(tc.x, tc.y))
+		})
+	}
+}
+
+func TestFilterJsonTypedMapNumericEqual(t *testing.T) {
+	data := map[string]interface{}{
+		"items": []map[string]interface{}{
+			{"id": "rule-1", "status": 1},
+			{"id": "rule-2", "status": 2},
+		},
+	}
+
+	rst, err := New().
+		Data(data).
+		From("items").
+		Where("status", "=", float64(1)).
+		Get()
+
+	assert.NoError(t, err)
+	items := rst.(map[string]interface{})["items"].([]interface{})
+	assert.Len(t, items, 1)
+	assert.Equal(t, "rule-1", items[0].(map[string]interface{})["id"])
+}
+
+func TestFilterSliceTypedNumericEqual(t *testing.T) {
+	data := []interface{}{
+		map[string]interface{}{"name": "Tom", "age": 20},
+		map[string]interface{}{"name": "Jerry", "age": 10},
+	}
+
+	rst, err := New().
+		Data(data).
+		Where("age", "=", float64(20)).
+		Get()
+
+	assert.NoError(t, err)
+	items, ok := rst.([]interface{})
+	assert.True(t, ok)
+	assert.Len(t, items, 1)
+	assert.Equal(t, "Tom", items[0].(map[string]interface{})["name"])
+}
 
 func TestFilter1(t *testing.T) {
 	data := map[string]interface{}{
@@ -480,13 +913,12 @@ func TestCustomFilter1(t *testing.T) {
 			expected: false,
 		},
 	}
-	fmt.Println(len(testCase))
-
 	expStr := fmt.Sprintf("%v", expected)
 	for _, tc := range testCase {
 		t.Run(tc.name, func(t *testing.T) {
+			tcData := deepCopyMap(t, data)
 			rst, err := New().
-				Data(data).
+				Data(tcData).
 				From("arr").
 				Filter(tc.filter).
 				Get()
@@ -507,7 +939,22 @@ func TestCustomFilter1(t *testing.T) {
 		Get()
 
 	assert.NoError(t, err)
-	assert.Equal(t, fmt.Sprintf("%v", rst), fmt.Sprintf("%v", expected))
+	assert.Equal(t, fmt.Sprintf("%v", expected), fmt.Sprintf("%v", rst))
+}
+
+func deepCopyMap(t *testing.T, src map[string]interface{}) map[string]interface{} {
+	t.Helper()
+
+	b, err := json.Marshal(src)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	dst := make(map[string]interface{})
+	if err := json.Unmarshal(b, &dst); err != nil {
+		t.Fatal(err)
+	}
+	return dst
 }
 
 func TestCustomFilter2(t *testing.T) {
@@ -841,11 +1288,11 @@ func TestHas(t *testing.T) {
 	assert.Equal(t, true, result4)
 
 	result5, err := has(x2, y5)
-	assert.NoError(t, err)
+	assert.Error(t, err)
 	assert.Equal(t, false, result5)
 
 	result6, err := has(x2, y6)
-	assert.NoError(t, err)
+	assert.Error(t, err)
 	assert.Equal(t, false, result6)
 }
 
@@ -877,10 +1324,10 @@ func TestHasContain(t *testing.T) {
 	assert.Equal(t, true, result4)
 
 	result5, err := hasContain(x2, y5)
-	assert.NoError(t, err)
+	assert.Error(t, err)
 	assert.Equal(t, false, result5)
 
 	result6, err := hasContain(x2, y6)
-	assert.NoError(t, err)
+	assert.Error(t, err)
 	assert.Equal(t, false, result6)
 }
