@@ -52,7 +52,8 @@
               },
               "kube_config_raw": {
                 "type": "string",
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "region": {
                 "type": "string",
@@ -70,7 +71,8 @@
                     }
                   ]
                 ],
-                "computed": true
+                "computed": true,
+                "sensitive": true
               }
             }
           },

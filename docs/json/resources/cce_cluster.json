@@ -73,7 +73,8 @@
                     }
                   ]
                 ],
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "charging_mode": {
                 "type": "string",
@@ -179,7 +180,8 @@
               },
               "kube_config_raw": {
                 "type": "string",
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "kube_proxy_mode": {
                 "type": "string",

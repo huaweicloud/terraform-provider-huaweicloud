@@ -39,7 +39,8 @@
                     }
                   ]
                 ],
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "cluster_type": {
                 "type": "string",
@@ -102,7 +103,8 @@
               },
               "kube_config_raw": {
                 "type": "string",
-                "computed": true
+                "computed": true,
+                "sensitive": true
               },
               "masters": {
                 "type": [

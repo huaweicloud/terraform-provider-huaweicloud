@@ -129,6 +129,7 @@
                                     [
                                       "object",
                                       {
+                                        "auto_match": "string",
                                         "image_id": "string",
                                         "image_type": "string",
                                         "name": "string"
@@ -177,6 +178,7 @@
                                             }
                                           ]
                                         ],
+                                        "mode": "string",
                                         "types": [
                                           "list",
                                           "string"
