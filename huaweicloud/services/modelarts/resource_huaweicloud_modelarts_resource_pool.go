@@ -1198,10 +1198,15 @@ func buildResourcePoolResourcesOsInfo(osInfos []interface{}) map[string]interfac
 	}
 
 	osInfo := osInfos[0]
+	imageId := utils.PathSearch("image_id", osInfo, "")
+	if imageId != "" {
+		return map[string]interface{}{
+			"name":      utils.ValueIgnoreEmpty(utils.PathSearch("name", osInfo, nil)),
+			"imageId":   utils.ValueIgnoreEmpty(utils.PathSearch("image_id", osInfo, nil)),
+			"imageType": utils.ValueIgnoreEmpty(utils.PathSearch("image_type", osInfo, nil)),
+		}
+	}
 	return map[string]interface{}{
-		"name":      utils.ValueIgnoreEmpty(utils.PathSearch("name", osInfo, nil)),
-		"imageId":   utils.ValueIgnoreEmpty(utils.PathSearch("image_id", osInfo, nil)),
-		"imageType": utils.ValueIgnoreEmpty(utils.PathSearch("image_type", osInfo, nil)),
 		"autoMatch": utils.ValueIgnoreEmpty(utils.PathSearch("auto_match", osInfo, nil)),
 	}
 }
@@ -1387,6 +1392,8 @@ func flattenResourcePoolResourcesOsInfo(osInfo interface{}) []map[string]interfa
 			"name":       utils.PathSearch("name", osInfo, nil),
 			"image_id":   utils.PathSearch("imageId", osInfo, nil),
 			"image_type": utils.PathSearch("iamgeType", osInfo, nil),
+			// auto_match matches the image by image name automatically.
+			// The ModelArts API does not return this field, so read it from the image name.
 			"auto_match": utils.PathSearch("name", osInfo, nil),
 		},
 	}
@@ -2042,7 +2049,6 @@ func buildUpdateResourcePoolResourceOs(resourceElem cty.Value, oldResource inter
 		"name":      utils.ValueIgnoreEmpty(getConfigFileStringValueByKey(os.Index(cty.NumberIntVal(0)), "name")),
 		"imageId":   utils.ValueIgnoreEmpty(getConfigFileStringValueByKey(os.Index(cty.NumberIntVal(0)), "image_id")),
 		"imageType": utils.ValueIgnoreEmpty(getConfigFileStringValueByKey(os.Index(cty.NumberIntVal(0)), "image_type")),
-		"autoMatch": utils.ValueIgnoreEmpty(getConfigFileStringValueByKey(os.Index(cty.NumberIntVal(0)), "auto_match")),
 	}
 }
 
@@ -2124,6 +2130,7 @@ func buildUpdateResourcePoolResourceVolumeGroupConfigs(resourceElem cty.Value) [
 		result[i] = map[string]interface{}{
 			"volume_group":     volumeGroupConfigElem.GetAttr("volume_group").AsString(),
 			"docker_thin_pool": getConfigFileIntValueByKey(volumeGroupConfigElem, "docker_thin_pool"),
+			"mode":             getConfigFileStringValueByKey(volumeGroupConfigElem, "mode"),
 			"lvm_config":       buildUpdateResourceVolumeGroupConfigsLvmConfig(volumeGroupConfigElem),
 			"types":            buildUpdateResourcePoolResourceVolumeGroupConfigsTypes(volumeGroupConfigElem),
 		}

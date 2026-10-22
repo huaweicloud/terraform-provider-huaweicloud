@@ -444,6 +444,11 @@ func dataV2ResourcePoolSpecResourceSchema() *schema.Resource {
 							Computed:    true,
 							Description: `The percentage of container volumes to data volumes on resource pool nodes.`,
 						},
+						"mode": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The disk ratio partitioning mode.`,
+						},
 						"lvm_config": {
 							Type:     schema.TypeList,
 							Computed: true,
@@ -492,6 +497,11 @@ func dataV2ResourcePoolSpecResourceSchema() *schema.Resource {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: `The image type.`,
+						},
+						"auto_match": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The system image auto matching strategy.`,
 						},
 					},
 				},
@@ -916,6 +926,16 @@ func dataV2ResourcePoolResourceVolumeGroupConfigsSchema() *schema.Resource {
 					},
 				),
 			},
+			"mode": {
+				Type:     schema.TypeString,
+				Computed: true,
+				Description: utils.SchemaDesc(
+					`The disk ratio partitioning mode.`,
+					utils.SchemaDescInput{
+						Internal: true,
+					},
+				),
+			},
 			"lvm_config": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -1181,6 +1201,9 @@ func flattenV2DataResourcePoolResourcesOs(osInfo interface{}) []map[string]inter
 			"name":       utils.PathSearch("name", osInfo, nil),
 			"image_id":   utils.PathSearch("imageId", osInfo, nil),
 			"image_type": utils.PathSearch("iamgeType", osInfo, nil),
+			// auto_match matches the image by image name automatically.
+			// The ModelArts API does not return this field, so read it from the image name.
+			"auto_match": utils.PathSearch("name", osInfo, nil),
 		},
 	}
 }
@@ -1208,6 +1231,7 @@ func flattenResourcePoolSpecResourcesVolumeGroupConfigs(volumeGroupConfigs []int
 		result = append(result, map[string]interface{}{
 			"volume_group":     utils.PathSearch("volumeGroup", volumeGroupConfig, nil),
 			"docker_thin_pool": utils.PathSearch("dockerThinPool", volumeGroupConfig, nil),
+			"mode":             utils.PathSearch("mode", volumeGroupConfig, nil),
 			"lvm_config": flattenV2DataResourcePoolVolumeGroupConfigsLvmConfig(utils.PathSearch("lvmConfig",
 				volumeGroupConfig, nil)),
 			"types": utils.PathSearch("types", volumeGroupConfig, make([]interface{}, 0)),
