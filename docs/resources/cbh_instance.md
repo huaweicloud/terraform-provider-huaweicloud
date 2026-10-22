@@ -76,12 +76,12 @@ The following arguments are supported:
 
   Changing this parameter will create a new resource.
 
-* `period_unit` - (Required, String, ForceNew) Specifies the charging period unit of the instance.
+* `period_unit` - (Optional, String, ForceNew) Specifies the charging period unit of the instance.
   Valid values are *month* and *year*.
 
   Changing this parameter will create a new resource.
 
-* `period` - (Required, Int, ForceNew) Specifies the charging period of the CBH instance.
+* `period` - (Optional, Int, ForceNew) Specifies the charging period of the CBH instance.
   If `period_unit` is set to **month**, the value ranges from `1` to `9`.
   If `period_unit` is set to **year**, the value ranges from `1` to `3`.
 
