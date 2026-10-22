@@ -193,6 +193,8 @@ The `volume_group_configs` block supports:
 
 * `docker_thin_pool` - The percentage of container volumes to data volumes on resource pool nodes.
 
+* `mode` - The disk ratio partitioning mode.
+
 * `lvm_config` - The configuration of the LVM management.  
   The [lvm_config](#modelarts_v2_resource_pools_spec_resources_volume_group_configs_lvm_config) structure is documented
   below.
@@ -209,6 +211,8 @@ The `os` block supports:
 * `image_type` - The image type.
 
 * `name` - The OS name of the image.
+
+* `auto_match` - The system image auto matching strategy.
 
 <a name="modelarts_v2_resource_pools_spec_resources_azs"></a>
 The `azs` block supports:
