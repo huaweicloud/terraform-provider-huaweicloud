@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 1.99.2 (Oct 22, 2026)
+
+ENHANCEMENTS:
+
+* feat(retry): supports custom backoff interval for specified service [GH-10524]
+
+BUG FIXES:
+
+* fix(CCE): mark the attributes containing the admin client private key as sensitive [GH-10514]
+* fix(modelarts): supplement the missing attributes and repair the update logic [GH-10525]
+
 ## 1.99.1 (Oct 19, 2026)
 
 ENHANCEMENTS:
