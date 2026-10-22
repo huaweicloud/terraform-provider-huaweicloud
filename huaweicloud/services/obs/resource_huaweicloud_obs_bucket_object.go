@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -21,17 +22,19 @@ import (
 
 // @API OBS HEAD /
 // @API OBS HEAD /{ObjectName}
-// @API OBS PUT /{ObjectName}
+// @API OBS POST /{ObjectName}?uploads
+// @API OBS PUT /{ObjectName}?partNumber&uploadId
 // @API OBS DELETE /{ObjectName}
 // @API OBS PUT /{ObjectName}?tagging
 // @API OBS GET /{ObjectName}?tagging
 // @API OBS DELETE /{ObjectName}?tagging
+
 func ResourceObsBucketObject() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceObsBucketObjectCreate,
-		ReadContext:   resourceObsBucketObjectRead,
-		UpdateContext: resourceObsBucketObjectUpdate,
-		DeleteContext: resourceObsBucketObjectDelete,
+		CreateWithoutTimeout: resourceObsBucketObjectCreate,
+		ReadContext:          resourceObsBucketObjectRead,
+		UpdateWithoutTimeout: resourceObsBucketObjectUpdate,
+		DeleteContext:        resourceObsBucketObjectDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: resourceObsBucketObjectImport,
 		},
@@ -116,6 +119,10 @@ func ResourceObsBucketObject() *schema.Resource {
 			"size": {
 				Type:     schema.TypeInt,
 				Computed: true,
+			},
+			"source_hash": {
+				Type:     schema.TypeString,
+				Optional: true,
 			},
 		},
 	}
@@ -222,6 +229,57 @@ func putFileToObject(obsClient *obs.ObsClient, d *schema.ResourceData) (*obs.Put
 
 	log.Printf("[DEBUG] putting %s to OBS Bucket %s, opts: %#v", key, bucket, putInput)
 	return obsClient.PutFile(putInput)
+}
+
+func putFileToObjectMultipart(obsClient *obs.ObsClient, d *schema.ResourceData) (*obs.CompleteMultipartUploadOutput, error) {
+	bucket := d.Get("bucket").(string)
+	key := d.Get("key").(string)
+	source := d.Get("source").(string)
+
+	const defaultTaskNum = 5
+	var taskNum int = defaultTaskNum
+	taskNumStr := os.Getenv("HW_OBS_UPLOAD_CONCURRENT_TASK_NUM")
+	if taskNumStr != "" {
+		taskNum, _ = strconv.Atoi(taskNumStr)
+	}
+
+	putInput := &obs.UploadFileInput{}
+	putInput.Bucket = bucket
+	putInput.Key = key
+	putInput.UploadFile = source
+	putInput.TaskNum = taskNum
+
+	if v, ok := d.GetOk("acl"); ok {
+		putInput.ACL = obs.AclType(v.(string))
+	}
+	if v, ok := d.GetOk("storage_class"); ok {
+		putInput.StorageClass = obs.StorageClassType(v.(string))
+	}
+	if v, ok := d.GetOk("content_type"); ok {
+		putInput.ContentType = v.(string)
+	} else {
+		// The SDK derives the content type from the key/source implicitly when using the PutFile function,
+		// but it needs to be done by us explicitly when using the Resumable UploadFile function.
+		if v, ok := obs.GetContentType(key); ok {
+			putInput.ContentType = v
+		} else if v, ok := obs.GetContentType(source); ok {
+			putInput.ContentType = v
+		}
+	}
+
+	if v, ok := d.GetOk("metadata"); ok {
+		putInput.Metadata = utils.ExpandToStringMap(v.(map[string]interface{}))
+	}
+
+	var sseKmsHeader = obs.SseKmsHeader{}
+	if d.Get("encryption").(bool) {
+		sseKmsHeader.Encryption = obs.DEFAULT_SSE_KMS_ENCRYPTION
+		sseKmsHeader.Key = d.Get("kms_key_id").(string)
+		putInput.SseHeader = sseKmsHeader
+	}
+
+	log.Printf("[DEBUG] putting %s to OBS Bucket %s, opts: %#v", key, bucket, putInput)
+	return obsClient.UploadFile(putInput)
 }
 
 func deleteBucketObjectTags(obsClient *obs.ObsClient, bucket, key, versionId string) error {
@@ -384,14 +442,20 @@ func resourceObsBucketObjectUpdate(ctx context.Context, d *schema.ResourceData, 
 
 func updateBucketObject(obsClient *obs.ObsClient, d *schema.ResourceData, bucket, key string) (string, error) {
 	var (
-		resp   *obs.PutObjectOutput
-		err    error
-		source = d.Get("source").(string)
+		versionId string
+		err       error
+		source    = d.Get("source").(string)
 	)
+
+	// This threshold is set to the maximum size that a single PUT request allows,
+	// thereby reducing the chances of regression for existing users when multipart upload was introduced.
+	// It may be set lower to have have smaller files benefit from multipart upload too.
+	const multipartThreshold int64 = 5 * 1024 * 1024 * 1024 // 5 GiB
 
 	if source != "" {
 		// Check source file whether exist.
-		_, err = os.Stat(source)
+		var fileInfo os.FileInfo
+		fileInfo, err = os.Stat(source)
 		if err != nil {
 			if os.IsNotExist(err) {
 				return "", fmt.Errorf("source file %s is not exist", source)
@@ -400,27 +464,56 @@ func updateBucketObject(obsClient *obs.ObsClient, d *schema.ResourceData, bucket
 			return "", err
 		}
 
-		// Put source file.
-		resp, err = putFileToObject(obsClient, d)
+		if fileInfo.Size() < multipartThreshold {
+			// Put source file.
+			var resp *obs.PutObjectOutput
+			resp, err = putFileToObject(obsClient, d)
+			if err != nil {
+				return "", err
+			}
+
+			log.Printf("[DEBUG] Response of putting object (%s) to OBS bucket (%s): %#v", key, bucket, resp)
+			if resp == nil {
+				return "", fmt.Errorf("putting object to OBS bucket %s with null response", bucket)
+			}
+
+			versionId = resp.VersionId
+		} else {
+			var resp *obs.CompleteMultipartUploadOutput
+			resp, err = putFileToObjectMultipart(obsClient, d)
+			if err != nil {
+				return "", err
+			}
+
+			log.Printf("[DEBUG] Response of putting object (%s) to OBS bucket (%s): %#v", key, bucket, resp)
+			if resp == nil {
+				return "", fmt.Errorf("putting object to OBS bucket %s with null response", bucket)
+			}
+
+			versionId = resp.VersionId
+		}
 	}
 
 	content := d.Get("content").(string)
 	if content != "" {
 		// Put content.
+		var resp *obs.PutObjectOutput
 		resp, err = putContentToObject(obsClient, d)
+
+		if err != nil {
+			return "", err
+		}
+
+		log.Printf("[DEBUG] Response of putting object (%s) to OBS bucket (%s): %#v", key, bucket, resp)
+		if resp == nil {
+			return "", fmt.Errorf("putting object to OBS bucket %s with null response", bucket)
+		}
+
+		versionId = resp.VersionId
 	}
 
-	if err != nil {
-		return "", err
-	}
-
-	log.Printf("[DEBUG] Response of putting object (%s) to OBS bucket (%s): %#v", key, bucket, resp)
-	if resp == nil {
-		return "", fmt.Errorf("putting object to OBS bucket %s without null response", bucket)
-	}
-
-	if resp.VersionId != "null" {
-		return resp.VersionId, nil
+	if versionId != "null" {
+		return versionId, nil
 	}
 
 	return "", nil
