@@ -2280,6 +2280,11 @@ func Provider() *schema.Provider {
 			"huaweicloud_ram_resource_instances_filter":             ram.DataSourceResourceInstancesFilter(),
 			"huaweicloud_ram_resource_instances_count":              ram.DataSourceResourceInstancesCount(),
 
+			"huaweicloud_rc_providers":          rc.DataSourceRcProviders(),
+			"huaweicloud_rc_resource_count":     rc.DataSourceRcResourceCount(),
+			"huaweicloud_rc_resource_summaries": rc.DataSourceRcResourceSummaries(),
+			"huaweicloud_rc_run_query":          rc.DataSourceRcRunQuery(),
+			"huaweicloud_rc_schemas":            rc.DataSourceRcSchemas(),
 			"huaweicloud_rc_resource_relations": rc.DataSourceRcResourceRelations(),
 			"huaweicloud_rc_stored_queries":     rc.DataSourceRcStoredQueries(),
 
