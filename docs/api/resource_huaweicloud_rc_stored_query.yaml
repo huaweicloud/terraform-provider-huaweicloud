@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_rc_stored_query
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: RC
+paths:
+    /v1/resource-center/stored-queries:
+        POST:
+            tag: RC
+    /v1/resource-center/stored-queries/{query_id}:
+        DELETE:
+            tag: RC
+        GET:
+            tag: RC
+        PUT:
+            tag: RC

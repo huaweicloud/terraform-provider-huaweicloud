@@ -14,6 +14,3 @@ paths:
     /v1/{project_id}/stacks/{stack_name}/execution-plans/{execution_plan_name}:
         DELETE:
             tag: RFS
-    /v1/{project_id}/stacks/{stack_name}/execution-plans/{execution_plan_name}/metadata:
-        GET:
-            tag: RFS

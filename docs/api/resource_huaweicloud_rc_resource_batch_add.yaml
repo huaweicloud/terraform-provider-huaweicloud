@@ -1,0 +1,13 @@
+info:
+    version: ""
+    title: resource_huaweicloud_rc_resource_batch_add
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: RC
+paths:
+    /v1/resource-center/groups/{group_id}/resources:
+        PUT:
+            tag: RC

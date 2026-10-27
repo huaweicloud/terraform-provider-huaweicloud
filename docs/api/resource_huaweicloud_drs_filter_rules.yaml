@@ -1,0 +1,23 @@
+info:
+    version: ""
+    title: resource_huaweicloud_drs_filter_rules
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: DRS
+paths:
+    /v5/{project_id}/jobs/{job_id}/check-filter-rules:
+        POST:
+            tag: DRS
+    /v5/{project_id}/jobs/{job_id}/filter-rules:
+        DELETE:
+            tag: DRS
+        POST:
+            tag: DRS
+        PUT:
+            tag: DRS
+    /v5/{project_id}/jobs/{job_id}/filter-rules/result:
+        GET:
+            tag: DRS

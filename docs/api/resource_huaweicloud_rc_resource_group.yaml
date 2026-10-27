@@ -1,0 +1,20 @@
+info:
+    version: ""
+    title: resource_huaweicloud_rc_resource_group
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: RC
+paths:
+    /v1/resource-center/groups:
+        POST:
+            tag: RC
+    /v1/resource-center/groups/{group_id}:
+        DELETE:
+            tag: RC
+        GET:
+            tag: RC
+        PATCH:
+            tag: RC
