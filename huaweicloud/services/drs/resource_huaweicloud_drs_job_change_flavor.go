@@ -39,13 +39,11 @@ func ResourceDrsJobChangeFlavor() *schema.Resource {
 			"job_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "Specifies the ID of the DRS job to change flavor.",
 			},
 			"spec_type": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 				ValidateFunc: validation.StringInSlice([]string{
 					"micro", "small", "medium", "high", "xlarge", "2xlarge",
 				}, false),

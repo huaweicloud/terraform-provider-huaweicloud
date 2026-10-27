@@ -401,6 +401,15 @@ The `personality` block supports:
 * `content` - (Required, String, ForceNew) Specifies the content of the injected file, which must be encoded with base64.
   Changing this creates a new resource.
 
+<a name="instance_config_tags_object"></a>
+The `tags` block supports:
+
+* `key` - (Required, String, ForceNew) Specifies the tag key. The maximum length is `36` Unicode characters.
+  Changing this will create a new resource.
+
+* `value` - (Required, String, ForceNew) Specifies the tag value. The maximum length is `43` Unicode characters.
+  Changing this will create a new resource.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:

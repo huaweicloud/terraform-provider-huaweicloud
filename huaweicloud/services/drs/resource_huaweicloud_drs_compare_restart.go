@@ -39,13 +39,11 @@ func ResourceDrsCompareRestart() *schema.Resource {
 			"job_id": {
 				Type:        schema.TypeString,
 				Required:    true,
-				ForceNew:    true,
 				Description: "Specifies the ID of the DRS job to restart compare tasks.",
 			},
 			"compare_job_ids": {
 				Type:        schema.TypeList,
 				Required:    true,
-				ForceNew:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
 				Description: "Specifies the list of compare job IDs to restart.",
 			},

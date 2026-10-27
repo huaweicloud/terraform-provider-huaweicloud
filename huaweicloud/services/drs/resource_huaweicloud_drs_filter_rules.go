@@ -308,11 +308,7 @@ func resourceFilterRulesCreate(_ context.Context, d *schema.ResourceData, meta i
 
 	d.SetId(d.Get("job_id").(string))
 
-	if diagErr := checkDrsFilterRules(d, client); diagErr != nil {
-		return diagErr
-	}
-
-	return nil
+	return checkDrsFilterRules(d, client)
 }
 
 func resourceFilterRulesRead(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
@@ -348,11 +344,7 @@ func resourceFilterRulesUpdate(_ context.Context, d *schema.ResourceData, meta i
 		return diag.Errorf("error updating DRS data filter rules: %s", err)
 	}
 
-	if diagErr := checkDrsFilterRules(d, client); diagErr != nil {
-		return diagErr
-	}
-
-	return nil
+	return checkDrsFilterRules(d, client)
 }
 
 func checkDrsFilterRules(d *schema.ResourceData, client *golangsdk.ServiceClient) diag.Diagnostics {
