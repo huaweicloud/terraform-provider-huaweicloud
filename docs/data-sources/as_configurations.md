@@ -84,6 +84,12 @@ The `instance_config` block supports:
 * `personality` - The list of information about the injected file.
   The [object](#instance_config_personality_object) structure is documented below.
 
+* `tags` - The list of tags of the AS configuration.
+  The [object](#instance_config_tags_object) structure is documented below.
+
+* `tag_transmission_policy` - The tag transmission policy when instances are created during scale-out.
+  The value can be **OVERRIDE** or **SUPPRESS**.
+
 <a name="instance_config_disk_object"></a>
 The `disk` block supports:
 
@@ -133,3 +139,10 @@ The `personality` block supports:
 * `path` - The path of the injected file.
 
 * `content` - The content of the injected file.
+
+<a name="instance_config_tags_object"></a>
+The `tags` block supports:
+
+* `key` - The tag key.
+
+* `value` - The tag value.

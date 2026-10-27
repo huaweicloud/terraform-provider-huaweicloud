@@ -54,13 +54,14 @@ type Share struct {
 
 // Metadata specifies the metadata information
 type Metadata struct {
-	ExpandType            string `json:"expand_type,omitempty"`
-	CryptKeyID            string `json:"crypt_key_id,omitempty"`
-	DedicatedFlavor       string `json:"dedicated_flavor,omitempty"`
-	MasterDedicatedHostID string `json:"master_dedicated_host_id,omitempty"`
-	SlaveDedicatedHostID  string `json:"slave_dedicated_host_id,omitempty"`
-	DedicatedStorageID    string `json:"dedicated_storage_id,omitempty"`
-	HpcBw                 string `json:"hpc_bw,omitempty"`
+	ExpandType                   string  `json:"expand_type,omitempty"`
+	CryptKeyID                   string  `json:"crypt_key_id,omitempty"`
+	DedicatedFlavor              string  `json:"dedicated_flavor,omitempty"`
+	MasterDedicatedHostID        string  `json:"master_dedicated_host_id,omitempty"`
+	SlaveDedicatedHostID         string  `json:"slave_dedicated_host_id,omitempty"`
+	DedicatedStorageID           string  `json:"dedicated_storage_id,omitempty"`
+	HpcBw                        string  `json:"hpc_bw,omitempty"`
+	AutoCreateSecurityGroupRules *string `json:"auto_create_security_group_rules,omitempty"`
 }
 
 // BssParam is an object that represents the prepaid configuration.

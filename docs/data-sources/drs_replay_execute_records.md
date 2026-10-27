@@ -43,6 +43,8 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The data source ID.
 
+* `total_count` - The total number of items in the list, regardless of paging.
+
 * `sql_records` - The list of SQL execution records of the replay task.  
   The [sql_records](#replay_execute_records_sql_records) structure is documented below.
 

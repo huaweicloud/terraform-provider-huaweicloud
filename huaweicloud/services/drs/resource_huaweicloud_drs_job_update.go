@@ -2,7 +2,6 @@ package drs
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -377,9 +376,9 @@ func resourceDrsJobUpdateUpdate(_ context.Context, d *schema.ResourceData, meta 
 }
 
 func resourceDrsJobUpdateDelete(_ context.Context, _ *schema.ResourceData, _ interface{}) diag.Diagnostics {
-	errorMsg := fmt.Sprintf(`This resource is a one-time action resource used to update DRS job details. Deleting this resource
+	errorMsg := `This resource is a one-time action resource used to update DRS job details. Deleting this resource
 will not rollback the update operation, but will only remove the resource information from the tf
-state file.`)
+state file.`
 	return diag.Diagnostics{
 		diag.Diagnostic{
 			Severity: diag.Warning,

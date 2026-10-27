@@ -20,6 +20,7 @@ func TestAccFilterRules_basic(t *testing.T) {
 			acceptance.TestAccPreCheckDrsJobId(t)
 		},
 		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      nil,
 		Steps: []resource.TestStep{
 			{
 				Config: testFilterRules_basic(),
