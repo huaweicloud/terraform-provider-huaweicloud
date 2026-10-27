@@ -2280,6 +2280,8 @@ func Provider() *schema.Provider {
 			"huaweicloud_ram_resource_instances_filter":             ram.DataSourceResourceInstancesFilter(),
 			"huaweicloud_ram_resource_instances_count":              ram.DataSourceResourceInstancesCount(),
 
+			"huaweicloud_rc_resource_relations": rc.DataSourceRcResourceRelations(),
+
 			"huaweicloud_rds_flavors":                            rds.DataSourceRdsFlavors(),
 			"huaweicloud_rds_available_flavors":                  rds.DataSourceRdsAvailableFlavors(),
 			"huaweicloud_rds_available_upgrade_small_versions":   rds.DataSourceAvailableUpgradeSmallVersions(),
