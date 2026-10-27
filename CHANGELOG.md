@@ -1,5 +1,34 @@
 # CHANGELOG
 
+## 1.100.0 (Oct 27, 2026)
+
+* **New Resource Source:**
+  + `huaweicloud_drs_compare_restart`
+  + `huaweicloud_drs_filter_rules`
+  + `huaweicloud_drs_job_change_flavor`
+  + `huaweicloud_drs_job_update`
+  + `huaweicloud_rc_resource_batch_add`
+  + `huaweicloud_rc_resource_group`
+  + `huaweicloud_rc_resource_remove`
+  + `huaweicloud_rc_stored_query`
+
+* **New Data Source:**
+  + `huaweicloud_drs_compare_users`
+  + `huaweicloud_drs_filter_rules_collect`
+  + `huaweicloud_drs_replay_execute_records`
+  + `huaweicloud_drs_replay_records`
+  + `huaweicloud_rc_providers`
+  + `huaweicloud_rc_resource_count`
+  + `huaweicloud_rc_resource_groups`
+  + `huaweicloud_rc_resource_relations`
+  + `huaweicloud_rc_resource_summaries`
+  + `huaweicloud_rc_resource_tags`
+  + `huaweicloud_rc_resources`
+  + `huaweicloud_rc_run_query`
+  + `huaweicloud_rc_schemas`
+  + `huaweicloud_rc_service_resources`
+  + `huaweicloud_rc_stored_queries`
+  
 ## 1.99.2 (Oct 22, 2026)
 
 ENHANCEMENTS:
