@@ -1,0 +1,182 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_drs_job_update": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "job_id": {
+                "type": "string",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "type": {
+                "type": "string",
+                "required": true
+              }
+            },
+            "block_types": {
+              "base_info": {
+                "block": {
+                  "attributes": {
+                    "description": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "name": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "policy_config": {
+                "block": {
+                  "attributes": {
+                    "conflict_policy": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "data_sync_topology_type": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "ddl_trans": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "export_snapshot": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "filter_ddl_policy": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "filter_user_names": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "full_mode": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "increment_read_mode": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "index_trans": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "is_create_table_with_index": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "kafka_compression_type": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "kafka_data_format": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "partition_policy": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "partitions_num": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "replace_definer": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "replication_factor": {
+                      "type": "number",
+                      "optional": true
+                    },
+                    "slot_name": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "struct_trans": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "support_ddl_info": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "sync_type_policy": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "topic": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "topic_name_format": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "topic_policy": {
+                      "type": "string",
+                      "optional": true
+                    },
+                    "transformation_name_case_policy": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  }
+                },
+                "nesting_mode": "list",
+                "max_items": 1
+              },
+              "speed_limit": {
+                "block": {
+                  "attributes": {
+                    "end_time": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "is_effect": {
+                      "type": "bool",
+                      "optional": true
+                    },
+                    "speed": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "start_time": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "DRS",
+            "name": "Data Replication Service",
+            "catalog": "Databases",
+            "name_cn": "数据复制服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

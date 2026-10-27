@@ -1,0 +1,67 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_drs_replay_execute_records": {
+          "block": {
+            "attributes": {
+              "end_time": {
+                "type": "number",
+                "description": "Specifies the end time of the SQL execution record, in second-level timestamp format.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "job_id": {
+                "type": "string",
+                "description": "Specifies the ID of the DRS job to query replay execute records.",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the data source. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "sql_records": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "abnormal_sql": "number",
+                      "execute_time": "number",
+                      "finished_sql": "number",
+                      "slow_sql": "number",
+                      "total_sql": "number"
+                    }
+                  ]
+                ],
+                "description": "The list of SQL execution records of the replay task.",
+                "computed": true
+              },
+              "start_time": {
+                "type": "number",
+                "description": "Specifies the start time of the SQL execution record, in second-level timestamp format.",
+                "required": true
+              },
+              "total_count": {
+                "type": "number",
+                "description": "The total number of items in the list, regardless of paging.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DRS",
+            "name": "Data Replication Service",
+            "catalog": "Databases",
+            "name_cn": "数据复制服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

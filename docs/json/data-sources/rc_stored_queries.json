@@ -1,0 +1,57 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rc_stored_queries": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "ResourceQL name",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "value": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "created": "string",
+                      "created_at": "string",
+                      "deleted_at": "string",
+                      "description": "string",
+                      "expired_at": "string",
+                      "expression": "string",
+                      "id": "string",
+                      "name": "string",
+                      "updated": "string",
+                      "updated_at": "string"
+                    }
+                  ]
+                ],
+                "description": "Stored query list",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "RC",
+            "name": "Resource Center",
+            "catalog": "Management & Governance",
+            "name_cn": "资源中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

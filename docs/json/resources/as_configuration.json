@@ -104,6 +104,20 @@
                       "required": true,
                       "forcenew": true
                     },
+                    "tag_transmission_policy": {
+                      "type": "string",
+                      "optional": true,
+                      "computed": true,
+                      "forcenew": true
+                    },
+                    "tags": {
+                      "type": [
+                        "map",
+                        "string"
+                      ],
+                      "optional": true,
+                      "computed": true
+                    },
                     "tenancy": {
                       "type": "string",
                       "optional": true,

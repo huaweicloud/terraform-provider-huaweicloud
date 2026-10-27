@@ -1,0 +1,40 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_rc_resource_remove": {
+          "block": {
+            "attributes": {
+              "group_id": {
+                "type": "string",
+                "description": "The ID of the resource group.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the resource to be removed is located.",
+                "computed": true
+              },
+              "resource_id": {
+                "type": "string",
+                "description": "The ID of the resource to be removed.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "RC",
+            "name": "Resource Center",
+            "catalog": "Management & Governance",
+            "name_cn": "资源中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

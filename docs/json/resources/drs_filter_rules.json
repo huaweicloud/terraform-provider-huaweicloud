@@ -1,0 +1,122 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_drs_filter_rules": {
+          "block": {
+            "attributes": {
+              "data_filter_type": {
+                "type": "string",
+                "optional": true,
+                "default": "common"
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "job_id": {
+                "type": "string",
+                "required": true,
+                "forcenew": true
+              },
+              "query_id": {
+                "type": "string",
+                "description": "The ID of the check task submitted by the filter rules check request.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "source": {
+                "type": "string",
+                "optional": true,
+                "default": "job"
+              }
+            },
+            "block_types": {
+              "advanced_setting_list": {
+                "block": {
+                  "attributes": {
+                    "col_names": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "db_name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "indexes": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "prim_key_or_indexes": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "table_name": {
+                      "type": "string",
+                      "required": true
+                    },
+                    "values": {
+                      "type": "string",
+                      "required": true
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              },
+              "general_filtering_list": {
+                "block": {
+                  "attributes": {
+                    "source_filter_condition": {
+                      "type": "string",
+                      "optional": true
+                    }
+                  },
+                  "block_types": {
+                    "filter_object_list": {
+                      "block": {
+                        "attributes": {
+                          "id": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "object_alias_name": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "object_name": {
+                            "type": "string",
+                            "required": true
+                          },
+                          "object_type": {
+                            "type": "string",
+                            "optional": true
+                          },
+                          "parent_id": {
+                            "type": "string",
+                            "required": true
+                          }
+                        }
+                      },
+                      "nesting_mode": "list"
+                    }
+                  }
+                },
+                "nesting_mode": "list"
+              }
+            }
+          },
+          "product": {
+            "short": "DRS",
+            "name": "Data Replication Service",
+            "catalog": "Databases",
+            "name_cn": "数据复制服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

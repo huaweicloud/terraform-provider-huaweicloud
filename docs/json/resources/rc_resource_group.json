@@ -1,0 +1,51 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_rc_resource_group": {
+          "block": {
+            "attributes": {
+              "create_time": {
+                "type": "string",
+                "description": "The creation time of the resource group.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies th resource group description.",
+                "optional": true
+              },
+              "group_name": {
+                "type": "string",
+                "description": "Specifies th resource group name.",
+                "required": true,
+                "forcenew": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "update_time": {
+                "type": "string",
+                "description": "The update time of the resource group.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "RC",
+            "name": "Resource Center",
+            "catalog": "Management & Governance",
+            "name_cn": "资源中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

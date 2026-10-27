@@ -1,0 +1,130 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_drs_filter_rules_collect": {
+          "block": {
+            "attributes": {
+              "filter_type": {
+                "type": "string",
+                "description": "Specifies the type of the data filter rules to collect.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "is_all_rules": {
+                "type": "bool",
+                "description": "Specifies whether to query all filter rules (including synchronized and unsent ones).",
+                "optional": true,
+                "default": true
+              },
+              "job_id": {
+                "type": "string",
+                "description": "Specifies the ID of the DRS job to collect filter rules from.",
+                "required": true
+              },
+              "limit": {
+                "type": "number",
+                "description": "Specifies the number of records to return.",
+                "optional": true
+              },
+              "offset": {
+                "type": "number",
+                "description": "Specifies the offset of the records to query.",
+                "optional": true
+              },
+              "query_id": {
+                "type": "string",
+                "description": "The async query task ID returned by the collect request.",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to collect the filter rules. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "rules": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "advanced_setting_resp": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "col_names": "string",
+                            "db_name": "string",
+                            "indexes": "string",
+                            "prim_key_or_indexes": "string",
+                            "table_name": "string",
+                            "values": "string"
+                          }
+                        ]
+                      ],
+                      "batch_id": "number",
+                      "filter_object_list": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "batch_id": "number",
+                            "data_filter_type": "string",
+                            "db_name": "string",
+                            "filter_condition": "string",
+                            "id": "string",
+                            "is_data_filter": "string",
+                            "is_synchronized": "bool",
+                            "object_alias_name": "string",
+                            "object_name": "string",
+                            "object_type": "string",
+                            "parent_id": "string",
+                            "schema_name": "string",
+                            "table_name": "string"
+                          }
+                        ]
+                      ],
+                      "filter_rules_resp": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "condition_separated": "string",
+                            "source_filter_condition": "string",
+                            "target_filter_condition": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The list of the data filter rules.",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "The query progress of the filter rules.",
+                "computed": true
+              },
+              "total_count": {
+                "type": "number",
+                "description": "The total number of the filter rules.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "DRS",
+            "name": "Data Replication Service",
+            "catalog": "Databases",
+            "name_cn": "数据复制服务",
+            "catalog_cn": "数据库"
+          }
+        }
+      }
+    }
+  }
+}

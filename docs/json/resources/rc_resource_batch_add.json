@@ -1,0 +1,43 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_rc_resource_batch_add": {
+          "block": {
+            "attributes": {
+              "group_id": {
+                "type": "string",
+                "description": "The ID of the resource group.",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "The region where the resources to be added are located.",
+                "computed": true
+              },
+              "resource_ids": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "The list of resource IDs to be added.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "RC",
+            "name": "Resource Center",
+            "catalog": "Management & Governance",
+            "name_cn": "资源中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

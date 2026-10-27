@@ -90,6 +90,17 @@
                               "list",
                               "string"
                             ],
+                            "tag_transmission_policy": "string",
+                            "tags": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "key": "string",
+                                  "value": "string"
+                                }
+                              ]
+                            ],
                             "tenancy": "string",
                             "user_data": "string"
                           }

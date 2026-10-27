@@ -1,0 +1,63 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rc_providers": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "resource_providers": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "category_display_name": "string",
+                      "display_name": "string",
+                      "provider": "string",
+                      "resource_types": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "console_detail_url": "string",
+                            "console_endpoint_id": "string",
+                            "console_list_url": "string",
+                            "display_name": "string",
+                            "global": "bool",
+                            "name": "string",
+                            "regions": [
+                              "list",
+                              "string"
+                            ]
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "Cloud service detail list",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "RC",
+            "name": "Resource Center",
+            "catalog": "Management & Governance",
+            "name_cn": "资源中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

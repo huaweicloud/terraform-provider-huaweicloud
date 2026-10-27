@@ -1,0 +1,74 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_rc_stored_query": {
+          "block": {
+            "attributes": {
+              "created": {
+                "type": "string",
+                "description": "ResourceQL created time",
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "Creation time.",
+                "computed": true
+              },
+              "deleted_at": {
+                "type": "string",
+                "description": "Deletion time.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "ResourceQL description",
+                "optional": true
+              },
+              "expired_at": {
+                "type": "string",
+                "description": "Expiration time.",
+                "computed": true
+              },
+              "expression": {
+                "type": "string",
+                "description": "ResourceQL expression",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "ResourceQL name",
+                "required": true
+              },
+              "region": {
+                "type": "string",
+                "computed": true
+              },
+              "updated": {
+                "type": "string",
+                "description": "ResourceQL updated time",
+                "computed": true
+              },
+              "updated_at": {
+                "type": "string",
+                "description": "Update time.",
+                "computed": true
+              }
+            }
+          },
+          "product": {
+            "short": "RC",
+            "name": "Resource Center",
+            "catalog": "Management & Governance",
+            "name_cn": "资源中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

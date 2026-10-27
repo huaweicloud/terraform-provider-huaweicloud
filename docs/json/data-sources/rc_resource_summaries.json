@@ -1,0 +1,99 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_rc_resource_summaries": {
+          "block": {
+            "attributes": {
+              "ep_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Enterprise project ID list",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "ResourceQL name",
+                "optional": true
+              },
+              "region": {
+                "type": "string",
+                "description": "Specifies the region in which to query the resource. If omitted, the provider-level region will be used.",
+                "computed": true
+              },
+              "region_id": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Region ID list",
+                "optional": true
+              },
+              "summaries": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "provider": "string",
+                      "types": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "regions": [
+                              "list",
+                              [
+                                "object",
+                                {
+                                  "count": "number",
+                                  "region_id": "string"
+                                }
+                              ]
+                            ],
+                            "type": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  ]
+                ],
+                "description": "Resource summaries grouped by provider, type and region",
+                "computed": true
+              },
+              "tags": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Resource tag list",
+                "optional": true
+              },
+              "type": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Resource type (provider.type)",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "RC",
+            "name": "Resource Center",
+            "catalog": "Management & Governance",
+            "name_cn": "资源中心",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}
