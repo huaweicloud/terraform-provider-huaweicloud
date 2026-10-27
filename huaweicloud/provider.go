@@ -2281,6 +2281,7 @@ func Provider() *schema.Provider {
 			"huaweicloud_ram_resource_instances_count":              ram.DataSourceResourceInstancesCount(),
 
 			"huaweicloud_rc_resource_relations": rc.DataSourceRcResourceRelations(),
+			"huaweicloud_rc_stored_queries":     rc.DataSourceRcStoredQueries(),
 
 			"huaweicloud_rds_flavors":                            rds.DataSourceRdsFlavors(),
 			"huaweicloud_rds_available_flavors":                  rds.DataSourceRdsAvailableFlavors(),
@@ -4549,6 +4550,7 @@ func Provider() *schema.Provider {
 
 			"huaweicloud_rc_resource_batch_add": rc.ResourceResourceBatchAdd(),
 			"huaweicloud_rc_resource_remove":    rc.ResourceResourceRemove(),
+			"huaweicloud_rc_stored_query":       rc.ResourceRcStoredQuery(),
 
 			"huaweicloud_rds_mysql_account":                   rds.ResourceMysqlAccount(),
 			"huaweicloud_rds_mysql_binlog":                    rds.ResourceMysqlBinlog(),
