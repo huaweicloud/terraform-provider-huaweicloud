@@ -83,3 +83,14 @@ In addition to all arguments above, the following attributes are exported:
 
 * `create_time` - The creation time of the access key, in [ISO-8601](https://www.iso.org/iso-8601-date-and-time-format.html)
   UTC format.
+
+## Timeouts
+
+This resource provides the following timeout configuration option:
+
+* `create` - (Default `1 minute`) Used for creating the access key, including retrying HTTP 404 responses when
+  reading the newly created key.
+
+If verification fails after the key is created, the provider returns an error and retains the key ID in the returned
+resource state. Check the remote key and saved state before retrying the operation. Normal refresh still removes a
+key from state when IAM returns HTTP 404.
