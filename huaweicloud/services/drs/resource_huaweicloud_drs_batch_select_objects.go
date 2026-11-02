@@ -29,6 +29,9 @@ var batchSelectObjectsNonUpdatableParams = []string{
 	"jobs.*.job.*.object_name",
 	"jobs.*.job.*.select",
 	"jobs.*.job.*.object_alias_name",
+	"jobs.*.target_root_db",
+	"jobs.*.target_root_db.*.db_name",
+	"jobs.*.target_root_db.*.db_encoding",
 }
 
 // @API DRS PUT /v3/{project_id}/jobs/batch-select-objects
@@ -92,6 +95,13 @@ func batchSelectObjectsJobsSchema() *schema.Resource {
 				Optional: true,
 				Elem:     batchSelectObjectsJobSchema(),
 			},
+			"target_root_db": {
+				Type:        schema.TypeList,
+				Optional:    true,
+				MaxItems:    1,
+				Description: "schema: Internal",
+				Elem:        batchSelectTargetRootDbSchema(),
+			},
 		},
 	}
 }
@@ -150,6 +160,23 @@ func batchSelectObjectsResultsSchema() *schema.Resource {
 	}
 }
 
+func batchSelectTargetRootDbSchema() *schema.Resource {
+	return &schema.Resource{
+		Schema: map[string]*schema.Schema{
+			"db_name": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "schema: Internal",
+			},
+			"db_encoding": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: "schema: Internal",
+			},
+		},
+	}
+}
+
 func buildBatchSelectObjectsBodyParams(d *schema.ResourceData) map[string]interface{} {
 	return map[string]interface{}{
 		"jobs": buildBatchSelectObjectsJobsParams(d),
@@ -175,7 +202,8 @@ func buildBatchSelectObjectsJobsParams(d *schema.ResourceData) []map[string]inte
 			"selected": utils.GetNestedObjectFromRawConfig(rawConfig, fmt.Sprintf("jobs.%d.selected", i)),
 			"sync_database": utils.GetNestedObjectFromRawConfig(
 				rawConfig, fmt.Sprintf("jobs.%d.sync_database", i)),
-			"job": buildBatchSelectObjectsJobParams(rawMap["job"].([]interface{})),
+			"job":            buildBatchSelectObjectsJobParams(rawMap["job"].([]interface{})),
+			"target_root_db": buildBatchSelectTargetRootDbParams(rawMap["target_root_db"].([]interface{})),
 		})
 	}
 
@@ -205,6 +233,22 @@ func buildBatchSelectObjectsJobParams(rawArray []interface{}) []map[string]inter
 	}
 
 	return rst
+}
+
+func buildBatchSelectTargetRootDbParams(rawArray []interface{}) map[string]interface{} {
+	if len(rawArray) == 0 {
+		return nil
+	}
+
+	rawMap, ok := rawArray[0].(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	return map[string]interface{}{
+		"db_name":     utils.ValueIgnoreEmpty(rawMap["db_name"]),
+		"db_encoding": utils.ValueIgnoreEmpty(rawMap["db_encoding"]),
+	}
 }
 
 func resourceBatchSelectObjectsCreate(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
