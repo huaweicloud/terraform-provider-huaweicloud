@@ -88,8 +88,11 @@ In addition to all arguments above, the following attributes are exported:
 
 This resource provides the following timeout configuration option:
 
-* `create` - (Default `1 minute`) Used for creating the access key, including retrying HTTP 404 responses when
-  reading the newly created key.
+* `create` - (Default `20 minutes`) Used for creating the access key, including verifying the newly created key.
+
+After creation, the provider retries HTTP 404 responses from the verification read for up to one minute, bounded by
+the remaining create timeout. A shorter remaining budget reduces this verification window and leaves time to return
+diagnostics and resource state. Increasing `create` does not extend the one-minute verification limit.
 
 If verification fails after the key is created, the provider returns an error and retains the key ID in the returned
 resource state. Check the remote key and saved state before retrying the operation. Normal refresh still removes a

@@ -2,6 +2,7 @@ package config
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -37,6 +38,18 @@ func retryTimeout(count int) time.Duration {
 		timeout = maxTimeout
 	}
 	return timeout
+}
+
+func waitForConnectionRetry(ctx context.Context, delay time.Duration) error {
+	timer := time.NewTimer(delay)
+	defer timer.Stop()
+
+	select {
+	case <-ctx.Done():
+		return ctx.Err()
+	case <-timer.C:
+		return ctx.Err()
+	}
 }
 
 // RoundTrip performs a round-trip HTTP request and logs relevant information about it.
@@ -81,6 +94,10 @@ func (lrt *LogRoundTripper) RoundTrip(request *http.Request) (*http.Response, er
 		}
 	}()
 
+	if err = request.Context().Err(); err != nil {
+		return nil, err
+	}
+
 	if request.Body != nil {
 		request.Body, err = lrt.dumpRequest(request.Body, &bs)
 		if err != nil {
@@ -100,6 +117,9 @@ func (lrt *LogRoundTripper) RoundTrip(request *http.Request) (*http.Response, er
 	// Retrying connection
 	retry := 1
 	for response == nil {
+		if contextErr := request.Context().Err(); contextErr != nil {
+			return nil, contextErr
+		}
 		if retry > lrt.MaxRetries {
 			log.Printf("[DEBUG] [%s] connection error, retries exhausted. Aborting", logId)
 			err = fmt.Errorf("connection error, retries exhausted. Aborting. Last error was: %s", err)
@@ -108,8 +128,9 @@ func (lrt *LogRoundTripper) RoundTrip(request *http.Request) (*http.Response, er
 
 		log.Printf("[DEBUG] [%s] connection error, retry number %d: %s", logId, retry, err)
 
-		// lintignore:R018
-		time.Sleep(retryTimeout(retry))
+		if err = waitForConnectionRetry(request.Context(), retryTimeout(retry)); err != nil {
+			return nil, err
+		}
 		response, err = lrt.Rt.RoundTrip(request)
 		retry++
 	}
@@ -117,6 +138,9 @@ func (lrt *LogRoundTripper) RoundTrip(request *http.Request) (*http.Response, er
 	// retry connection reset by peer error
 	retry = 1
 	for err != nil && strings.Contains(err.Error(), "connection reset by peer") {
+		if contextErr := request.Context().Err(); contextErr != nil {
+			return nil, contextErr
+		}
 		if retry > lrt.MaxRetries {
 			log.Printf("[DEBUG] [%s] connection error, retries exhausted. Aborting", logId)
 			err = fmt.Errorf("connection error, retries exhausted. Aborting. Last error was: %s", err)
@@ -125,8 +149,9 @@ func (lrt *LogRoundTripper) RoundTrip(request *http.Request) (*http.Response, er
 
 		log.Printf("[DEBUG] [%s] connection error, retry number %d: %s", logId, retry, err)
 
-		// lintignore:R018
-		time.Sleep(retryTimeout(retry))
+		if err = waitForConnectionRetry(request.Context(), retryTimeout(retry)); err != nil {
+			return nil, err
+		}
 		response, err = lrt.Rt.RoundTrip(request)
 		retry++
 	}

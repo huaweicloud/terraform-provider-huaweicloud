@@ -35,7 +35,7 @@ func ResourceV3AccessKey() *schema.Resource {
 		DeleteContext: resourceV3AccessKeyDelete,
 
 		Timeouts: &schema.ResourceTimeout{
-			Create: schema.DefaultTimeout(time.Minute),
+			Create: schema.DefaultTimeout(20 * time.Minute),
 		},
 
 		Schema: map[string]*schema.Schema{
@@ -132,9 +132,6 @@ func storeV3AccessKeyToCsvFile(path string, cred *credentials.Credential) error 
 }
 
 func resourceV3AccessKeyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	ctx, cancel := context.WithTimeout(ctx, d.Timeout(schema.TimeoutCreate))
-	defer cancel()
-
 	var (
 		cfg    = meta.(*config.Config)
 		mErr   *multierror.Error
@@ -204,10 +201,19 @@ func resourceV3AccessKeyCreate(ctx context.Context, d *schema.ResourceData, meta
 
 	// A newly created key may not be readable yet. Do not use Read here: its
 	// deletion handling would discard the ID of a key that was already created.
+	verificationTimeout := time.Minute
+	if deadline, ok := ctx.Deadline(); ok {
+		// Leave part of the remaining CRUD budget for returning diagnostics and state.
+		verificationTimeout = min(verificationTimeout, time.Until(deadline)*9/10)
+	}
+	verificationCtx, cancel := context.WithTimeout(ctx, verificationTimeout)
+	defer cancel()
+	client.Context = verificationCtx
+
 	stateConf := &retry.StateChangeConf{
 		Pending:    []string{"pending"},
 		Target:     []string{"available"},
-		Timeout:    d.Timeout(schema.TimeoutCreate),
+		Timeout:    verificationTimeout,
 		MinTimeout: time.Second,
 		Refresh: func() (interface{}, string, error) {
 			result, err := credentials.Get(client, accessKey.AccessKey).Extract()
@@ -220,7 +226,7 @@ func resourceV3AccessKeyCreate(ctx context.Context, d *schema.ResourceData, meta
 			return result, "available", nil
 		},
 	}
-	result, err := stateConf.WaitForStateContext(ctx)
+	result, err := stateConf.WaitForStateContext(verificationCtx)
 	if err != nil {
 		// SDK HTTP errors include the request URL, which contains the access key.
 		message := strings.ReplaceAll(err.Error(), d.Id(), "<redacted>")

@@ -35,6 +35,12 @@ type accessKeyTestAPI struct {
 	onRead       func(*http.Request)
 }
 
+type accessKeyTestRoundTripper func(*http.Request) (*http.Response, error)
+
+func (f accessKeyTestRoundTripper) RoundTrip(request *http.Request) (*http.Response, error) {
+	return f(request)
+}
+
 func newAccessKeyTestConfig(t *testing.T, api *accessKeyTestAPI) *config.Config {
 	t.Helper()
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -75,8 +81,10 @@ func newAccessKeyTestConfig(t *testing.T, api *accessKeyTestAPI) *config.Config 
 		}
 	}))
 	t.Cleanup(server.Close)
+	client := server.Client()
+	client.Transport = &config.LogRoundTripper{Rt: client.Transport, MaxRetries: 5}
 	return &config.Config{
-		DomainClient: &golangsdk.ProviderClient{HTTPClient: *server.Client()},
+		DomainClient: &golangsdk.ProviderClient{HTTPClient: *client},
 		Endpoints:    map[string]string{"iam": server.URL + "/"},
 	}
 }
@@ -210,7 +218,10 @@ func TestResourceV3AccessKeyCreate_cancelWhileWaiting(t *testing.T) {
 }
 
 func TestResourceV3AccessKeyCreate_timeoutCancelsRequest(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
 	requestCanceled := make(chan struct{})
+	transportReturned := make(chan struct{})
 	api := &accessKeyTestAPI{
 		onRead: func(r *http.Request) {
 			<-r.Context().Done()
@@ -218,10 +229,16 @@ func TestResourceV3AccessKeyCreate_timeoutCancelsRequest(t *testing.T) {
 		},
 	}
 	cfg := newAccessKeyTestConfig(t, api)
-	state, diags := applyTestV3AccessKey(context.Background(), t, cfg, map[string]interface{}{
-		"timeouts": map[string]interface{}{"create": "100ms"},
+	transport := cfg.DomainClient.HTTPClient.Transport
+	cfg.DomainClient.HTTPClient.Transport = accessKeyTestRoundTripper(func(r *http.Request) (*http.Response, error) {
+		if r.Method == http.MethodGet && r.URL.Path == "/v3.0/OS-CREDENTIAL/credentials/test-access-key" {
+			defer close(transportReturned)
+		}
+		return transport.RoundTrip(r)
 	})
+	state, diags := applyTestV3AccessKey(ctx, t, cfg, nil)
 	assert.True(t, diags.HasError())
+	assert.NoError(t, ctx.Err(), "verification must return before the outer create deadline")
 	if !assert.NotNil(t, state) {
 		t.FailNow()
 	}
@@ -231,7 +248,65 @@ func TestResourceV3AccessKeyCreate_timeoutCancelsRequest(t *testing.T) {
 	case <-time.After(time.Second):
 		t.Fatal("create timeout did not cancel the in-flight IAM request")
 	}
+	select {
+	case <-transportReturned:
+	case <-time.After(time.Second):
+		t.Fatal("HTTP retry transport continued running after create timed out")
+	}
 	assert.Nil(t, cfg.DomainClient.Context, "operation context must not leak into the shared client")
+}
+
+func TestResourceV3AccessKeyCreate_timeoutBudgets(t *testing.T) {
+	for _, tc := range []struct {
+		name          string
+		createTimeout string
+		parentTimeout time.Duration
+		createBudget  time.Duration
+		readBudget    time.Duration
+	}{
+		{name: "default", createBudget: 20 * time.Minute, readBudget: time.Minute},
+		{name: "custom", createTimeout: "5m", createBudget: 5 * time.Minute, readBudget: time.Minute},
+		{name: "short", createTimeout: "5s", createBudget: 5 * time.Second, readBudget: 4500 * time.Millisecond},
+		{name: "parent_deadline", parentTimeout: 5 * time.Second, createBudget: 5 * time.Second, readBudget: 4500 * time.Millisecond},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			api := &accessKeyTestAPI{}
+			cfg := newAccessKeyTestConfig(t, api)
+			budgets := make(chan time.Duration, 3)
+			transport := cfg.DomainClient.HTTPClient.Transport
+			cfg.DomainClient.HTTPClient.Transport = accessKeyTestRoundTripper(func(r *http.Request) (*http.Response, error) {
+				deadline, ok := r.Context().Deadline()
+				assert.True(t, ok, "every IAM request must have the appropriate operation deadline")
+				select {
+				case budgets <- time.Until(deadline):
+				default:
+					t.Error("unexpected extra IAM request")
+				}
+				return transport.RoundTrip(r)
+			})
+			values := make(map[string]interface{})
+			if tc.createTimeout != "" {
+				values["timeouts"] = map[string]interface{}{"create": tc.createTimeout}
+			}
+			ctx := context.Background()
+			if tc.parentTimeout > 0 {
+				var cancel context.CancelFunc
+				ctx, cancel = context.WithTimeout(ctx, tc.parentTimeout)
+				defer cancel()
+			}
+			state, diags := applyTestV3AccessKey(ctx, t, cfg, values)
+			assert.Empty(t, diags)
+			assert.NotNil(t, state)
+			if !assert.Len(t, budgets, 3) {
+				t.FailNow()
+			}
+			for _, expected := range []time.Duration{tc.createBudget, tc.createBudget, tc.readBudget} {
+				actual := <-budgets
+				assert.LessOrEqual(t, actual, expected)
+				assert.Greater(t, actual, expected-250*time.Millisecond)
+			}
+		})
+	}
 }
 
 func TestResourceV3AccessKeyCreate_csvFallbackOnVerificationError(t *testing.T) {
