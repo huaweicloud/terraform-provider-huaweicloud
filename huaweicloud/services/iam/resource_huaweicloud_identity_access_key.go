@@ -5,11 +5,15 @@ import (
 	"encoding/csv"
 	"fmt"
 	"os"
+	"strings"
+	"time"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/identity/v3.0/credentials"
 	"github.com/chnsz/golangsdk/openstack/identity/v3.0/users"
 
@@ -29,6 +33,10 @@ func ResourceV3AccessKey() *schema.Resource {
 		ReadContext:   resourceV3AccessKeyRead,
 		UpdateContext: resourceV3AccessKeyUpdate,
 		DeleteContext: resourceV3AccessKeyDelete,
+
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(20 * time.Minute),
+		},
 
 		Schema: map[string]*schema.Schema{
 			"user_id": {
@@ -134,6 +142,8 @@ func resourceV3AccessKeyCreate(ctx context.Context, d *schema.ResourceData, meta
 	if err != nil {
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
+	// IAMV3Client returns a cloned provider client, so this context is local to this operation.
+	client.Context = ctx
 
 	// Precheck the user information and ensure the user exists.
 	userInfo, err := users.Get(client, userId).Extract()
@@ -189,7 +199,48 @@ func resourceV3AccessKeyCreate(ctx context.Context, d *schema.ResourceData, meta
 		}
 	}
 
-	return append(diags, resourceV3AccessKeyRead(ctx, d, meta)...)
+	// A newly created key may not be readable yet. Do not use Read here: its
+	// deletion handling would discard the ID of a key that was already created.
+	verificationTimeout := time.Minute
+	if deadline, ok := ctx.Deadline(); ok {
+		// Leave part of the remaining CRUD budget for returning diagnostics and state.
+		verificationTimeout = min(verificationTimeout, time.Until(deadline)*9/10)
+	}
+	verificationCtx, cancel := context.WithTimeout(ctx, verificationTimeout)
+	defer cancel()
+	client.Context = verificationCtx
+
+	stateConf := &retry.StateChangeConf{
+		Pending:    []string{"pending"},
+		Target:     []string{"available"},
+		Timeout:    verificationTimeout,
+		MinTimeout: time.Second,
+		Refresh: func() (interface{}, string, error) {
+			result, err := credentials.Get(client, accessKey.AccessKey).Extract()
+			readErr := err
+			// The SDK wrapper has no Unwrap method. Inspect its original error only
+			// for 404 classification, retaining the wrapper for other diagnostics.
+			if reauthErr, ok := err.(*golangsdk.ErrErrorAfterReauthentication); ok {
+				readErr = reauthErr.ErrOriginal
+			}
+			if _, ok := readErr.(golangsdk.ErrDefault404); ok {
+				return struct{}{}, "pending", nil
+			}
+			if err != nil {
+				return nil, "", err
+			}
+			return result, "available", nil
+		},
+	}
+	result, err := stateConf.WaitForStateContext(verificationCtx)
+	if err != nil {
+		// SDK HTTP errors include the request URL, which contains the access key.
+		message := strings.ReplaceAll(err.Error(), d.Id(), "<redacted>")
+		return append(diags, diag.Errorf("error verifying newly created permanent access key: %s. "+
+			"The key was created and its ID has been retained; check its remote status before retrying", message)...)
+	}
+
+	return append(diags, setV3AccessKeyAttributes(d, result.(*credentials.Credential))...)
 }
 
 func resourceV3AccessKeyRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -204,14 +255,18 @@ func resourceV3AccessKeyRead(_ context.Context, d *schema.ResourceData, meta int
 
 	accessKey, err := credentials.Get(client, accessKeyId).Extract()
 	if err != nil {
-		return common.CheckDeletedDiag(d, err, "access key")
+		return common.CheckDeletedDiag(d, err, "error retrieving permanent access key")
 	}
 
+	return setV3AccessKeyAttributes(d, accessKey)
+}
+
+func setV3AccessKeyAttributes(d *schema.ResourceData, accessKey *credentials.Credential) diag.Diagnostics {
 	mErr := multierror.Append(nil,
 		d.Set("status", accessKey.Status),
 		d.Set("create_time", accessKey.CreateTime),
 	)
-	if err = mErr.ErrorOrNil(); err != nil {
+	if err := mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error setting resource fields of permanent access key: %s", err)
 	}
 
