@@ -217,7 +217,13 @@ func resourceV3AccessKeyCreate(ctx context.Context, d *schema.ResourceData, meta
 		MinTimeout: time.Second,
 		Refresh: func() (interface{}, string, error) {
 			result, err := credentials.Get(client, accessKey.AccessKey).Extract()
-			if _, ok := err.(golangsdk.ErrDefault404); ok {
+			readErr := err
+			// The SDK wrapper has no Unwrap method. Inspect its original error only
+			// for 404 classification, retaining the wrapper for other diagnostics.
+			if reauthErr, ok := err.(*golangsdk.ErrErrorAfterReauthentication); ok {
+				readErr = reauthErr.ErrOriginal
+			}
+			if _, ok := readErr.(golangsdk.ErrDefault404); ok {
 				return struct{}{}, "pending", nil
 			}
 			if err != nil {

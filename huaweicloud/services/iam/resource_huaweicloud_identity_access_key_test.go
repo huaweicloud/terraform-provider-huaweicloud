@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -123,6 +124,72 @@ func TestResourceV3AccessKeyCreate_retriesNotFound(t *testing.T) {
 	assert.EqualValues(t, 3, atomic.LoadInt32(&api.reads))
 }
 
+func TestResourceV3AccessKeyCreate_reauthentication(t *testing.T) {
+	for _, tc := range []struct {
+		name          string
+		readStatuses  []int
+		reauthErr     error
+		createTimeout string
+		wantReads     int32
+		wantError     string
+	}{
+		{
+			name: "not_found_then_available", readStatuses: []int{401, 404, 200, 404},
+			createTimeout: "5s", wantReads: 3,
+		},
+		{
+			name: "forbidden", readStatuses: []int{401, 403, 200}, createTimeout: "5s", wantReads: 2,
+			wantError: "Successfully re-authenticated, but got error executing request: Action forbidden",
+		},
+		{
+			name: "server_error", readStatuses: []int{401, 500, 200}, createTimeout: "5s", wantReads: 2,
+			wantError: "Successfully re-authenticated, but got error executing request: Internal Server Error",
+		},
+		{
+			name: "reauthentication_failed", readStatuses: []int{401, 200}, reauthErr: errors.New("test reauthentication failed"),
+			createTimeout: "5s", wantReads: 1, wantError: "Unable to re-authenticate",
+		},
+		{
+			name: "persistent_not_found", readStatuses: []int{401, 404}, createTimeout: "2s", wantReads: 3,
+			wantError: "deadline exceeded|timeout while waiting",
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			api := &accessKeyTestAPI{readStatuses: tc.readStatuses}
+			cfg := newAccessKeyTestConfig(t, api)
+			var reauths int32
+			cfg.DomainClient.ReauthFunc = func() error {
+				atomic.AddInt32(&reauths, 1)
+				return tc.reauthErr
+			}
+			start := time.Now()
+			state, diags := applyTestV3AccessKey(context.Background(), t, cfg, map[string]interface{}{
+				"timeouts": map[string]interface{}{"create": tc.createTimeout},
+			})
+			assert.Less(t, time.Since(start), 3*time.Second, "must not retry permanent errors or exceed the verification budget")
+			if !assert.NotNil(t, state, "SDK must retain the created key even when verification fails") {
+				t.FailNow()
+			}
+			assert.Equal(t, "test-access-key", state.ID)
+			assert.EqualValues(t, 1, atomic.LoadInt32(&api.creates))
+			assert.Equal(t, tc.wantReads, atomic.LoadInt32(&api.reads))
+			assert.EqualValues(t, 1, atomic.LoadInt32(&reauths))
+			if tc.wantError == "" {
+				assert.Empty(t, diags)
+				assert.Equal(t, "active", state.Attributes["status"])
+				assert.Equal(t, "2026-01-01T00:00:00Z", state.Attributes["create_time"])
+			} else {
+				assert.True(t, diags.HasError())
+				message := fmt.Sprint(diags)
+				assert.Regexp(t, tc.wantError, message)
+				assert.Contains(t, message, "The key was created and its ID has been retained")
+				assert.NotContains(t, message, "test-access-key")
+				assert.NotContains(t, message, "test-secret")
+			}
+		})
+	}
+}
+
 func TestResourceV3AccessKeyCreate_immediateSuccess(t *testing.T) {
 	api := &accessKeyTestAPI{}
 	cfg := newAccessKeyTestConfig(t, api)
@@ -222,10 +289,17 @@ func TestResourceV3AccessKeyCreate_timeoutCancelsRequest(t *testing.T) {
 	defer cancel()
 	requestCanceled := make(chan struct{})
 	transportReturned := make(chan struct{})
+	releaseHandler := make(chan struct{})
+	// Release the handler before server.Close runs, even if a cancellation assertion fails.
+	defer close(releaseHandler)
 	api := &accessKeyTestAPI{
 		onRead: func(r *http.Request) {
-			<-r.Context().Done()
-			close(requestCanceled)
+			select {
+			case <-r.Context().Done():
+				close(requestCanceled)
+			case <-releaseHandler:
+				// Cleanup must not be mistaken for request cancellation.
+			}
 		},
 	}
 	cfg := newAccessKeyTestConfig(t, api)
