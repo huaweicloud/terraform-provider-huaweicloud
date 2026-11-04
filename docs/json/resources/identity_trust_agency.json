@@ -55,9 +55,8 @@
               },
               "trust_policy": {
                 "type": "string",
-                "description": "The trust policy of the trust agency.",
-                "required": true,
-                "forcenew": true
+                "description": "The trust policy of the trust agency, in JSON format.",
+                "required": true
               },
               "urn": {
                 "type": "string",

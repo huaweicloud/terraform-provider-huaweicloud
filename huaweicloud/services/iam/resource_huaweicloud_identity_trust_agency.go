@@ -21,6 +21,7 @@ import (
 // @API IAM POST /v5/agencies
 // @API IAM GET /v5/agencies/{agency_id}
 // @API IAM PUT /v5/agencies/{agency_id}
+// @API IAM PUT /v5/agencies/{agency_id}/trust-policy
 // @API IAM DELETE /v5/agencies/{agency_id}
 // @API IAM GET /v5/policies
 // @API IAM POST /v5/policies/{policy_id}/attach-agency
@@ -55,12 +56,11 @@ func ResourceV3TrustAgency() *schema.Resource {
 			"trust_policy": {
 				Type:     schema.TypeString,
 				Required: true,
-				ForceNew: true,
 				DiffSuppressFunc: func(_, oldVal, newVal string, _ *schema.ResourceData) bool {
 					equal, _ := utils.CompareJsonTemplateAreEquivalent(oldVal, newVal)
 					return equal
 				},
-				Description: `The trust policy of the trust agency.`,
+				Description: `The trust policy of the trust agency, in JSON format.`,
 			},
 			"policy_names": {
 				Type:     schema.TypeSet,
@@ -258,6 +258,23 @@ func resourceV3TrustAgencyUpdate(ctx context.Context, d *schema.ResourceData, me
 		_, err := client.Request("PUT", updateAgencyPath, &updateAgencyOpt)
 		if err != nil {
 			return diag.Errorf("error updating IAM trust agency: %s", err)
+		}
+	}
+
+	// update trust policy
+	if d.HasChange("trust_policy") {
+		updateTrustPolicyHttpUrl := "v5/agencies/{agency_id}/trust-policy"
+		updateTrustPolicyPath := client.Endpoint + updateTrustPolicyHttpUrl
+		updateTrustPolicyPath = strings.ReplaceAll(updateTrustPolicyPath, "{agency_id}", d.Id())
+		updateTrustPolicyOpt := golangsdk.RequestOpts{
+			KeepResponseBody: true,
+			JSONBody: map[string]interface{}{
+				"trust_policy": d.Get("trust_policy").(string),
+			},
+		}
+		_, err = client.Request("PUT", updateTrustPolicyPath, &updateTrustPolicyOpt)
+		if err != nil {
+			return diag.Errorf("error updating IAM trust agency trust policy: %s", err)
 		}
 	}
 
