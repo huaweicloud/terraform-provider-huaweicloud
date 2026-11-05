@@ -3,6 +3,7 @@ package tms
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"strings"
 
 	"github.com/hashicorp/go-multierror"
@@ -94,7 +95,7 @@ func resourceTmsAssociatedResourceRuleCreate(ctx context.Context, d *schema.Reso
 		return diag.FromErr(err)
 	}
 
-	if err := checkAssociatedResourceRuleErrors(createRespBody); err != nil {
+	if err := checkAssociatedResourceRuleErrors(createRespBody, true); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -175,9 +176,10 @@ func resourceTmsAssociatedResourceRuleRead(_ context.Context, d *schema.Resource
 
 func buildGetAssociatedResourceRulePath(marker string, d *schema.ResourceData) string {
 	path := fmt.Sprintf("?limit=100&setting_name=%s&region_id=%s",
-		d.Get("setting_name").(string), d.Get("region_id").(string))
+		url.QueryEscape(d.Get("setting_name").(string)),
+		url.QueryEscape(d.Get("region_id").(string)))
 	if marker != "" {
-		path = fmt.Sprintf("%s&marker=%s", path, marker)
+		path = fmt.Sprintf("%s&marker=%s", path, url.QueryEscape(marker))
 	}
 	return path
 }
@@ -207,7 +209,7 @@ func resourceTmsAssociatedResourceRuleUpdate(ctx context.Context, d *schema.Reso
 		return diag.FromErr(err)
 	}
 
-	if err := checkAssociatedResourceRuleErrors(updateRespBody); err != nil {
+	if err := checkAssociatedResourceRuleErrors(updateRespBody, false); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -232,7 +234,7 @@ func buildAssociatedResourceRuleBodyParams(d *schema.ResourceData) map[string]in
 	}
 }
 
-func checkAssociatedResourceRuleErrors(respBody interface{}) error {
+func checkAssociatedResourceRuleErrors(respBody interface{}, isCreate bool) error {
 	errors := utils.PathSearch("errors", respBody, make([]interface{}, 0)).([]interface{})
 	if len(errors) == 0 {
 		return nil
@@ -240,9 +242,26 @@ func checkAssociatedResourceRuleErrors(respBody interface{}) error {
 
 	errMsgs := make([]string, 0, len(errors))
 	for _, e := range errors {
-		code := utils.PathSearch("code", e, "")
-		message := utils.PathSearch("message", e, "")
-		errMsgs = append(errMsgs, fmt.Sprintf("code: %v, message: %v", code, message))
+		code := utils.PathSearch("error_code", e, "").(string)
+		if code == "" {
+			code = utils.PathSearch("code", e, "").(string)
+		}
+		message := utils.PathSearch("error_msg", e, "").(string)
+		if message == "" {
+			message = utils.PathSearch("message", e, "").(string)
+		}
+
+		// TMS.5060 (Rule already exist) is an idempotent error during create;
+		// the rule already exists, which is the desired state.
+		if isCreate && code == "TMS.5060" {
+			continue
+		}
+
+		errMsgs = append(errMsgs, fmt.Sprintf("code: %s, message: %s", code, message))
+	}
+
+	if len(errMsgs) == 0 {
+		return nil
 	}
 
 	return fmt.Errorf("failed to operate the TMS associated resource rule, errors: %s", strings.Join(errMsgs, "; "))
