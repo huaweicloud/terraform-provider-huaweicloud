@@ -10,8 +10,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/obs"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 )
 
@@ -208,6 +210,9 @@ func resourceObsBucketReplicationRead(_ context.Context, d *schema.ResourceData,
 			d.SetId("")
 			return nil
 		}
+		if obsError, ok := err.(obs.ObsError); ok && obsError.StatusCode == 404 {
+			return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "OBS bucket replication")
+		}
 		return diag.FromErr(getObsError("Error retrieving OBS bucket replication", d.Id(), err))
 	}
 
@@ -237,6 +242,9 @@ func resourceObsBucketReplicationDelete(_ context.Context, d *schema.ResourceDat
 	log.Printf("[DEBUG] delete cross-region replication configuration of OBS bucket %s", bucket)
 	_, err = obsClient.DeleteBucketReplication(bucket)
 	if err != nil {
+		if obsError, ok := err.(obs.ObsError); ok && obsError.StatusCode == 404 {
+			return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "OBS bucket replication")
+		}
 		return diag.FromErr(getObsError("Error deleting cross-region replication "+
 			"configuration of OBS bucket", bucket, err))
 	}

@@ -10,8 +10,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/obs"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -411,6 +413,9 @@ func resourceOBSBucketAclRead(_ context.Context, d *schema.ResourceData, meta in
 
 	output, err := obsClient.GetBucketAcl(d.Id())
 	if err != nil {
+		if obsErr, ok := err.(obs.ObsError); ok && obsErr.StatusCode == 404 {
+			return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "OBS bucket acl")
+		}
 		return diag.FromErr(getObsError("Error retrieving OBS bucket acl", d.Id(), err))
 	}
 
@@ -455,6 +460,9 @@ func resourceOBSBucketAclDelete(_ context.Context, d *schema.ResourceData, meta 
 	}
 	_, err = obsClient.SetBucketAcl(params)
 	if err != nil {
+		if obsErr, ok := err.(obs.ObsError); ok && obsErr.StatusCode == 404 {
+			return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "OBS bucket acl")
+		}
 		return diag.FromErr(getObsError("Error deleting OBS bucket acl", d.Id(), err))
 	}
 	return nil
