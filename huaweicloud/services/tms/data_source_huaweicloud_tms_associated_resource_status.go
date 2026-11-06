@@ -59,7 +59,7 @@ func dataSourceTmsAssociatedResourceStatusRead(_ context.Context, d *schema.Reso
 	}
 
 	mErr := multierror.Append(
-		d.Set("status", normalizeAssociatedResourceStatus(status)),
+		d.Set("status", status),
 	)
 
 	d.SetId("tms-associated-resource-status")

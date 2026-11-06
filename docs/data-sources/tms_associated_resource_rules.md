@@ -49,7 +49,7 @@ The `rules` block supports:
 * `tag_keys` - The list of tag keys that the rule takes effect on.
 
 * `existing_resource_status` - Whether the rule takes effect for existing resources.
-  The value can be **enable** or **disable**.
+  The value can be **enabled** or **disabled**.
 
 * `auto_delete_status` - Whether to automatically delete tags when the association is removed.
-  The value can be **enable** or **disable**.
+  The value can be **enabled** or **disabled**.

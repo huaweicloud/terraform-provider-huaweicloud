@@ -30,4 +30,4 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The data source ID.
 
-* `status` - The current status of the associated resource tag inheritance. The value can be **enable** or **disable**.
+* `status` - The current status of the associated resource tag inheritance. The value can be **enabled** or **disabled**.
