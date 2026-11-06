@@ -77,7 +77,7 @@ func ResourceV5OidcProvider() *schema.Resource {
 
 func resourceV5OidcProviderCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, err := cfg.NewServiceClient("iam", cfg.GetRegion(d))
+	client, err := cfg.IAMNoVersionClient(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
@@ -224,7 +224,7 @@ func resourceV5OidcProviderRead(_ context.Context, d *schema.ResourceData, meta 
 		cfg        = meta.(*config.Config)
 		providerId = d.Id()
 	)
-	client, err := cfg.NewServiceClient("iam", cfg.GetRegion(d))
+	client, err := cfg.IAMNoVersionClient(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
@@ -254,7 +254,7 @@ func resourceV5OidcProviderUpdate(ctx context.Context, d *schema.ResourceData, m
 		cfg        = meta.(*config.Config)
 		providerId = d.Id()
 	)
-	client, err := cfg.NewServiceClient("iam", cfg.GetRegion(d))
+	client, err := cfg.IAMNoVersionClient(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
@@ -346,7 +346,7 @@ func resourceV5OidcProviderDelete(_ context.Context, d *schema.ResourceData, met
 		cfg        = meta.(*config.Config)
 		providerId = d.Id()
 	)
-	client, err := cfg.NewServiceClient("iam", cfg.GetRegion(d))
+	client, err := cfg.IAMNoVersionClient(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating IAM client: %s", err)
 	}

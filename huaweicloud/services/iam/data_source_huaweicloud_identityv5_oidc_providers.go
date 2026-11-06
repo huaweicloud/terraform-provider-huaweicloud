@@ -76,7 +76,7 @@ func DataSourceV5OidcProviders() *schema.Resource {
 
 func dataSourceV5OidcProvidersRead(_ context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	cfg := meta.(*config.Config)
-	client, err := cfg.NewServiceClient("iam", cfg.GetRegion(d))
+	client, err := cfg.IAMNoVersionClient(cfg.GetRegion(d))
 	if err != nil {
 		return diag.Errorf("error creating IAM client: %s", err)
 	}

@@ -2,7 +2,6 @@ package iam
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/go-uuid"
@@ -166,6 +165,11 @@ func dataSourceV5OidcCredentialRead(_ context.Context, d *schema.ResourceData, m
 	return nil
 }
 
+// setV5AgencyCredentialAttributes is shared between the OIDC and SAML assume
+// flows. The credentials are read directly from the top-level response payload
+// using utils.PathSearch, which matches the format used across other IAM v5
+// data sources (see data_source_huaweicloud_identityv5_authorization_schema.go).
+
 func buildV5AgencyAssumeWithOidcBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
 		"id_token":            d.Get("id_token").(string),
@@ -188,16 +192,37 @@ func buildV5AgencyAssumeWithOidcBodyParams(d *schema.ResourceData) map[string]in
 }
 
 func setV5AgencyCredentialAttributes(d *schema.ResourceData, assumeBody interface{}) diag.Diagnostics {
-	credentials, err := flattenV5AgencyCredentials(assumeBody)
-	if err != nil {
-		return diag.FromErr(err)
+	// AssumeWithOidc / AssumeWithSaml responses return the credentials fields
+	// at the top level of the payload ("credentials" block). The legacy STS v3
+	// style field aliases (access/secret/securitytoken/expires_at) are also
+	// kept for backward compatibility with accounts that still return those
+	// fields.
+	accessKeyID := firstNonEmptyString(
+		utils.PathSearch("credentials.access_key_id", assumeBody, nil),
+		utils.PathSearch("credentials.access", assumeBody, nil),
+	)
+	secretAccessKey := firstNonEmptyString(
+		utils.PathSearch("credentials.secret_access_key", assumeBody, nil),
+		utils.PathSearch("credentials.secret", assumeBody, nil),
+	)
+	securityToken := firstNonEmptyString(
+		utils.PathSearch("credentials.security_token", assumeBody, nil),
+		utils.PathSearch("credentials.securitytoken", assumeBody, nil),
+	)
+	expiration := firstNonEmptyString(
+		utils.PathSearch("credentials.expiration", assumeBody, nil),
+		utils.PathSearch("credentials.expires_at", assumeBody, nil),
+	)
+
+	if accessKeyID == "" {
+		return diag.Errorf("unable to find the access key from the agency credential response")
 	}
 
 	mErr := multierror.Append(
-		d.Set("access_key_id", credentials["access_key_id"]),
-		d.Set("secret_access_key", credentials["secret_access_key"]),
-		d.Set("security_token", credentials["security_token"]),
-		d.Set("expiration", credentials["expiration"]),
+		d.Set("access_key_id", accessKeyID),
+		d.Set("secret_access_key", secretAccessKey),
+		d.Set("security_token", securityToken),
+		d.Set("expiration", expiration),
 		d.Set("assumed_agency_urn", utils.PathSearch("assumed_agency.urn", assumeBody, nil)),
 		d.Set("assumed_agency_id", utils.PathSearch("assumed_agency.id", assumeBody, nil)),
 		d.Set("audience", utils.PathSearch("audience", assumeBody, nil)),
@@ -211,27 +236,14 @@ func setV5AgencyCredentialAttributes(d *schema.ResourceData, assumeBody interfac
 	return nil
 }
 
-// flattenV5AgencyCredentials parses the credentials of the assume agency response.
-// It is compatible with the STS v5 credential fields (access_key_id/secret_access_key/security_token/expiration)
-// and the legacy v3 style fields (access/secret/securitytoken/expires_at).
-func flattenV5AgencyCredentials(assumeBody interface{}) (map[string]interface{}, error) {
-	keyPairs := [][2]string{
-		{"access_key_id", "access"},
-		{"secret_access_key", "secret"},
-		{"security_token", "securitytoken"},
-		{"expiration", "expires_at"},
-	}
-	result := make(map[string]interface{})
-	for _, pair := range keyPairs {
-		if v, ok := utils.PathSearch("credentials."+pair[0], assumeBody, "").(string); ok && v != "" {
-			result[pair[0]] = v
-			continue
+// firstNonEmptyString returns the first value that is a non-empty string.
+// It is used to read STS v5 style credentials with a fallback to the legacy
+// v3 style field aliases returned by some IAM endpoints.
+func firstNonEmptyString(values ...interface{}) string {
+	for _, v := range values {
+		if s, ok := v.(string); ok && s != "" {
+			return s
 		}
-		result[pair[0]] = utils.PathSearch("credentials."+pair[1], assumeBody, nil)
 	}
-
-	if result["access_key_id"] == nil || result["access_key_id"] == "" {
-		return nil, fmt.Errorf("unable to find the access key from the agency credential response")
-	}
-	return result, nil
+	return ""
 }
