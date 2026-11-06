@@ -141,13 +141,11 @@ func flattenTmsAssociatedResourceRules(respBody interface{}) []interface{} {
 	res := make([]interface{}, 0, len(curArray))
 	for _, v := range curArray {
 		res = append(res, map[string]interface{}{
-			"setting_name": utils.PathSearch("setting_name", v, nil),
-			"region_id":    utils.PathSearch("region_id", v, nil),
-			"tag_keys":     utils.PathSearch("tag_keys", v, nil),
-			"existing_resource_status": normalizeAssociatedResourceStatus(
-				utils.PathSearch("existing_resource_status", v, "").(string)),
-			"auto_delete_status": normalizeAssociatedResourceStatus(
-				utils.PathSearch("auto_delete_status", v, "").(string)),
+			"setting_name":             utils.PathSearch("setting_name", v, nil),
+			"region_id":                utils.PathSearch("region_id", v, nil),
+			"tag_keys":                 utils.PathSearch("tag_keys", v, nil),
+			"existing_resource_status": utils.PathSearch("existing_resource_status", v, "").(string),
+			"auto_delete_status":       utils.PathSearch("auto_delete_status", v, "").(string),
 		})
 	}
 
