@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -295,17 +296,18 @@ func (c *Config) ObjectStorageClientWithSignature(region string) (*obs.ObsClient
 		return nil, fmt.Errorf("missing credentials for OBS, need access_key and secret_key values for provider")
 	}
 
-	clientConfigure := obs.WithHttpClient(&c.DomainClient.HTTPClient)
+	clientConfigure := obs.WithHttpClient(c.obsHTTPClient())
+	retryConfigure := obs.WithMaxRetryCount(c.MaxRetries)
 	userAgentConfigure := obs.WithUserAgent(buildObsUserAgent())
 	envProxyConfigure := obs.WithProxyFromEnv(true)
 	obsEndpoint := getObsEndpoint(c, region)
 	if c.SecurityToken != "" {
 		return obs.New(c.AccessKey, c.SecretKey, obsEndpoint,
 			obs.WithSignature("OBS"), obs.WithSecurityToken(c.SecurityToken), clientConfigure,
-			userAgentConfigure, envProxyConfigure)
+			retryConfigure, userAgentConfigure, envProxyConfigure)
 	}
 	return obs.New(c.AccessKey, c.SecretKey, obsEndpoint, obs.WithSignature("OBS"), clientConfigure,
-		userAgentConfigure, envProxyConfigure)
+		retryConfigure, userAgentConfigure, envProxyConfigure)
 }
 
 func (c *Config) ObjectStorageClient(region string) (*obs.ObsClient, error) {
@@ -326,15 +328,33 @@ func (c *Config) ObjectStorageClient(region string) (*obs.ObsClient, error) {
 		}
 	}
 
-	clientConfigure := obs.WithHttpClient(&c.DomainClient.HTTPClient)
+	clientConfigure := obs.WithHttpClient(c.obsHTTPClient())
+	retryConfigure := obs.WithMaxRetryCount(c.MaxRetries)
 	userAgentConfigure := obs.WithUserAgent(buildObsUserAgent())
 	envProxyConfigure := obs.WithProxyFromEnv(true)
 	obsEndpoint := getObsEndpoint(c, region)
 	if c.SecurityToken != "" {
 		return obs.New(c.AccessKey, c.SecretKey, obsEndpoint, obs.WithSecurityToken(c.SecurityToken), clientConfigure,
-			userAgentConfigure, envProxyConfigure)
+			retryConfigure, userAgentConfigure, envProxyConfigure)
 	}
-	return obs.New(c.AccessKey, c.SecretKey, obsEndpoint, clientConfigure, userAgentConfigure, envProxyConfigure)
+	return obs.New(c.AccessKey, c.SecretKey, obsEndpoint, clientConfigure, retryConfigure, userAgentConfigure,
+		envProxyConfigure)
+}
+
+// obsHTTPClient returns a copy of the domain HTTP client for the OBS SDK, with the connection retries of
+// LogRoundTripper turned off. Those retries resend the same request, and an OBS request carries a signature
+// computed over its Date header, so a resent request is rejected with RequestTimeTooSkewed once that Date is
+// older than the validity window of the server. The OBS SDK retries on its own and refreshes the Date header and
+// the signature before each attempt, so the retries are left to the SDK (see obs.WithMaxRetryCount).
+func (c *Config) obsHTTPClient() *http.Client {
+	client := c.DomainClient.HTTPClient
+	if lrt, ok := client.Transport.(*LogRoundTripper); ok {
+		client.Transport = &LogRoundTripper{
+			Rt:         lrt.Rt,
+			MaxRetries: 0,
+		}
+	}
+	return &client
 }
 
 func buildObsUserAgent() string {
