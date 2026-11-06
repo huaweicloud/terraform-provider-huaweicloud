@@ -48,9 +48,9 @@ func ResourceTmsAssociatedResourceRule() *schema.Resource {
 			},
 			"tag_keys": {
 				Type:        schema.TypeList,
-				Required:    true,
+				Optional:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: "Specifies the tag keys associated with the rule.",
+				Description: "Specifies the tag keys that the rule takes effect on. An empty list means the rule takes effect on all tags.",
 			},
 			"existing_resource_status": {
 				Type:         schema.TypeString,
@@ -95,7 +95,7 @@ func resourceTmsAssociatedResourceRuleCreate(ctx context.Context, d *schema.Reso
 		return diag.FromErr(err)
 	}
 
-	if err := checkAssociatedResourceRuleErrors(createRespBody, true); err != nil {
+	if err := checkAssociatedResourceRuleErrors(createRespBody, "create"); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -209,7 +209,7 @@ func resourceTmsAssociatedResourceRuleUpdate(ctx context.Context, d *schema.Reso
 		return diag.FromErr(err)
 	}
 
-	if err := checkAssociatedResourceRuleErrors(updateRespBody, false); err != nil {
+	if err := checkAssociatedResourceRuleErrors(updateRespBody, "update"); err != nil {
 		return diag.FromErr(err)
 	}
 
@@ -234,7 +234,7 @@ func buildAssociatedResourceRuleBodyParams(d *schema.ResourceData) map[string]in
 	}
 }
 
-func checkAssociatedResourceRuleErrors(respBody interface{}, isCreate bool) error {
+func checkAssociatedResourceRuleErrors(respBody interface{}, scene string) error {
 	errors := utils.PathSearch("errors", respBody, make([]interface{}, 0)).([]interface{})
 	if len(errors) == 0 {
 		return nil
@@ -251,9 +251,12 @@ func checkAssociatedResourceRuleErrors(respBody interface{}, isCreate bool) erro
 			message = utils.PathSearch("message", e, "").(string)
 		}
 
-		// TMS.5060 (Rule already exist) is an idempotent error during create;
-		// the rule already exists, which is the desired state.
-		if isCreate && code == "TMS.5060" {
+		// Idempotent errors per operation scene:
+		// - create: TMS.5060 (Rule already exist) means the rule already exists, which is the desired state.
+		// - delete: TMS.5059 (Rule not exist) and TMS.5062 (No valid region) mean there is no rule to delete,
+		//   i.e., the rule has already been removed.
+		if (scene == "create" && code == "TMS.5060") ||
+			(scene == "delete" && (code == "TMS.5059" || code == "TMS.5062")) {
 			continue
 		}
 
@@ -284,9 +287,18 @@ func resourceTmsAssociatedResourceRuleDelete(_ context.Context, d *schema.Resour
 		MoreHeaders:      map[string]string{"Content-Type": "application/json"},
 	}
 
-	_, err = client.Request("DELETE", deletePath, &deleteOpt)
+	deleteResp, err := client.Request("DELETE", deletePath, &deleteOpt)
 	if err != nil {
 		return diag.Errorf("error deleting TMS associated resource rule: %s", err)
+	}
+
+	deleteRespBody, err := utils.FlattenResponse(deleteResp)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	if err := checkAssociatedResourceRuleErrors(deleteRespBody, "delete"); err != nil {
+		return diag.FromErr(err)
 	}
 
 	return nil

@@ -35,8 +35,9 @@ In addition to all arguments above, the following attributes are exported:
 
 ## Import
 
-The associated resource status can be imported using the `id`, e.g.
+The associated resource status is a single instance per account (a fixed ID: `tms-associated-resource-status`),
+it can be imported using the `id`, e.g.
 
 ```bash
-$ terraform import huaweicloud_tms_associated_resource_status.test enable
+$ terraform import huaweicloud_tms_associated_resource_status.test tms-associated-resource-status
 ```
