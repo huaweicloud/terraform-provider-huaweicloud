@@ -48,4 +48,4 @@ The `settings` block supports:
 
 * `support_auto_delete` - Whether the auto delete is supported.
 
-* `region_ids` - The list of region IDs.
+* `region_ids` - The list of regions supported by rule configuration.
