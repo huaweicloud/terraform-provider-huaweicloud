@@ -64,6 +64,7 @@ type Config struct {
 	AssumeRoleIdpID       string
 	AssumeRoleIdToken     string
 	AssumeRoleIdTokenFile string
+	AssumeRoleProviderURN string
 	Cloud                 string
 	MaxRetries            int
 	TerraformVersion      string
@@ -129,7 +130,7 @@ func (c *Config) LoadAndValidate() error {
 	}
 
 	// Assume role OIDC
-	if c.AssumeRoleIdpID != "" {
+	if c.AssumeRoleIdpID != "" || c.AssumeRoleProviderURN != "" {
 		if c.Region == "" {
 			return errors.New("region should be provided")
 		}
@@ -144,13 +145,19 @@ func (c *Config) LoadAndValidate() error {
 			c.AssumeRoleIdToken = strings.Trim(tokenStr, "\n")
 		}
 
-		subjectToken, err := getSubjectTokenByIdp(c)
-		if err != nil {
-			return err
-		}
-		err = getSecurityTokenByIdp(c, subjectToken)
-		if err != nil {
-			return err
+		if c.AssumeRoleProviderURN != "" {
+			if err := getSecurityTokenByOIDCV5(c); err != nil {
+				return err
+			}
+		} else {
+			subjectToken, err := getSubjectTokenByIdp(c)
+			if err != nil {
+				return err
+			}
+			err = getSecurityTokenByIdp(c, subjectToken)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
@@ -163,8 +170,8 @@ func (c *Config) LoadAndValidate() error {
 		return fmt.Errorf("region should be provided")
 	}
 
-	// Assume role
-	if c.AssumeRoleAgency != "" {
+	// Assume role, the v5 OIDC credentials already belong to the target agency
+	if c.AssumeRoleAgency != "" && c.AssumeRoleProviderURN == "" {
 		if c.AssumeRoleDomainID != "" {
 			err = buildClientByAgencyV5(c)
 		} else {

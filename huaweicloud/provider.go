@@ -302,10 +302,18 @@ func Provider() *schema.Provider {
 							DefaultFunc: schema.EnvDefaultFunc("HW_ASSUME_ROLE_DURATION", nil),
 						},
 						"idp_id": {
-							Type:        schema.TypeString,
-							Required:    true,
-							Description: "The ID of the external IdP.",
-							DefaultFunc: schema.EnvDefaultFunc("HW_ASSUME_ROLE_IDP_ID", nil),
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  "The ID of the external IdP.",
+							DefaultFunc:  schema.EnvDefaultFunc("HW_ASSUME_ROLE_IDP_ID", nil),
+							ExactlyOneOf: []string{"assume_role_with_oidc.0.idp_id", "assume_role_with_oidc.0.provider_urn"},
+						},
+						"provider_urn": {
+							Type:         schema.TypeString,
+							Optional:     true,
+							Description:  "The URN of the IAM v5 OIDC identity provider.",
+							DefaultFunc:  schema.EnvDefaultFunc("HW_ASSUME_ROLE_PROVIDER_URN", nil),
+							ExactlyOneOf: []string{"assume_role_with_oidc.0.idp_id", "assume_role_with_oidc.0.provider_urn"},
 						},
 						"id_token_file": {
 							Type:         schema.TypeString,
@@ -5580,6 +5588,7 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 		delegatedIdpIDStr := os.Getenv("HW_ASSUME_ROLE_IDP_ID")
 		delegatedIdTokenStr := os.Getenv("HW_ASSUME_ROLE_ID_TOKEN")
 		delegatedIdTokenFileStr := os.Getenv("HW_ASSUME_ROLE_ID_TOKEN_FILE")
+		delegatedProviderURNStr := os.Getenv("HW_ASSUME_ROLE_PROVIDER_URN")
 		var delegatedDuration int
 		if delegatedDurationStr != "" {
 			var err error
@@ -5589,13 +5598,14 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 				delegatedDuration = 0 // or some default value
 			}
 		}
-		if delegatedIdpIDStr != "" {
+		if delegatedIdpIDStr != "" || delegatedProviderURNStr != "" {
 			conf.AssumeRoleAgency = delegatedAgencyName
 			conf.AssumeRoleDomainID = delegatedDomianID
 			conf.AssumeRoleDuration = delegatedDuration
 			conf.AssumeRoleIdpID = delegatedIdpIDStr
 			conf.AssumeRoleIdToken = delegatedIdTokenStr
 			conf.AssumeRoleIdTokenFile = delegatedIdTokenFileStr
+			conf.AssumeRoleProviderURN = delegatedProviderURNStr
 		}
 	} else {
 		assumeRoleOidc := assumeRoleOidcList[0].(map[string]interface{})
@@ -5605,6 +5615,7 @@ func configureProvider(_ context.Context, d *schema.ResourceData, terraformVersi
 		conf.AssumeRoleIdpID = assumeRoleOidc["idp_id"].(string)
 		conf.AssumeRoleIdToken = assumeRoleOidc["id_token"].(string)
 		conf.AssumeRoleIdTokenFile = assumeRoleOidc["id_token_file"].(string)
+		conf.AssumeRoleProviderURN = assumeRoleOidc["provider_urn"].(string)
 	}
 
 	conf.Region = d.Get("region").(string)
