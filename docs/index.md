@@ -226,6 +226,23 @@ provider "huaweicloud" {
 }
 ```
 
+When `provider_urn` is used instead of `idp_id`, the token is exchanged for temporary credentials of the agency directly
+through the IAM v5 [AssumeAgencyWithOIDC](https://support.huaweicloud.com/intl/en-us/api-iam5/AssumeAgencyWithOIDC.html)
+API. The agency trust policy must allow the OIDC identity provider.
+
+```hcl
+provider "huaweicloud" {
+  region = "cn-north-4"
+
+  assume_role_with_oidc {
+    agency_name   = "agency"
+    domain_id     = "agency_domain_id"
+    provider_urn  = "iam::agency_domain_id:oidcProvider:provider_name"
+    id_token_file = "/var/run/secrets/kubernetes.io/serviceaccount/token"
+  }
+}
+```
+
 ## Configuration Reference
 
 The following arguments are supported:
@@ -332,8 +349,14 @@ The `assume_role_with_oidc` block supports:
 * `duration` - (Optional) The duration for v5 assume role.
   If omitted, the `HW_ASSUME_ROLE_DURATION` environment variable is used.
 
-* `idp_id` - (Required) The ID of the external IdP for assume role.
+* `idp_id` - (Optional) The ID of the external IdP for assume role.
   If omitted, the `HW_ASSUME_ROLE_IDP_ID` environment variable is used.
+  Exactly one of `idp_id` and `provider_urn` must be provided.
+
+* `provider_urn` - (Optional) The URN of the IAM v5 OIDC identity provider, e.g. `iam::{domain_id}:oidcProvider:{name}`.
+  If specified, the agency is assumed directly through the IAM v5 AssumeAgencyWithOIDC API, and `agency_name` is
+  used as the agency session name.
+  If omitted, the `HW_ASSUME_ROLE_PROVIDER_URN` environment variable is used.
 
 * `id_token` - (Optional) The Id token that is issued by the external IdP.
   If omitted, the `HW_ASSUME_ROLE_ID_TOKEN` environment variable is used.
