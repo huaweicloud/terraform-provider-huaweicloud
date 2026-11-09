@@ -51,6 +51,22 @@ The `providers` block supports:
 
 * `urn` - The uniform resource name of the SAML identity provider.
 
-* `create_time` - The creation time of the SAML identity provider.
+* `created_at` - The creation time of the SAML identity provider.
 
-* `expire_time` - The expiration time of the SAML identity provider.
+* `expires_at` - The expiration time of the SAML identity provider.
+
+* `private_keys` - The list of private keys managed by the SAML identity provider.
+  The [private_keys](#private_keys_struct) structure is documented below.
+
+* `assertion_encryption_mode` - The assertion encryption mode of the SAML identity provider.
+
+<a name="private_keys_struct"></a>
+The `private_keys` block supports:
+
+* `key_id` - The ID of the private key.
+
+* `private_key` - The private key content.
+
+* `created_at` - The creation time of the private key.
+
+* `expires_at` - The expiration time of the private key.

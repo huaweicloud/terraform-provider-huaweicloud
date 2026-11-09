@@ -202,6 +202,8 @@ func setV5SamlCredentialSessionAttributes(d *schema.ResourceData, assumeBody int
 		d.Set("issuer", utils.PathSearch("issuer", assumeBody, nil)),
 		d.Set("audience", utils.PathSearch("audience", assumeBody, nil)),
 		d.Set("name_qualifier", utils.PathSearch("name_qualifier", assumeBody, nil)),
+		d.Set("idp_urn", utils.PathSearch("provider", assumeBody, nil)),
+		d.Set("source_identity", utils.PathSearch("source_identity", assumeBody, nil)),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error setting SAML agency credential session fields: %s", err)

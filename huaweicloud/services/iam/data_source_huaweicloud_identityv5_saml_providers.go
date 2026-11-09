@@ -54,15 +54,50 @@ func DataSourceV5SamlProviders() *schema.Resource {
 							Computed:    true,
 							Description: `The uniform resource name of the SAML identity provider.`,
 						},
-						"create_time": {
+						"created_at": {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: `The creation time of the SAML identity provider.`,
 						},
-						"expire_time": {
+						"expires_at": {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: `The expiration time of the SAML identity provider.`,
+						},
+						"private_keys": {
+							Type:     schema.TypeList,
+							Computed: true,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"key_id": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The ID of the private key.`,
+									},
+									"private_key": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Sensitive:   true,
+										Description: `The private key content.`,
+									},
+									"created_at": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The creation time of the private key.`,
+									},
+									"expires_at": {
+										Type:        schema.TypeString,
+										Computed:    true,
+										Description: `The expiration time of the private key.`,
+									},
+								},
+							},
+							Description: `The list of private keys managed by the SAML identity provider.`,
+						},
+						"assertion_encryption_mode": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The assertion encryption mode of the SAML identity provider.`,
 						},
 					},
 				},
@@ -112,13 +147,15 @@ func flattenV5SamlProviders(providers []interface{}) []interface{} {
 	result := make([]interface{}, 0, len(providers))
 	for _, provider := range providers {
 		result = append(result, map[string]interface{}{
-			"provider_id":            utils.PathSearch("provider_id", provider, nil),
-			"name":                   utils.PathSearch("name", provider, nil),
-			"description":            utils.PathSearch("description", provider, nil),
-			"saml_metadata_document": utils.PathSearch("saml_metadata_document", provider, nil),
-			"urn":                    utils.PathSearch("urn", provider, nil),
-			"create_time":            utils.PathSearch("create_time", provider, nil),
-			"expire_time":            utils.PathSearch("expire_time", provider, nil),
+			"provider_id":               utils.PathSearch("provider_id", provider, nil),
+			"name":                      utils.PathSearch("name", provider, nil),
+			"description":               utils.PathSearch("description", provider, nil),
+			"saml_metadata_document":    utils.PathSearch("saml_metadata_document", provider, nil),
+			"urn":                       utils.PathSearch("urn", provider, nil),
+			"created_at":                utils.PathSearch("created_at", provider, nil),
+			"expires_at":                utils.PathSearch("expires_at", provider, nil),
+			"private_keys":              flattenV5SamlProviderPrivateKeys(utils.PathSearch("private_keys", provider, nil)),
+			"assertion_encryption_mode": utils.PathSearch("assertion_encryption_mode", provider, nil),
 		})
 	}
 	return result

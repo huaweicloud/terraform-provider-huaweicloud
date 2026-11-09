@@ -57,6 +57,10 @@ In addition to all arguments above, the following attributes are exported:
 
 * `urn` - The uniform resource name of the OIDC identity provider.
 
+* `created_at` - The creation time of the OIDC identity provider.
+
+* `expires_at` - The expiration time of the OIDC identity provider.
+
 ## Import
 
 The IAM v5 OIDC identity provider can be imported using the `id`, e.g.

@@ -71,6 +71,16 @@ func ResourceV5OidcProvider() *schema.Resource {
 				Computed:    true,
 				Description: `The uniform resource name of the OIDC identity provider.`,
 			},
+			"created_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The creation time of the OIDC identity provider.`,
+			},
+			"expires_at": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The expiration time of the OIDC identity provider.`,
+			},
 		},
 	}
 }
@@ -241,6 +251,8 @@ func resourceV5OidcProviderRead(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("urn", utils.PathSearch("urn", provider, nil)),
 		d.Set("client_ids", utils.PathSearch("client_ids", provider, make([]interface{}, 0)).([]interface{})),
 		d.Set("thumbprints", utils.PathSearch("thumbprints", provider, make([]interface{}, 0)).([]interface{})),
+		d.Set("created_at", utils.PathSearch("created_at", provider, nil)),
+		d.Set("expires_at", utils.PathSearch("expires_at", provider, nil)),
 	)
 	if err = mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error setting fields for the OIDC identity provider (%s) resource: %s", providerId, err)
