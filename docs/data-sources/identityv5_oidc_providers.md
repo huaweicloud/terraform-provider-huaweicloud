@@ -52,3 +52,7 @@ The `providers` block supports:
 * `client_ids` - The list of client IDs registered in the OIDC identity provider.
 
 * `thumbprints` - The list of server certificate fingerprints of the OIDC identity provider.
+
+* `created_at` - The creation time of the OIDC identity provider.
+
+* `expires_at` - The expiration time of the OIDC identity provider.

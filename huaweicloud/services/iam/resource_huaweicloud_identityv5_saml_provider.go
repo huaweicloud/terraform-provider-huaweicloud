@@ -60,15 +60,50 @@ func ResourceV5SamlProvider() *schema.Resource {
 				Computed:    true,
 				Description: `The uniform resource name of the SAML identity provider.`,
 			},
-			"create_time": {
+			"created_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The creation time of the SAML identity provider.`,
 			},
-			"expire_time": {
+			"expires_at": {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: `The expiration time of the SAML identity provider.`,
+			},
+			"private_keys": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"key_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The ID of the private key.`,
+						},
+						"private_key": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Sensitive:   true,
+							Description: `The private key content.`,
+						},
+						"created_at": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The creation time of the private key.`,
+						},
+						"expires_at": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The expiration time of the private key.`,
+						},
+					},
+				},
+				Description: `The list of private keys managed by the SAML identity provider.`,
+			},
+			"assertion_encryption_mode": {
+				Type:        schema.TypeString,
+				Computed:    true,
+				Description: `The assertion encryption mode of the SAML identity provider. The valid value is Allowed or Required.`,
 			},
 		},
 	}
@@ -236,8 +271,10 @@ func resourceV5SamlProviderRead(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("saml_metadata_document", utils.PathSearch("saml_metadata_document", provider, nil)),
 		d.Set("provider_id", utils.PathSearch("provider_id", provider, nil)),
 		d.Set("urn", utils.PathSearch("urn", provider, nil)),
-		d.Set("create_time", utils.PathSearch("create_time", provider, nil)),
-		d.Set("expire_time", utils.PathSearch("expire_time", provider, nil)),
+		d.Set("created_at", utils.PathSearch("created_at", provider, nil)),
+		d.Set("expires_at", utils.PathSearch("expires_at", provider, nil)),
+		d.Set("private_keys", flattenV5SamlProviderPrivateKeys(utils.PathSearch("private_keys", provider, nil))),
+		d.Set("assertion_encryption_mode", utils.PathSearch("assertion_encryption_mode", provider, nil)),
 	)
 	if err = mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error setting fields for the SAML identity provider (%s) resource: %s", providerId, err)
@@ -300,4 +337,26 @@ func resourceV5SamlProviderDelete(_ context.Context, d *schema.ResourceData, met
 	}
 
 	return nil
+}
+
+func flattenV5SamlProviderPrivateKeys(raw interface{}) []interface{} {
+	if raw == nil {
+		return nil
+	}
+
+	keys, ok := raw.([]interface{})
+	if !ok {
+		return nil
+	}
+
+	result := make([]interface{}, 0, len(keys))
+	for _, key := range keys {
+		result = append(result, map[string]interface{}{
+			"key_id":      utils.PathSearch("key_id", key, nil),
+			"private_key": utils.PathSearch("private_key", key, nil),
+			"created_at":  utils.PathSearch("created_at", key, nil),
+			"expires_at":  utils.PathSearch("expires_at", key, nil),
+		})
+	}
+	return result
 }

@@ -66,6 +66,16 @@ func DataSourceV5OidcProviders() *schema.Resource {
 							Elem:        &schema.Schema{Type: schema.TypeString},
 							Description: `The list of server certificate fingerprints of the OIDC identity provider.`,
 						},
+						"created_at": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The creation time of the OIDC identity provider.`,
+						},
+						"expires_at": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The expiration time of the OIDC identity provider.`,
+						},
 					},
 				},
 				Description: `The list of OIDC identity providers that matched the filter parameters.`,
@@ -121,6 +131,8 @@ func flattenV5OidcProviders(providers []interface{}) []interface{} {
 			"urn":         utils.PathSearch("urn", provider, nil),
 			"client_ids":  utils.PathSearch("client_ids", provider, make([]interface{}, 0)),
 			"thumbprints": utils.PathSearch("thumbprints", provider, make([]interface{}, 0)),
+			"created_at":  utils.PathSearch("created_at", provider, nil),
+			"expires_at":  utils.PathSearch("expires_at", provider, nil),
 		})
 	}
 	return result
