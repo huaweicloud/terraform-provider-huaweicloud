@@ -18,11 +18,18 @@ data "huaweicloud_identityv5_oidc_providers" "all" {}
 data "huaweicloud_identityv5_oidc_providers" "filtered" {
   name = "my-oidc-provider"
 }
+
+data "huaweicloud_identityv5_oidc_providers" "by_id" {
+  provider_id = "abc123"
+}
 ```
 
 ## Argument Reference
 
 The following arguments are supported:
+
+* `provider_id` - (Optional, String) Specifies the ID of the OIDC identity provider used for filtering.
+  If this parameter is set, only the provider with the matched ID is returned.
 
 * `name` - (Optional, String) Specifies the name of the OIDC identity provider used for filtering.
 

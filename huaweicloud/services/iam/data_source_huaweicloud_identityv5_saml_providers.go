@@ -14,11 +14,17 @@ import (
 )
 
 // @API IAM GET /v5/saml-providers
+// @API IAM GET /v5/saml-providers/{provider_id}
 func DataSourceV5SamlProviders() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceV5SamlProvidersRead,
 
 		Schema: map[string]*schema.Schema{
+			"provider_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the ID of the SAML identity provider used for filtering. If this parameter is set, only the provider with the matched ID is returned.`,
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -114,13 +120,23 @@ func dataSourceV5SamlProvidersRead(_ context.Context, d *schema.ResourceData, me
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
-	providers, err := listV5SamlProviders(client)
-	if err != nil {
-		return diag.Errorf("error querying SAML identity providers: %s", err)
-	}
+	var providers []interface{}
 
-	if name, ok := d.GetOk("name"); ok {
-		providers = utils.PathSearch(fmt.Sprintf("[?name=='%s']", name.(string)), providers, make([]interface{}, 0)).([]interface{})
+	if providerId, ok := d.GetOk("provider_id"); ok {
+		provider, err := GetV5SamlProviderById(client, providerId.(string))
+		if err != nil {
+			return diag.Errorf("error querying SAML identity provider (ID: %s): %s", providerId, err)
+		}
+		providers = []interface{}{provider}
+	} else {
+		providers, err = listV5SamlProviders(client)
+		if err != nil {
+			return diag.Errorf("error querying SAML identity providers: %s", err)
+		}
+
+		if name, ok := d.GetOk("name"); ok {
+			providers = utils.PathSearch(fmt.Sprintf("[?name=='%s']", name.(string)), providers, make([]interface{}, 0)).([]interface{})
+		}
 	}
 
 	randomId, err := uuid.GenerateUUID()

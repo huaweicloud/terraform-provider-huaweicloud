@@ -14,11 +14,17 @@ import (
 )
 
 // @API IAM GET /v5/oidc-providers
+// @API IAM GET /v5/oidc-providers/{provider_id}
 func DataSourceV5OidcProviders() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: dataSourceV5OidcProvidersRead,
 
 		Schema: map[string]*schema.Schema{
+			"provider_id": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the ID of the OIDC identity provider used for filtering. If this parameter is set, only the provider with the matched ID is returned.`,
+			},
 			"name": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -91,13 +97,23 @@ func dataSourceV5OidcProvidersRead(_ context.Context, d *schema.ResourceData, me
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
-	providers, err := listV5OidcProviders(client)
-	if err != nil {
-		return diag.Errorf("error querying OIDC identity providers: %s", err)
-	}
+	var providers []interface{}
 
-	if name, ok := d.GetOk("name"); ok {
-		providers = utils.PathSearch(fmt.Sprintf("[?name=='%s']", name.(string)), providers, make([]interface{}, 0)).([]interface{})
+	if providerId, ok := d.GetOk("provider_id"); ok {
+		provider, err := GetV5OidcProviderById(client, providerId.(string))
+		if err != nil {
+			return diag.Errorf("error querying OIDC identity provider (ID: %s): %s", providerId, err)
+		}
+		providers = []interface{}{provider}
+	} else {
+		providers, err = listV5OidcProviders(client)
+		if err != nil {
+			return diag.Errorf("error querying OIDC identity providers: %s", err)
+		}
+
+		if name, ok := d.GetOk("name"); ok {
+			providers = utils.PathSearch(fmt.Sprintf("[?name=='%s']", name.(string)), providers, make([]interface{}, 0)).([]interface{})
+		}
 	}
 
 	randomId, err := uuid.GenerateUUID()
