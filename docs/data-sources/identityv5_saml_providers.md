@@ -72,8 +72,4 @@ The `private_keys` block supports:
 
 * `key_id` - The ID of the private key.
 
-* `private_key` - The private key content.
-
-* `created_at` - The creation time of the private key.
-
-* `expires_at` - The expiration time of the private key.
+* `timestamp` - The upload time of the private key in ISO 8601 format.

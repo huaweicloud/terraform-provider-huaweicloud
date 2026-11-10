@@ -36,11 +36,21 @@ The following arguments are supported:
 
 * `saml_metadata_document` - (Required, String) Specifies the SAML metadata document obtained from the identity provider.
   The document is an XML string that contains the issuer name, the validity period and the signing certificate
-  used to verify SAML assertions.
+  used to verify SAML assertions. The length ranges from 1,000 to 512,000 characters.
 
 * `description` - (Optional, String) Specifies the description of the SAML identity provider.
   The description contains a maximum of 255 characters and cannot contain the following characters:
   @, #, %, &, <, >, ", $, ^ and *.
+
+* `assertion_encryption_mode` - (Optional, String) Specifies the assertion encryption mode of the SAML identity provider.
+  The valid values are **Allowed** (accepts encrypted or unencrypted SAML assertions) and
+  **Required** (only accepts encrypted SAML assertions).
+
+* `add_private_key` - (Optional, String, Sensitive) Specifies the PEM format RSA private key used to decrypt SAML assertions.
+  The length ranges from 1 to 16,384 characters.
+
+* `remove_private_key` - (Optional, String) Specifies the ID of the private key to be removed from the SAML identity provider.
+  The value contains 22 to 64 characters and can only contain uppercase letters and digits.
 
 ## Attribute Reference
 
@@ -59,20 +69,13 @@ In addition to all arguments above, the following attributes are exported:
 * `private_keys` - The list of private keys managed by the SAML identity provider.
   The [private_keys](#private_keys_struct) structure is documented below.
 
-* `assertion_encryption_mode` - The assertion encryption mode of the SAML identity provider.
-  The valid values are **Allowed** and **Required**.
-
 ### `private_keys` Struct
 
 The `private_keys` block supports the following attributes:
 
 * `key_id` - The ID of the private key.
 
-* `private_key` - The private key content.
-
-* `created_at` - The creation time of the private key.
-
-* `expires_at` - The expiration time of the private key.
+* `timestamp` - The upload time of the private key in ISO 8601 format.
 
 ## Import
 
