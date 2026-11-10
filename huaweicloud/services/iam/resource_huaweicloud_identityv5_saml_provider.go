@@ -8,6 +8,7 @@ import (
 	"github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
 	"github.com/chnsz/golangsdk"
 
@@ -70,6 +71,29 @@ func ResourceV5SamlProvider() *schema.Resource {
 				Computed:    true,
 				Description: `The expiration time of the SAML identity provider.`,
 			},
+			"assertion_encryption_mode": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ValidateFunc: validation.StringInSlice([]string{"Allowed", "Required"}, false),
+				Description: `Specifies the assertion encryption mode of the SAML identity provider. ` +
+					`The valid values are **Allowed** and **Required**. ` +
+					`**Allowed** accepts encrypted or unencrypted SAML assertions. ` +
+					`**Required** only accepts encrypted SAML assertions.`,
+			},
+			"add_private_key": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Sensitive:   true,
+				Description: `Specifies the PEM format RSA private key used to decrypt SAML assertions. ` +
+					`The length ranges from 1 to 16,384 characters.`,
+			},
+			"remove_private_key": {
+				Type:        schema.TypeString,
+				Optional:    true,
+				Description: `Specifies the ID of the private key to be removed from the SAML identity provider. ` +
+					`The value contains 22 to 64 characters and can only contain uppercase letters and digits.`,
+			},
 			"private_keys": {
 				Type:     schema.TypeList,
 				Computed: true,
@@ -80,30 +104,14 @@ func ResourceV5SamlProvider() *schema.Resource {
 							Computed:    true,
 							Description: `The ID of the private key.`,
 						},
-						"private_key": {
+						"timestamp": {
 							Type:        schema.TypeString,
 							Computed:    true,
-							Sensitive:   true,
-							Description: `The private key content.`,
-						},
-						"created_at": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `The creation time of the private key.`,
-						},
-						"expires_at": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `The expiration time of the private key.`,
+							Description: `The upload time of the private key in ISO 8601 format.`,
 						},
 					},
 				},
 				Description: `The list of private keys managed by the SAML identity provider.`,
-			},
-			"assertion_encryption_mode": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The assertion encryption mode of the SAML identity provider. The valid value is Allowed or Required.`,
 			},
 		},
 	}
@@ -165,6 +173,12 @@ func buildCreateV5SamlProviderBodyParams(d *schema.ResourceData) map[string]inte
 	}
 	if description := d.Get("description").(string); description != "" {
 		bodyParams["description"] = description
+	}
+	if assertionEncryptionMode := d.Get("assertion_encryption_mode").(string); assertionEncryptionMode != "" {
+		bodyParams["assertion_encryption_mode"] = assertionEncryptionMode
+	}
+	if privateKey := d.Get("add_private_key").(string); privateKey != "" {
+		bodyParams["add_private_key"] = privateKey
 	}
 	return bodyParams
 }
@@ -293,17 +307,15 @@ func resourceV5SamlProviderUpdate(ctx context.Context, d *schema.ResourceData, m
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
-	if d.HasChanges("description", "saml_metadata_document") {
+	if d.HasChanges("description", "saml_metadata_document", "assertion_encryption_mode", "add_private_key", "remove_private_key") {
+		updateBody := buildUpdateV5SamlProviderBodyParams(d)
 		updateHttpUrl := "v5/saml-providers/{provider_id}"
 		updatePath := client.Endpoint + updateHttpUrl
 		updatePath = strings.ReplaceAll(updatePath, "{provider_id}", providerId)
 		updateOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
 			OkCodes:          []int{200, 201, 202, 204},
-			JSONBody: map[string]interface{}{
-				"saml_metadata_document": d.Get("saml_metadata_document").(string),
-				"description":            d.Get("description").(string),
-			},
+			JSONBody:         updateBody,
 		}
 		_, err := client.Request("PUT", updatePath, &updateOpt)
 		if err != nil {
@@ -339,6 +351,26 @@ func resourceV5SamlProviderDelete(_ context.Context, d *schema.ResourceData, met
 	return nil
 }
 
+func buildUpdateV5SamlProviderBodyParams(d *schema.ResourceData) map[string]interface{} {
+	bodyParams := make(map[string]interface{})
+	if d.HasChange("saml_metadata_document") {
+		bodyParams["saml_metadata_document"] = d.Get("saml_metadata_document").(string)
+	}
+	if d.HasChange("description") {
+		bodyParams["description"] = d.Get("description").(string)
+	}
+	if d.HasChange("assertion_encryption_mode") {
+		bodyParams["assertion_encryption_mode"] = d.Get("assertion_encryption_mode").(string)
+	}
+	if d.HasChange("add_private_key") {
+		bodyParams["add_private_key"] = d.Get("add_private_key").(string)
+	}
+	if d.HasChange("remove_private_key") {
+		bodyParams["remove_private_key"] = d.Get("remove_private_key").(string)
+	}
+	return bodyParams
+}
+
 func flattenV5SamlProviderPrivateKeys(raw interface{}) []interface{} {
 	if raw == nil {
 		return nil
@@ -352,10 +384,8 @@ func flattenV5SamlProviderPrivateKeys(raw interface{}) []interface{} {
 	result := make([]interface{}, 0, len(keys))
 	for _, key := range keys {
 		result = append(result, map[string]interface{}{
-			"key_id":      utils.PathSearch("key_id", key, nil),
-			"private_key": utils.PathSearch("private_key", key, nil),
-			"created_at":  utils.PathSearch("created_at", key, nil),
-			"expires_at":  utils.PathSearch("expires_at", key, nil),
+			"key_id":    utils.PathSearch("key_id", key, nil),
+			"timestamp": utils.PathSearch("timestamp", key, nil),
 		})
 	}
 	return result

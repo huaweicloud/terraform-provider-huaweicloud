@@ -80,21 +80,10 @@ func DataSourceV5SamlProviders() *schema.Resource {
 										Computed:    true,
 										Description: `The ID of the private key.`,
 									},
-									"private_key": {
+									"timestamp": {
 										Type:        schema.TypeString,
 										Computed:    true,
-										Sensitive:   true,
-										Description: `The private key content.`,
-									},
-									"created_at": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: `The creation time of the private key.`,
-									},
-									"expires_at": {
-										Type:        schema.TypeString,
-										Computed:    true,
-										Description: `The expiration time of the private key.`,
+										Description: `The upload time of the private key in ISO 8601 format.`,
 									},
 								},
 							},
