@@ -56,13 +56,18 @@ func ResourceV2NodeBatchUnsubscribe() *schema.Resource {
 				Type:        schema.TypeList,
 				Required:    true,
 				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `The ID list of resource nodes that used to refresh the deleting status.`,
+				Description: `The ID list of resource nodes to be unsubscribed.`,
 			},
 			"resource_ids": {
-				Type:        schema.TypeList,
-				Optional:    true,
-				Elem:        &schema.Schema{Type: schema.TypeString},
-				Description: `The ID list of resources to be deleted.`,
+				Type:     schema.TypeList,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Description: utils.SchemaDesc(
+					`The ID list of resources to be deleted.`,
+					utils.SchemaDescInput{
+						Deprecated: true,
+					},
+				),
 			},
 			"enable_force_new": {
 				Type:         schema.TypeString,
@@ -72,6 +77,24 @@ func ResourceV2NodeBatchUnsubscribe() *schema.Resource {
 			},
 		},
 	}
+}
+
+// flattenV2NodeUnsubscribeCheckingIds returns a list containing the resource IDs and the batch UIDs of
+// the specified nodes, which is used to check whether the nodes have been unsubscribed by matching the
+// user input (the elements of the parameter 'node_ids'):
+//   - A2: the nodes have no batch UID, and only the resource IDs (the value of the 'os.modelarts/resource.id'
+//     label) can be matched with the user input.
+//   - A3: the resource ID and the batch UID of the nodes have the same value.
+//   - A5: both the resource ID and the batch UID (the value of the 'os.modelarts.node/batch.uid' label)
+//     can be retrieved from the nodes, but only the batch UID can be matched with the user input, because
+//     the A5 hyper nodes are subscribed in batches and the users use the batch IDs to unsubscribe them.
+func flattenV2NodeUnsubscribeCheckingIds(nodes []interface{}) []string {
+	resourceIds := utils.PathSearch(`[*].metadata.labels."os.modelarts/resource.id"`, nodes,
+		make([]interface{}, 0)).([]interface{})
+	batchUids := utils.PathSearch(`[*].metadata.labels."os.modelarts.node/batch.uid"`, nodes,
+		make([]interface{}, 0)).([]interface{})
+
+	return utils.RemoveDuplicateElem(utils.ExpandToStringList(append(resourceIds, batchUids...)))
 }
 
 func waitForV2NodeBatchUnsubscribeCompleted(ctx context.Context, client *golangsdk.ServiceClient, resourcePoolName string,
@@ -89,13 +112,12 @@ func waitForV2NodeBatchUnsubscribeCompleted(ctx context.Context, client *golangs
 				return nil, "ERROR", err
 			}
 
-			resourceIds := utils.PathSearch(`[*].metadata.labels."os.modelarts/resource.id"`, nodes,
-				make([]interface{}, 0)).([]interface{})
-			if utils.IsSliceContainsAnyAnotherSliceElement(utils.ExpandToStringList(resourceIds),
+			checkingIds := flattenV2NodeUnsubscribeCheckingIds(nodes)
+			if utils.IsSliceContainsAnyAnotherSliceElement(checkingIds,
 				utils.ExpandToStringList(unsubscribeNodeIds), false, true) {
-				return resourceIds, "PENDING", nil
+				return checkingIds, "PENDING", nil
 			}
-			return resourceIds, "COMPLETED", nil
+			return checkingIds, "COMPLETED", nil
 		},
 		Timeout:      timeout,
 		Delay:        30 * time.Second,
