@@ -17,7 +17,7 @@ Use this resource to batch delete the ModelArts nodes within HuaweiCloud.
 
 ## Example Usage
 
-### Batch delete the A2 nodes or A3 hyper nodes
+### Batch delete the A2 nodes, A3 hyper nodes, or A5 hyper nodes
 
 ```hcl
 variable "resource_pool_name" {}
@@ -28,24 +28,6 @@ variable "node_ids" {
 resource "huaweicloud_modelartsv2_node_batch_unsubscribe" "test" {
   resource_pool_name = var.resource_pool_name
   node_ids           = var.node_ids
-}
-```
-
-### Batch delete the A5 hyper nodes
-
-```hcl
-variable "resource_pool_name" {}
-variable "node_ids" {
-  type = list(string)
-}
-variable "batch_uids" {
-  type = list(string)
-}
-
-resource "huaweicloud_modelartsv2_node_batch_unsubscribe" "test" {
-  resource_pool_name = var.resource_pool_name
-  node_ids           = var.node_ids
-  resource_ids       = var.batch_uids
 }
 ```
 
@@ -59,13 +41,9 @@ The following arguments are supported:
 * `resource_pool_name` - (Required, String, NonUpdatable) Specifies the resource pool name to which the resource nodes
   belong.
 
-* `node_ids` - (Required, List, NonUpdatable) Specifies the ID list of resource nodes that used to refresh the
-  deleting status.
-
-* `resource_ids` - (Optional, List, NonUpdatable) Specifies the ID list of resources to be deleted.  
-  Optional for the A2 nodes and A3 hyper nodes, the elements of this list are also node IDs.  
-  Required for the A5 hyper nodes, the elements of this list are batch IDs (defined in the `metadata.labels`), and only
-  one entry is required for these batch IDs.
+* `node_ids` - (Required, List, NonUpdatable) Specifies the ID list of resource nodes to be unsubscribed.  
+  For the A3 or A5 hyper nodes, the batch IDs are used to unsubscribe the nodes and check the unsubscribing
+  status.
 
 ## Attribute Reference
 
