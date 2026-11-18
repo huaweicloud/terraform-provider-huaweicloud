@@ -22,12 +22,13 @@ consumed immediately.
 ## Example Usage
 
 ```hcl
-variable "saml_response" {}
+variable "saml_assertion" {}
+variable "saml_provider_urn" {}
 
 data "huaweicloud_identityv5_saml_credential" "test" {
-  saml_response       = var.saml_response
-  agency_urn          = "iam::${var.account_id}:agency:demo"
-  agency_session_name = "terraform-session"
+  saml_assertion = var.saml_assertion
+  agency_urn     = "iam::${var.account_id}:agency:demo"
+  provider_urn   = var.saml_provider_urn
 }
 ```
 
@@ -38,16 +39,13 @@ The following arguments are supported:
 * `region` - (Optional, String) Specifies the region in which to query the resource.
   If omitted, the provider-level region will be used.
 
-* `saml_response` - (Required, String, Sensitive) Specifies the SAML authentication response (assertion) issued by the
-  SAML identity provider, which is a base64 encoded XML string.
+* `saml_assertion` - (Required, String, Sensitive) Specifies the base64 encoded SAML authentication response
+  (assertion) issued by the SAML identity provider. The value contains 4 to 100,000 characters.
 
 * `agency_urn` - (Required, String) Specifies the uniform resource name of the trust agency to be assumed, in the
   format of `iam::{account_id}:agency:{agency_name}`.
 
-* `agency_session_name` - (Required, String) Specifies the name of the agency session. The name contains 2 to 64
-  characters and can only contain letters, digits, underscores (_) and hyphens (-).
-
-* `provider_urn` - (Optional, String) Specifies the uniform resource name of the SAML identity provider, in the
+* `provider_urn` - (Required, String) Specifies the uniform resource name of the SAML identity provider, in the
   format of `iam::{account_id}:samlProvider:{provider_name}`.
 
 * `duration_seconds` - (Optional, Int) Specifies the validity period of the temporary security credentials, in seconds.

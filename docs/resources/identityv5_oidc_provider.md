@@ -49,6 +49,8 @@ The following arguments are supported:
   If this parameter is not specified, IAM automatically obtains the CA certificate fingerprint of the JWKS endpoint.
   When modified, the list is replaced entirely.
 
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the OIDC identity provider.
+
 ## Attribute Reference
 
 In addition to all arguments above, the following attributes are exported:
@@ -58,8 +60,6 @@ In addition to all arguments above, the following attributes are exported:
 * `urn` - The uniform resource name of the OIDC identity provider.
 
 * `created_at` - The creation time of the OIDC identity provider.
-
-* `expires_at` - The expiration time of the OIDC identity provider.
 
 ## Import
 

@@ -22,6 +22,8 @@ import (
 // @API IAM GET /v5/saml-providers/{provider_id}
 // @API IAM PUT /v5/saml-providers/{provider_id}
 // @API IAM DELETE /v5/saml-providers/{provider_id}
+// @API IAM POST /v5/{resource_type}/{resource_id}/tags/create
+// @API IAM DELETE /v5/{resource_type}/{resource_id}/tags/delete
 func ResourceV5SamlProvider() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceV5SamlProviderCreate,
@@ -32,6 +34,8 @@ func ResourceV5SamlProvider() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
+		CustomizeDiff: config.MergeDefaultTags(),
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -113,6 +117,7 @@ func ResourceV5SamlProvider() *schema.Resource {
 				},
 				Description: `The list of private keys managed by the SAML identity provider.`,
 			},
+			"tags": common.TagsSchema(),
 		},
 	}
 }
@@ -161,6 +166,11 @@ func resourceV5SamlProviderCreate(ctx context.Context, d *schema.ResourceData, m
 	})
 	if err != nil {
 		return diag.Errorf("error waiting for the SAML identity provider (%s) to be created: %s", providerId, err)
+	}
+
+	// create tags
+	if err := createTags(client, d.Get("tags").(map[string]interface{}), "saml_provider", d.Id()); err != nil {
+		return diag.FromErr(err)
 	}
 
 	return resourceV5SamlProviderRead(ctx, d, meta)
@@ -289,6 +299,11 @@ func resourceV5SamlProviderRead(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("expires_at", utils.PathSearch("expires_at", provider, nil)),
 		d.Set("private_keys", flattenV5SamlProviderPrivateKeys(utils.PathSearch("private_keys", provider, nil))),
 		d.Set("assertion_encryption_mode", utils.PathSearch("assertion_encryption_mode", provider, nil)),
+		d.Set("tags", flattenTagsToMap(utils.PathSearch("tags", provider, make([]interface{}, 0)))),
+		// The private key content and the private key ID to be removed are only used for write operations,
+		// and they must not be persisted to the state.
+		d.Set("add_private_key", ""),
+		d.Set("remove_private_key", ""),
 	)
 	if err = mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error setting fields for the SAML identity provider (%s) resource: %s", providerId, err)
@@ -320,6 +335,27 @@ func resourceV5SamlProviderUpdate(ctx context.Context, d *schema.ResourceData, m
 		_, err := client.Request("PUT", updatePath, &updateOpt)
 		if err != nil {
 			return diag.Errorf("error updating the SAML identity provider (%s): %s", providerId, err)
+		}
+	}
+
+	// update tags
+	if d.HasChange("tags") {
+		oRaw, nRaw := d.GetChange("tags")
+		oMap := oRaw.(map[string]interface{})
+		nMap := nRaw.(map[string]interface{})
+
+		// remove old tags
+		if len(oMap) > 0 {
+			if err = deleteTags(client, oMap, "saml_provider", d.Id()); err != nil {
+				return diag.FromErr(err)
+			}
+		}
+
+		// set new tags
+		if len(nMap) > 0 {
+			if err := createTags(client, nMap, "saml_provider", d.Id()); err != nil {
+				return diag.FromErr(err)
+			}
 		}
 	}
 

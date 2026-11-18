@@ -62,4 +62,4 @@ The `providers` block supports:
 
 * `created_at` - The creation time of the OIDC identity provider.
 
-* `expires_at` - The expiration time of the OIDC identity provider.
+* `tags` - The key/value pairs to associate with the OIDC identity provider.

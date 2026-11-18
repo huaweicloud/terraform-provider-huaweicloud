@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -77,11 +78,7 @@ func DataSourceV5OidcProviders() *schema.Resource {
 							Computed:    true,
 							Description: `The creation time of the OIDC identity provider.`,
 						},
-						"expires_at": {
-							Type:        schema.TypeString,
-							Computed:    true,
-							Description: `The expiration time of the OIDC identity provider.`,
-						},
+						"tags": common.TagsComputedSchema(),
 					},
 				},
 				Description: `The list of OIDC identity providers that matched the filter parameters.`,
@@ -148,7 +145,7 @@ func flattenV5OidcProviders(providers []interface{}) []interface{} {
 			"client_ids":  utils.PathSearch("client_ids", provider, make([]interface{}, 0)),
 			"thumbprints": utils.PathSearch("thumbprints", provider, make([]interface{}, 0)),
 			"created_at":  utils.PathSearch("created_at", provider, nil),
-			"expires_at":  utils.PathSearch("expires_at", provider, nil),
+			"tags":        flattenTagsToMap(utils.PathSearch("tags", provider, make([]interface{}, 0))),
 		})
 	}
 	return result

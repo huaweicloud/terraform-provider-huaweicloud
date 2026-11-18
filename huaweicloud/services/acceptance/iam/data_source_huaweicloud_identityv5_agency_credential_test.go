@@ -28,11 +28,14 @@ func testAccV5OidcCredentialPreCheck(t *testing.T) {
 	}
 }
 
-// The SAML response must be a base64 encoded assertion response issued by the SAML identity provider.
+// The SAML assertion must be a base64 encoded response issued by the SAML identity provider.
 func testAccV5SamlCredentialPreCheck(t *testing.T) {
 	testAccV5AgencyCredentialPreCheck(t)
-	if os.Getenv("HW_SAML_RESPONSE") == "" {
-		t.Skip("This test requires HW_SAML_RESPONSE to be set (the base64 encoded SAML authentication response).")
+	if os.Getenv("HW_SAML_ASSERTION") == "" {
+		t.Skip("This test requires HW_SAML_ASSERTION to be set (the base64 encoded SAML authentication response).")
+	}
+	if os.Getenv("HW_SAML_PROVIDER_URN") == "" {
+		t.Skip("This test requires HW_SAML_PROVIDER_URN to be set (the URN of the SAML identity provider).")
 	}
 }
 
@@ -96,9 +99,9 @@ func TestAccV5SamlCredential_basic(t *testing.T) {
 func testAccV5SamlCredential_basic() string {
 	return fmt.Sprintf(`
 data "huaweicloud_identityv5_saml_credential" "test" {
-  saml_response       = "%s"
-  agency_urn          = "%s"
-  agency_session_name = "terraform-acc-test"
+  saml_assertion = "%s"
+  agency_urn     = "%s"
+  provider_urn   = "%s"
 }
-`, os.Getenv("HW_SAML_RESPONSE"), os.Getenv("HW_AGENCY_URN"))
+`, os.Getenv("HW_SAML_ASSERTION"), os.Getenv("HW_AGENCY_URN"), os.Getenv("HW_SAML_PROVIDER_URN"))
 }

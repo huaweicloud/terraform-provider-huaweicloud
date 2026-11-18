@@ -24,6 +24,8 @@ import (
 // @API IAM POST /v5/oidc-providers/{provider_id}/add-client-id
 // @API IAM POST /v5/oidc-providers/{provider_id}/remove-client-id
 // @API IAM PUT /v5/oidc-providers/{provider_id}/thumbprint
+// @API IAM POST /v5/{resource_type}/{resource_id}/tags/create
+// @API IAM DELETE /v5/{resource_type}/{resource_id}/tags/delete
 func ResourceV5OidcProvider() *schema.Resource {
 	return &schema.Resource{
 		CreateContext: resourceV5OidcProviderCreate,
@@ -34,6 +36,8 @@ func ResourceV5OidcProvider() *schema.Resource {
 		Importer: &schema.ResourceImporter{
 			StateContext: schema.ImportStatePassthroughContext,
 		},
+
+		CustomizeDiff: config.MergeDefaultTags(),
 
 		Schema: map[string]*schema.Schema{
 			"name": {
@@ -76,11 +80,7 @@ func ResourceV5OidcProvider() *schema.Resource {
 				Computed:    true,
 				Description: `The creation time of the OIDC identity provider.`,
 			},
-			"expires_at": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The expiration time of the OIDC identity provider.`,
-			},
+			"tags": common.TagsSchema(),
 		},
 	}
 }
@@ -128,6 +128,11 @@ func resourceV5OidcProviderCreate(ctx context.Context, d *schema.ResourceData, m
 	})
 	if err != nil {
 		return diag.Errorf("error waiting for the OIDC identity provider (%s) to be created: %s", providerId, err)
+	}
+
+	// create tags
+	if err := createTags(client, d.Get("tags").(map[string]interface{}), "oidc_provider", d.Id()); err != nil {
+		return diag.FromErr(err)
 	}
 
 	return resourceV5OidcProviderRead(ctx, d, meta)
@@ -252,7 +257,7 @@ func resourceV5OidcProviderRead(_ context.Context, d *schema.ResourceData, meta 
 		d.Set("client_ids", utils.PathSearch("client_ids", provider, make([]interface{}, 0)).([]interface{})),
 		d.Set("thumbprints", utils.PathSearch("thumbprints", provider, make([]interface{}, 0)).([]interface{})),
 		d.Set("created_at", utils.PathSearch("created_at", provider, nil)),
-		d.Set("expires_at", utils.PathSearch("expires_at", provider, nil)),
+		d.Set("tags", flattenTagsToMap(utils.PathSearch("tags", provider, make([]interface{}, 0)))),
 	)
 	if err = mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error setting fields for the OIDC identity provider (%s) resource: %s", providerId, err)
@@ -309,6 +314,27 @@ func resourceV5OidcProviderUpdate(ctx context.Context, d *schema.ResourceData, m
 		_, err := client.Request("PUT", thumbprintPath, &thumbprintOpt)
 		if err != nil {
 			return diag.Errorf("error updating the thumbprints of the OIDC identity provider (%s): %s", providerId, err)
+		}
+	}
+
+	// update tags
+	if d.HasChange("tags") {
+		oRaw, nRaw := d.GetChange("tags")
+		oMap := oRaw.(map[string]interface{})
+		nMap := nRaw.(map[string]interface{})
+
+		// remove old tags
+		if len(oMap) > 0 {
+			if err = deleteTags(client, oMap, "oidc_provider", d.Id()); err != nil {
+				return diag.FromErr(err)
+			}
+		}
+
+		// set new tags
+		if len(nMap) > 0 {
+			if err := createTags(client, nMap, "oidc_provider", d.Id()); err != nil {
+				return diag.FromErr(err)
+			}
 		}
 	}
 
