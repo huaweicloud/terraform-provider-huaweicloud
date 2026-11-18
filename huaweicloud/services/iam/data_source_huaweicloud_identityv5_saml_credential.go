@@ -21,12 +21,12 @@ func DataSourceV5SamlCredential() *schema.Resource {
 		ReadContext: dataSourceV5SamlCredentialRead,
 
 		Schema: map[string]*schema.Schema{
-			"saml_response": {
+			"saml_assertion": {
 				Type:      schema.TypeString,
 				Required:  true,
 				Sensitive: true,
-				Description: `Specifies the SAML authentication response (assertion) issued by the SAML identity provider, ` +
-					`which is a base64 encoded XML string.`,
+				Description: `Specifies the base64 encoded SAML authentication response (assertion) issued by the SAML identity provider. ` +
+					`The value contains 4 to 100,000 characters.`,
 			},
 			"agency_urn": {
 				Type:     schema.TypeString,
@@ -34,15 +34,9 @@ func DataSourceV5SamlCredential() *schema.Resource {
 				Description: `Specifies the uniform resource name of the trust agency to be assumed, in the format of ` +
 					`iam::{account_id}:agency:{agency_name}.`,
 			},
-			"agency_session_name": {
-				Type:     schema.TypeString,
-				Required: true,
-				Description: `Specifies the name of the agency session. The name contains 2 to 64 characters and can only contain letters, digits, ` +
-					`underscores (_) and hyphens (-).`,
-			},
 			"provider_urn": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Required: true,
 				Description: `Specifies the uniform resource name of the SAML identity provider, in the format of ` +
 					`iam::{account_id}:samlProvider:{provider_name}.`,
 			},
@@ -176,12 +170,9 @@ func dataSourceV5SamlCredentialRead(_ context.Context, d *schema.ResourceData, m
 
 func buildV5AgencyAssumeWithSamlBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
-		"saml_response":       d.Get("saml_response").(string),
-		"agency_urn":          d.Get("agency_urn").(string),
-		"agency_session_name": d.Get("agency_session_name").(string),
-	}
-	if providerUrn := d.Get("provider_urn").(string); providerUrn != "" {
-		bodyParams["provider_urn"] = providerUrn
+		"saml_assertion": d.Get("saml_assertion").(string),
+		"agency_urn":     d.Get("agency_urn").(string),
+		"provider_urn":   d.Get("provider_urn").(string),
 	}
 	if durationSeconds := d.Get("duration_seconds").(int); durationSeconds != 0 {
 		bodyParams["duration_seconds"] = durationSeconds
@@ -202,7 +193,7 @@ func setV5SamlCredentialSessionAttributes(d *schema.ResourceData, assumeBody int
 		d.Set("issuer", utils.PathSearch("issuer", assumeBody, nil)),
 		d.Set("audience", utils.PathSearch("audience", assumeBody, nil)),
 		d.Set("name_qualifier", utils.PathSearch("name_qualifier", assumeBody, nil)),
-		d.Set("idp_urn", utils.PathSearch("provider", assumeBody, nil)),
+		d.Set("idp_urn", d.Get("provider_urn").(string)),
 		d.Set("source_identity", utils.PathSearch("source_identity", assumeBody, nil)),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {

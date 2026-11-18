@@ -9,6 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -94,6 +95,7 @@ func DataSourceV5SamlProviders() *schema.Resource {
 							Computed:    true,
 							Description: `The assertion encryption mode of the SAML identity provider.`,
 						},
+						"tags": common.TagsComputedSchema(),
 					},
 				},
 				Description: `The list of SAML identity providers that matched the filter parameters.`,
@@ -161,6 +163,7 @@ func flattenV5SamlProviders(providers []interface{}) []interface{} {
 			"expires_at":                utils.PathSearch("expires_at", provider, nil),
 			"private_keys":              flattenV5SamlProviderPrivateKeys(utils.PathSearch("private_keys", provider, nil)),
 			"assertion_encryption_mode": utils.PathSearch("assertion_encryption_mode", provider, nil),
+			"tags":                      flattenTagsToMap(utils.PathSearch("tags", provider, make([]interface{}, 0))),
 		})
 	}
 	return result

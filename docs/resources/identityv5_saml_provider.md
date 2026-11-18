@@ -47,10 +47,14 @@ The following arguments are supported:
   **Required** (only accepts encrypted SAML assertions).
 
 * `add_private_key` - (Optional, String, Sensitive) Specifies the PEM format RSA private key used to decrypt SAML assertions.
-  The length ranges from 1 to 16,384 characters.
+  The length ranges from 1 to 16,384 characters. This parameter is only used for write operations and is not stored
+  in the state file.
 
 * `remove_private_key` - (Optional, String) Specifies the ID of the private key to be removed from the SAML identity provider.
-  The value contains 22 to 64 characters and can only contain uppercase letters and digits.
+  The value contains 22 to 64 characters and can only contain uppercase letters and digits. This parameter is only used
+  for write operations and is not stored in the state file.
+
+* `tags` - (Optional, Map) Specifies the key/value pairs to associate with the SAML identity provider.
 
 ## Attribute Reference
 

@@ -67,6 +67,8 @@ The `providers` block supports:
 
 * `assertion_encryption_mode` - The assertion encryption mode of the SAML identity provider.
 
+* `tags` - The key/value pairs to associate with the SAML identity provider.
+
 <a name="private_keys_struct"></a>
 The `private_keys` block supports:
 
