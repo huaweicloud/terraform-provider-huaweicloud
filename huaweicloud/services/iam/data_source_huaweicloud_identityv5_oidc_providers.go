@@ -103,13 +103,28 @@ func dataSourceV5OidcProvidersRead(_ context.Context, d *schema.ResourceData, me
 		}
 		providers = []interface{}{provider}
 	} else {
-		providers, err = listV5OidcProviders(client)
+		allProviders, err := listV5OidcProviders(client)
 		if err != nil {
 			return diag.Errorf("error querying OIDC identity providers: %s", err)
 		}
 
 		if name, ok := d.GetOk("name"); ok {
-			providers = utils.PathSearch(fmt.Sprintf("[?name=='%s']", name.(string)), providers, make([]interface{}, 0)).([]interface{})
+			matched := utils.PathSearch(fmt.Sprintf("[?name=='%s']", name.(string)), allProviders, make([]interface{}, 0)).([]interface{})
+			// The list API does not return tags. Query each matched provider by ID to get full details including tags.
+			providers = make([]interface{}, 0, len(matched))
+			for _, p := range matched {
+				pid := utils.PathSearch("provider_id", p, "").(string)
+				if pid == "" {
+					continue
+				}
+				full, err := GetV5OidcProviderById(client, pid)
+				if err != nil {
+					return diag.Errorf("error querying OIDC identity provider (ID: %s): %s", pid, err)
+				}
+				providers = append(providers, full)
+			}
+		} else {
+			providers = allProviders
 		}
 	}
 
