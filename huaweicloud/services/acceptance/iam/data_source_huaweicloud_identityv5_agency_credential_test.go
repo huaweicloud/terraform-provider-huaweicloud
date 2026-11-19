@@ -51,11 +51,11 @@ func TestAccV5OidcCredential_basic(t *testing.T) {
 			{
 				Config: testAccV5OidcCredential_basic(),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet(rName, "access_key_id"),
-					resource.TestCheckResourceAttrSet(rName, "secret_access_key"),
-					resource.TestCheckResourceAttrSet(rName, "security_token"),
-					resource.TestCheckResourceAttrSet(rName, "expiration"),
-					resource.TestCheckResourceAttrSet(rName, "assumed_agency_urn"),
+					resource.TestCheckResourceAttrSet(rName, "credentials.0.access_key_id"),
+					resource.TestCheckResourceAttrSet(rName, "credentials.0.secret_access_key"),
+					resource.TestCheckResourceAttrSet(rName, "credentials.0.security_token"),
+					resource.TestCheckResourceAttrSet(rName, "credentials.0.expiration"),
+					resource.TestCheckResourceAttrSet(rName, "assumed_agency.0.urn"),
 				),
 			},
 		},
@@ -84,11 +84,11 @@ func TestAccV5SamlCredential_basic(t *testing.T) {
 			{
 				Config: testAccV5SamlCredential_basic(),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttrSet(rName, "access_key_id"),
-					resource.TestCheckResourceAttrSet(rName, "secret_access_key"),
-					resource.TestCheckResourceAttrSet(rName, "security_token"),
-					resource.TestCheckResourceAttrSet(rName, "expiration"),
-					resource.TestCheckResourceAttrSet(rName, "assumed_agency_urn"),
+					resource.TestCheckResourceAttrSet(rName, "credentials.0.access_key_id"),
+					resource.TestCheckResourceAttrSet(rName, "credentials.0.secret_access_key"),
+					resource.TestCheckResourceAttrSet(rName, "credentials.0.security_token"),
+					resource.TestCheckResourceAttrSet(rName, "credentials.0.expiration"),
+					resource.TestCheckResourceAttrSet(rName, "assumed_agency.0.urn"),
 					resource.TestCheckResourceAttrSet(rName, "subject"),
 				),
 			},
