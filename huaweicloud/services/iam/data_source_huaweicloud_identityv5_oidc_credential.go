@@ -65,38 +65,56 @@ func DataSourceV5OidcCredential() *schema.Resource {
 			},
 
 			// Computed attributes.
-			"access_key_id": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Sensitive:   true,
-				Description: `The access key (AK) of the temporary security credentials.`,
+			"assumed_agency": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"urn": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The uniform resource name of the assumed agency session.`,
+						},
+						"id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The ID of the assumed agency session.`,
+						},
+					},
+				},
+				Description: `The information about the assumed agency session.`,
 			},
-			"secret_access_key": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Sensitive:   true,
-				Description: `The secret access key (SK) of the temporary security credentials.`,
-			},
-			"security_token": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Sensitive:   true,
-				Description: `The security token of the temporary security credentials, which is used as the request header x-security-token.`,
-			},
-			"expiration": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The expiration time (UTC) of the temporary security credentials.`,
-			},
-			"assumed_agency_urn": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The uniform resource name of the assumed agency session.`,
-			},
-			"assumed_agency_id": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The ID of the assumed agency session.`,
+			"credentials": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"access_key_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Sensitive:   true,
+							Description: `The access key (AK) of the temporary security credentials.`,
+						},
+						"secret_access_key": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Sensitive:   true,
+							Description: `The secret access key (SK) of the temporary security credentials.`,
+						},
+						"security_token": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Sensitive:   true,
+							Description: `The security token of the temporary security credentials, which is used as the request header x-security-token.`,
+						},
+						"expiration": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The expiration time (UTC) of the temporary security credentials.`,
+						},
+					},
+				},
+				Description: `The temporary security credentials.`,
 			},
 			"subject_from_id_token": {
 				Type:        schema.TypeString,
@@ -166,9 +184,13 @@ func dataSourceV5OidcCredentialRead(_ context.Context, d *schema.ResourceData, m
 }
 
 // setV5AgencyCredentialAttributes is shared between the OIDC and SAML assume
-// flows. The credentials are read directly from the top-level response payload
-// using utils.PathSearch, which matches the format used across other IAM v5
-// data sources (see data_source_huaweicloud_identityv5_authorization_schema.go).
+// flows and writes the API response (assumed_agency / credentials blocks and
+// the top-level session fields) into the data source. The response layout
+// follows the STS v5 AssumeAgencyWithSAML / AssumeAgencyWithOIDC reference:
+//   - assumed_agency: { urn, id }
+//   - credentials:    { access_key_id, secret_access_key, security_token, expiration }
+//   - top-level:      audience, provider (idp_urn), source_identity (OIDC),
+//     subject / subject_type / issuer / name_qualifier (SAML), subject_from_id_token (OIDC)
 
 func buildV5AgencyAssumeWithOidcBodyParams(d *schema.ResourceData) map[string]interface{} {
 	bodyParams := map[string]interface{}{
@@ -192,39 +214,29 @@ func buildV5AgencyAssumeWithOidcBodyParams(d *schema.ResourceData) map[string]in
 }
 
 func setV5AgencyCredentialAttributes(d *schema.ResourceData, assumeBody interface{}) diag.Diagnostics {
-	// AssumeWithOidc / AssumeWithSaml responses return the credentials fields
-	// at the top level of the payload ("credentials" block). The legacy STS v3
-	// style field aliases (access/secret/securitytoken/expires_at) are also
-	// kept for backward compatibility with accounts that still return those
-	// fields.
-	accessKeyID := firstNonEmptyString(
-		utils.PathSearch("credentials.access_key_id", assumeBody, nil),
-		utils.PathSearch("credentials.access", assumeBody, nil),
-	)
-	secretAccessKey := firstNonEmptyString(
-		utils.PathSearch("credentials.secret_access_key", assumeBody, nil),
-		utils.PathSearch("credentials.secret", assumeBody, nil),
-	)
-	securityToken := firstNonEmptyString(
-		utils.PathSearch("credentials.security_token", assumeBody, nil),
-		utils.PathSearch("credentials.securitytoken", assumeBody, nil),
-	)
-	expiration := firstNonEmptyString(
-		utils.PathSearch("credentials.expiration", assumeBody, nil),
-		utils.PathSearch("credentials.expires_at", assumeBody, nil),
-	)
-
+	accessKeyID := utils.PathSearch("credentials.access_key_id", assumeBody, nil).(string)
 	if accessKeyID == "" {
 		return diag.Errorf("unable to find the access key from the agency credential response")
 	}
 
+	assumedAgency := []interface{}{
+		map[string]interface{}{
+			"urn": utils.PathSearch("assumed_agency.urn", assumeBody, nil),
+			"id":  utils.PathSearch("assumed_agency.id", assumeBody, nil),
+		},
+	}
+	credentials := []interface{}{
+		map[string]interface{}{
+			"access_key_id":     accessKeyID,
+			"secret_access_key": utils.PathSearch("credentials.secret_access_key", assumeBody, nil),
+			"security_token":    utils.PathSearch("credentials.security_token", assumeBody, nil),
+			"expiration":        utils.PathSearch("credentials.expiration", assumeBody, nil),
+		},
+	}
+
 	mErr := multierror.Append(
-		d.Set("access_key_id", accessKeyID),
-		d.Set("secret_access_key", secretAccessKey),
-		d.Set("security_token", securityToken),
-		d.Set("expiration", expiration),
-		d.Set("assumed_agency_urn", utils.PathSearch("assumed_agency.urn", assumeBody, nil)),
-		d.Set("assumed_agency_id", utils.PathSearch("assumed_agency.id", assumeBody, nil)),
+		d.Set("assumed_agency", assumedAgency),
+		d.Set("credentials", credentials),
 		d.Set("audience", utils.PathSearch("audience", assumeBody, nil)),
 		d.Set("idp_urn", utils.PathSearch("provider", assumeBody, nil)),
 		d.Set("source_identity", utils.PathSearch("source_identity", assumeBody, nil)),
@@ -234,16 +246,4 @@ func setV5AgencyCredentialAttributes(d *schema.ResourceData, assumeBody interfac
 	}
 
 	return nil
-}
-
-// firstNonEmptyString returns the first value that is a non-empty string.
-// It is used to read STS v5 style credentials with a fallback to the legacy
-// v3 style field aliases returned by some IAM endpoints.
-func firstNonEmptyString(values ...interface{}) string {
-	for _, v := range values {
-		if s, ok := v.(string); ok && s != "" {
-			return s
-		}
-	}
-	return ""
 }

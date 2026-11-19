@@ -60,38 +60,56 @@ func DataSourceV5SamlCredential() *schema.Resource {
 			},
 
 			// Computed attributes.
-			"access_key_id": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Sensitive:   true,
-				Description: `The access key (AK) of the temporary security credentials.`,
+			"assumed_agency": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"urn": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The uniform resource name of the assumed agency session.`,
+						},
+						"id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The ID of the assumed agency session.`,
+						},
+					},
+				},
+				Description: `The information about the assumed agency session.`,
 			},
-			"secret_access_key": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Sensitive:   true,
-				Description: `The secret access key (SK) of the temporary security credentials.`,
-			},
-			"security_token": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Sensitive:   true,
-				Description: `The security token of the temporary security credentials, which is used as the request header x-security-token.`,
-			},
-			"expiration": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The expiration time (UTC) of the temporary security credentials.`,
-			},
-			"assumed_agency_urn": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The uniform resource name of the assumed agency session.`,
-			},
-			"assumed_agency_id": {
-				Type:        schema.TypeString,
-				Computed:    true,
-				Description: `The ID of the assumed agency session.`,
+			"credentials": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"access_key_id": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Sensitive:   true,
+							Description: `The access key (AK) of the temporary security credentials.`,
+						},
+						"secret_access_key": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Sensitive:   true,
+							Description: `The secret access key (SK) of the temporary security credentials.`,
+						},
+						"security_token": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Sensitive:   true,
+							Description: `The security token of the temporary security credentials, which is used as the request header x-security-token.`,
+						},
+						"expiration": {
+							Type:        schema.TypeString,
+							Computed:    true,
+							Description: `The expiration time (UTC) of the temporary security credentials.`,
+						},
+					},
+				},
+				Description: `The temporary security credentials.`,
 			},
 			"subject": {
 				Type:        schema.TypeString,

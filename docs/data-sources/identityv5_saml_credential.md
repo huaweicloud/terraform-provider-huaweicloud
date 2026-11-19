@@ -16,8 +16,8 @@ Before using this data source, you need to:
 2. Create a trust agency whose trust principal is the SAML identity provider.
 
 -> The temporary security credentials are refreshed every time `terraform plan` or `terraform apply` runs, and they
-will expire according to the `expiration` attribute. Please use them in the scenarios where the credentials are
-consumed immediately.
+will expire according to the `credentials.0.expiration` attribute. Please use them in the scenarios where the
+credentials are consumed immediately.
 
 ## Example Usage
 
@@ -63,18 +63,11 @@ In addition to all arguments above, the following attributes are exported:
 
 * `id` - The data source ID.
 
-* `access_key_id` - The access key (AK) of the temporary security credentials.
+* `assumed_agency` - The information about the assumed agency session.
+  The [assumed_agency](#assumed_agency) structure is documented below.
 
-* `secret_access_key` - The secret access key (SK) of the temporary security credentials.
-
-* `security_token` - The security token of the temporary security credentials, which is used as the request header
-  `x-security-token`.
-
-* `expiration` - The expiration time (UTC) of the temporary security credentials.
-
-* `assumed_agency_urn` - The uniform resource name of the assumed agency session.
-
-* `assumed_agency_id` - The ID of the assumed agency session.
+* `credentials` - The temporary security credentials.
+  The [credentials](#credentials) structure is documented below.
 
 * `subject` - The value of the NameID element of the Subject element in the SAML assertion.
 
@@ -89,3 +82,22 @@ In addition to all arguments above, the following attributes are exported:
 * `idp_urn` - The uniform resource name of the SAML identity provider.
 
 * `source_identity` - The identity declared by the SourceIdentity attribute in the SAML assertion.
+
+<a name="assumed_agency"></a>
+The `assumed_agency` block supports:
+
+* `urn` - The uniform resource name of the assumed agency session.
+
+* `id` - The ID of the assumed agency session.
+
+<a name="credentials"></a>
+The `credentials` block supports:
+
+* `access_key_id` - The access key (AK) of the temporary security credentials.
+
+* `secret_access_key` - The secret access key (SK) of the temporary security credentials.
+
+* `security_token` - The security token of the temporary security credentials, which is used as the request header
+  `x-security-token`.
+
+* `expiration` - The expiration time (UTC) of the temporary security credentials.
