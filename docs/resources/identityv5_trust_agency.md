@@ -124,7 +124,7 @@ The following arguments are supported:
   The principal of the trust policy can be a HUAWEI CLOUD service (use `Principal.Service`) or a federated identity
   provider (use `Principal.IdP`, with `urn`).
 
-* `policy_names` - (Required, List) Specifies a string list of one or more policy names that you would like to attach to
+* `policy_names` - (Optional, List) Specifies a string list of one or more policy names that you would like to attach to
   the trust agency.
 
 * `path` - (Optional, String, ForceNew) Specifies the resource path. It is made of several strings, each containing one
@@ -132,8 +132,8 @@ The following arguments are supported:
   and must be ended with slash (/). Such as **foo/bar/**. It's a part of the uniform resource name. Default is empty.
   Changing this will create a new trust agency.
 
-* `duration` - (Optional, Int) Specifies the validity period of a trust agency.
-  Default value is `3,600`. The unit is seconds.
+* `max_session_duration` - (Optional, Int) Specifies the maximum session duration of the trust agency, in seconds.
+  The value ranges from `3,600` to `43,200`. Default value is `3,600`.
 
 * `description` - (Optional, String) Specifies the description of the trust agency.
 

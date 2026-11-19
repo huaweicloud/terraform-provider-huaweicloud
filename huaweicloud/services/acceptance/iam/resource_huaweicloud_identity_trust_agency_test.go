@@ -63,7 +63,7 @@ func TestAccV3TrustAgency_basic(t *testing.T) {
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "name", rName),
 					resource.TestCheckResourceAttr(resourceName, "policy_names.#", "1"),
-					resource.TestCheckResourceAttr(resourceName, "duration", "3600"),
+					resource.TestCheckResourceAttr(resourceName, "max_session_duration", "3600"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo", "bar"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key", "value"),
 					resource.TestCheckResourceAttr(resourceName, "description", "Created by terraform script"),
@@ -77,7 +77,7 @@ func TestAccV3TrustAgency_basic(t *testing.T) {
 				Check: resource.ComposeTestCheckFunc(
 					rc.CheckResourceExists(),
 					resource.TestCheckResourceAttr(resourceName, "policy_names.#", "2"),
-					resource.TestCheckResourceAttr(resourceName, "duration", "7200"),
+					resource.TestCheckResourceAttr(resourceName, "max_session_duration", "7200"),
 					resource.TestCheckResourceAttr(resourceName, "tags.foo1", "bar1"),
 					resource.TestCheckResourceAttr(resourceName, "tags.key1", "value1"),
 					resource.TestCheckResourceAttr(resourceName, "description", "Updated by terraform script"),
@@ -177,7 +177,7 @@ func testAccV3TrustAgency_basic_step2(rName string) string {
 resource "huaweicloud_identity_trust_agency" "test" {
   name         = "%s"
   policy_names = ["NATReadOnlyPolicy", "RDSReadOnlyPolicy"]
-  duration     = 7200
+  max_session_duration = 7200
   description  = "Updated by terraform script"
   trust_policy = jsonencode(
     {
@@ -214,7 +214,7 @@ func testAccV3TrustAgency_basic_step3(rName string) string {
 resource "huaweicloud_identity_trust_agency" "test" {
   name         = "%s"
   policy_names = ["NATReadOnlyPolicy", "RDSReadOnlyPolicy"]
-  duration     = 7200
+  max_session_duration = 7200
   description  = "Updated by terraform script"
   trust_policy = jsonencode(
     {

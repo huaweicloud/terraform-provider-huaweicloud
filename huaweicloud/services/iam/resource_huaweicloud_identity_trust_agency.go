@@ -64,7 +64,7 @@ func ResourceV3TrustAgency() *schema.Resource {
 			},
 			"policy_names": {
 				Type:     schema.TypeSet,
-				Required: true,
+				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Description: `The string list of one or more policy names that you would like to attach to
 the trust agency.`,
@@ -75,11 +75,11 @@ the trust agency.`,
 				ForceNew:    true,
 				Description: `The resource path.`,
 			},
-			"duration": {
+			"max_session_duration": {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				Computed:    true,
-				Description: `The validity period of a trust agency.`,
+				Description: `The maximum session duration of the trust agency, in seconds. The value ranges from 3,600 to 43,200.`,
 			},
 			"tags": common.TagsSchema(),
 			"description": {
@@ -156,7 +156,7 @@ func buildCreateTrustAgencyBodyParams(d *schema.ResourceData) map[string]interfa
 		"agency_name":          d.Get("name"),
 		"trust_policy":         d.Get("trust_policy").(string),
 		"path":                 utils.ValueIgnoreEmpty(d.Get("path")),
-		"max_session_duration": utils.ValueIgnoreEmpty(d.Get("duration")),
+		"max_session_duration": utils.ValueIgnoreEmpty(d.Get("max_session_duration")),
 		"description":          utils.ValueIgnoreEmpty(d.Get("description")),
 	}
 	return bodyParams
@@ -220,7 +220,7 @@ func resourceV3TrustAgencyRead(_ context.Context, d *schema.ResourceData, meta i
 	mErr := multierror.Append(nil,
 		d.Set("name", utils.PathSearch("agency_name", agency, nil)),
 		d.Set("path", utils.PathSearch("path", agency, nil)),
-		d.Set("duration", utils.PathSearch("max_session_duration", agency, nil)),
+		d.Set("max_session_duration", utils.PathSearch("max_session_duration", agency, nil)),
 		d.Set("description", utils.PathSearch("description", agency, nil)),
 		d.Set("tags", flattenTagsToMap(utils.PathSearch("tags", agency, make([]interface{}, 0)))),
 		d.Set("urn", utils.PathSearch("urn", agency, nil)),
@@ -244,14 +244,14 @@ func resourceV3TrustAgencyUpdate(ctx context.Context, d *schema.ResourceData, me
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
-	if d.HasChanges("duration", "description") {
+	if d.HasChanges("max_session_duration", "description") {
 		updateAgencyHttpUrl := "v5/agencies/{agency_id}"
 		updateAgencyPath := client.Endpoint + updateAgencyHttpUrl
 		updateAgencyPath = strings.ReplaceAll(updateAgencyPath, "{agency_id}", d.Id())
 		updateAgencyOpt := golangsdk.RequestOpts{
 			KeepResponseBody: true,
 			JSONBody: map[string]interface{}{
-				"max_session_duration": d.Get("duration"),
+				"max_session_duration": d.Get("max_session_duration"),
 				"description":          d.Get("description"),
 			},
 		}

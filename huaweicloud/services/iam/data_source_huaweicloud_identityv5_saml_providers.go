@@ -111,38 +111,63 @@ func dataSourceV5SamlProvidersRead(_ context.Context, d *schema.ResourceData, me
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
-	var providers []interface{}
-
 	if providerId, ok := d.GetOk("provider_id"); ok {
 		provider, err := GetV5SamlProviderById(client, providerId.(string))
 		if err != nil {
 			return diag.Errorf("error querying SAML identity provider (ID: %s): %s", providerId, err)
 		}
-		providers = []interface{}{provider}
-	} else {
-		allProviders, err := listV5SamlProviders(client)
+
+		randomId, err := uuid.GenerateUUID()
 		if err != nil {
-			return diag.Errorf("error querying SAML identity providers: %s", err)
+			return diag.Errorf("unable to generate ID: %s", err)
+		}
+		d.SetId(randomId)
+
+		mErr := multierror.Append(
+			d.Set("providers", flattenV5SamlProviders([]interface{}{provider}, true)),
+		)
+		if err := mErr.ErrorOrNil(); err != nil {
+			return diag.Errorf("error setting SAML identity providers fields: %s", err)
 		}
 
-		if name, ok := d.GetOk("name"); ok {
-			matched := utils.PathSearch(fmt.Sprintf("[?name=='%s']", name.(string)), allProviders, make([]interface{}, 0)).([]interface{})
-			// The list API does not return tags. Query each matched provider by ID to get full details including tags.
-			providers = make([]interface{}, 0, len(matched))
-			for _, p := range matched {
-				pid := utils.PathSearch("provider_id", p, "").(string)
-				if pid == "" {
-					continue
-				}
-				full, err := GetV5SamlProviderById(client, pid)
-				if err != nil {
-					return diag.Errorf("error querying SAML identity provider (ID: %s): %s", pid, err)
-				}
-				providers = append(providers, full)
+		return nil
+	}
+
+	providers, err := listV5SamlProviders(client)
+	if err != nil {
+		return diag.Errorf("error querying SAML identity providers: %s", err)
+	}
+
+	if name, ok := d.GetOk("name"); ok {
+		matched := utils.PathSearch(fmt.Sprintf("[?name=='%s']", name.(string)), providers, make([]interface{}, 0)).([]interface{})
+		// The list API does not return tags. Query each matched provider by ID to get full details including tags.
+		providers = make([]interface{}, 0, len(matched))
+		for _, p := range matched {
+			pid := utils.PathSearch("provider_id", p, "").(string)
+			if pid == "" {
+				continue
 			}
-		} else {
-			providers = allProviders
+			full, err := GetV5SamlProviderById(client, pid)
+			if err != nil {
+				return diag.Errorf("error querying SAML identity provider (ID: %s): %s", pid, err)
+			}
+			providers = append(providers, full)
 		}
+
+		randomId, err := uuid.GenerateUUID()
+		if err != nil {
+			return diag.Errorf("unable to generate ID: %s", err)
+		}
+		d.SetId(randomId)
+
+		mErr := multierror.Append(
+			d.Set("providers", flattenV5SamlProviders(providers, true)),
+		)
+		if err := mErr.ErrorOrNil(); err != nil {
+			return diag.Errorf("error setting SAML identity providers fields: %s", err)
+		}
+
+		return nil
 	}
 
 	randomId, err := uuid.GenerateUUID()
@@ -152,7 +177,7 @@ func dataSourceV5SamlProvidersRead(_ context.Context, d *schema.ResourceData, me
 	d.SetId(randomId)
 
 	mErr := multierror.Append(
-		d.Set("providers", flattenV5SamlProviders(providers)),
+		d.Set("providers", flattenV5SamlProviders(providers, false)),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error setting SAML identity providers fields: %s", err)
@@ -161,14 +186,14 @@ func dataSourceV5SamlProvidersRead(_ context.Context, d *schema.ResourceData, me
 	return nil
 }
 
-func flattenV5SamlProviders(providers []interface{}) []interface{} {
+func flattenV5SamlProviders(providers []interface{}, includeTags bool) []interface{} {
 	if len(providers) == 0 {
 		return nil
 	}
 
 	result := make([]interface{}, 0, len(providers))
 	for _, provider := range providers {
-		result = append(result, map[string]interface{}{
+		p := map[string]interface{}{
 			"provider_id":               utils.PathSearch("provider_id", provider, nil),
 			"name":                      utils.PathSearch("name", provider, nil),
 			"description":               utils.PathSearch("description", provider, nil),
@@ -178,8 +203,13 @@ func flattenV5SamlProviders(providers []interface{}) []interface{} {
 			"expires_at":                utils.PathSearch("expires_at", provider, nil),
 			"private_keys":              flattenV5SamlProviderPrivateKeys(utils.PathSearch("private_keys", provider, nil)),
 			"assertion_encryption_mode": utils.PathSearch("assertion_encryption_mode", provider, nil),
-			"tags":                      flattenTagsToMap(utils.PathSearch("tags", provider, make([]interface{}, 0))),
-		})
+		}
+
+		if includeTags {
+			p["tags"] = flattenTagsToMap(utils.PathSearch("tags", provider, make([]interface{}, 0)))
+		}
+
+		result = append(result, p)
 	}
 	return result
 }

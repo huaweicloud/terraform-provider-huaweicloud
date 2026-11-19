@@ -63,3 +63,5 @@ The `providers` block supports:
 * `created_at` - The creation time of the OIDC identity provider.
 
 * `tags` - The key/value pairs to associate with the OIDC identity provider.
+  This field is only available when the `provider_id` or `name` parameter is set; it is not returned when listing all
+OIDC identity providers.
