@@ -94,38 +94,29 @@ func dataSourceV5OidcProvidersRead(_ context.Context, d *schema.ResourceData, me
 		return diag.Errorf("error creating IAM client: %s", err)
 	}
 
+	var providers []interface{}
+
 	if providerId, ok := d.GetOk("provider_id"); ok {
+		// provider_id filter: query a single provider by ID.
 		provider, err := GetV5OidcProviderById(client, providerId.(string))
 		if err != nil {
 			return diag.Errorf("error querying OIDC identity provider (ID: %s): %s", providerId, err)
 		}
-
-		randomId, err := uuid.GenerateUUID()
+		providers = []interface{}{provider}
+	} else {
+		// The list API does not return tags, so always resolve each provider through the detail API to
+		// fetch full information including tags, regardless of whether a name filter is applied.
+		list, err := listV5OidcProviders(client)
 		if err != nil {
-			return diag.Errorf("unable to generate ID: %s", err)
-		}
-		d.SetId(randomId)
-
-		mErr := multierror.Append(
-			d.Set("providers", flattenV5OidcProviders([]interface{}{provider}, true)),
-		)
-		if err := mErr.ErrorOrNil(); err != nil {
-			return diag.Errorf("error setting OIDC identity providers fields: %s", err)
+			return diag.Errorf("error querying OIDC identity providers: %s", err)
 		}
 
-		return nil
-	}
+		if name, ok := d.GetOk("name"); ok {
+			list = utils.PathSearch(fmt.Sprintf("[?name=='%s']", name.(string)), list, make([]interface{}, 0)).([]interface{})
+		}
 
-	providers, err := listV5OidcProviders(client)
-	if err != nil {
-		return diag.Errorf("error querying OIDC identity providers: %s", err)
-	}
-
-	if name, ok := d.GetOk("name"); ok {
-		matched := utils.PathSearch(fmt.Sprintf("[?name=='%s']", name.(string)), providers, make([]interface{}, 0)).([]interface{})
-		// The list API does not return tags. Query each matched provider by ID to get full details including tags.
-		providers = make([]interface{}, 0, len(matched))
-		for _, p := range matched {
+		providers = make([]interface{}, 0, len(list))
+		for _, p := range list {
 			pid := utils.PathSearch("provider_id", p, "").(string)
 			if pid == "" {
 				continue
@@ -136,21 +127,6 @@ func dataSourceV5OidcProvidersRead(_ context.Context, d *schema.ResourceData, me
 			}
 			providers = append(providers, full)
 		}
-
-		randomId, err := uuid.GenerateUUID()
-		if err != nil {
-			return diag.Errorf("unable to generate ID: %s", err)
-		}
-		d.SetId(randomId)
-
-		mErr := multierror.Append(
-			d.Set("providers", flattenV5OidcProviders(providers, true)),
-		)
-		if err := mErr.ErrorOrNil(); err != nil {
-			return diag.Errorf("error setting OIDC identity providers fields: %s", err)
-		}
-
-		return nil
 	}
 
 	randomId, err := uuid.GenerateUUID()
@@ -160,7 +136,7 @@ func dataSourceV5OidcProvidersRead(_ context.Context, d *schema.ResourceData, me
 	d.SetId(randomId)
 
 	mErr := multierror.Append(
-		d.Set("providers", flattenV5OidcProviders(providers, false)),
+		d.Set("providers", flattenV5OidcProviders(providers)),
 	)
 	if err := mErr.ErrorOrNil(); err != nil {
 		return diag.Errorf("error setting OIDC identity providers fields: %s", err)
@@ -169,14 +145,14 @@ func dataSourceV5OidcProvidersRead(_ context.Context, d *schema.ResourceData, me
 	return nil
 }
 
-func flattenV5OidcProviders(providers []interface{}, includeTags bool) []interface{} {
+func flattenV5OidcProviders(providers []interface{}) []interface{} {
 	if len(providers) == 0 {
 		return nil
 	}
 
 	result := make([]interface{}, 0, len(providers))
 	for _, provider := range providers {
-		p := map[string]interface{}{
+		result = append(result, map[string]interface{}{
 			"provider_id": utils.PathSearch("provider_id", provider, nil),
 			"name":        utils.PathSearch("name", provider, nil),
 			"description": utils.PathSearch("description", provider, nil),
@@ -185,13 +161,8 @@ func flattenV5OidcProviders(providers []interface{}, includeTags bool) []interfa
 			"client_ids":  utils.PathSearch("client_ids", provider, make([]interface{}, 0)),
 			"thumbprints": utils.PathSearch("thumbprints", provider, make([]interface{}, 0)),
 			"created_at":  utils.PathSearch("created_at", provider, nil),
-		}
-
-		if includeTags {
-			p["tags"] = flattenTagsToMap(utils.PathSearch("tags", provider, make([]interface{}, 0)))
-		}
-
-		result = append(result, p)
+			"tags":        flattenTagsToMap(utils.PathSearch("tags", provider, make([]interface{}, 0))),
+		})
 	}
 	return result
 }
