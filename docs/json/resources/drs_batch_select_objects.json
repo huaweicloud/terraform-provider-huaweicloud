@@ -81,6 +81,13 @@
                         }
                       },
                       "nesting_mode": "list"
+                    },
+                    "target_root_db": {
+                      "block": {
+                        "description": "schema: Internal"
+                      },
+                      "nesting_mode": "list",
+                      "max_items": 1
                     }
                   }
                 },

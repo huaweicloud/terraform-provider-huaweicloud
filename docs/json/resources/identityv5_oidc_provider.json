@@ -1,0 +1,70 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_identityv5_oidc_provider": {
+          "block": {
+            "attributes": {
+              "client_ids": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "Specifies the list of client IDs registered in the OIDC identity provider. A maximum of 100 client IDs can be configured, and each client ID contains 1 to 255 characters.",
+                "required": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the OIDC identity provider.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description of the OIDC identity provider. The description contains a maximum of 255 characters and cannot contain the following characters: @, #, %, &, <, >, \", $, ^ and *.",
+                "optional": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the OIDC identity provider. The name contains 1 to 64 characters and can only contain letters, digits, underscores (_) and hyphens (-).",
+                "required": true,
+                "forcenew": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "thumbprints": {
+                "type": [
+                  "set",
+                  "string"
+                ],
+                "description": "Specifies the list of server certificate fingerprints of the OIDC identity provider. If this parameter is not specified, IAM automatically obtains the CA certificate fingerprint of the JWKS endpoint.",
+                "optional": true,
+                "computed": true
+              },
+              "url": {
+                "type": "string",
+                "description": "Specifies the URL of the OIDC identity provider. The value corresponds to the issuer field in the OpenID Connect metadata document of the identity provider, and contains 1 to 255 characters.",
+                "required": true,
+                "forcenew": true
+              },
+              "urn": {
+                "type": "string",
+                "description": "The uniform resource name of the OIDC identity provider.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

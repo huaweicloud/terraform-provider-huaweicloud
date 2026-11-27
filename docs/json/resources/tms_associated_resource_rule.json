@@ -1,0 +1,57 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_tms_associated_resource_rule": {
+          "block": {
+            "attributes": {
+              "auto_delete_status": {
+                "type": "string",
+                "description": "Specifies whether to automatically delete tags when the association is removed.",
+                "optional": true,
+                "default": "disable"
+              },
+              "existing_resource_status": {
+                "type": "string",
+                "description": "Specifies whether the rule takes effect for existing resources.",
+                "optional": true,
+                "default": "disable"
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region_id": {
+                "type": "string",
+                "description": "Specifies the region ID where the rule takes effect.",
+                "required": true,
+                "forcenew": true
+              },
+              "setting_name": {
+                "type": "string",
+                "description": "Specifies the name of the rule setting.",
+                "required": true,
+                "forcenew": true
+              },
+              "tag_keys": {
+                "type": [
+                  "list",
+                  "string"
+                ],
+                "description": "Specifies the tag keys that the rule takes effect on. An empty list means the rule takes effect on all tags.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "TMS",
+            "name": "Tag Management Service",
+            "catalog": "Management & Governance",
+            "name_cn": "标签管理服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

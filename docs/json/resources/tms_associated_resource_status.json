@@ -1,0 +1,30 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_tms_associated_resource_status": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "status": {
+                "type": "string",
+                "description": "Specifies whether the associated resource tag inheritance is enabled.",
+                "required": true
+              }
+            }
+          },
+          "product": {
+            "short": "TMS",
+            "name": "Tag Management Service",
+            "catalog": "Management & Governance",
+            "name_cn": "标签管理服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}

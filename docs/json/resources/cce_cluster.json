@@ -111,6 +111,11 @@
                 "optional": true,
                 "computed": true
               },
+              "data_plane_v2": {
+                "type": "bool",
+                "optional": true,
+                "forcenew": true
+              },
               "delete_all": {
                 "type": "string",
                 "optional": true

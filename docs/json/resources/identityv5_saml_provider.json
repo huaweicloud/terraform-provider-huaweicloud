@@ -1,0 +1,93 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "resource_schemas": {
+        "huaweicloud_identityv5_saml_provider": {
+          "block": {
+            "attributes": {
+              "add_private_key": {
+                "type": "string",
+                "description": "Specifies the PEM format RSA private key used to decrypt SAML assertions. The length ranges from 1 to 16,384 characters.",
+                "optional": true,
+                "sensitive": true
+              },
+              "assertion_encryption_mode": {
+                "type": "string",
+                "description": "Specifies the assertion encryption mode of the SAML identity provider. The valid values are **Allowed** and **Required**. **Allowed** accepts encrypted or unencrypted SAML assertions. **Required** only accepts encrypted SAML assertions.",
+                "optional": true,
+                "computed": true
+              },
+              "created_at": {
+                "type": "string",
+                "description": "The creation time of the SAML identity provider.",
+                "computed": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Specifies the description of the SAML identity provider. The description contains a maximum of 255 characters and cannot contain the following characters: @, #, %, &, <, >, \", $, ^ and *.",
+                "optional": true
+              },
+              "expires_at": {
+                "type": "string",
+                "description": "The expiration time of the SAML identity provider.",
+                "computed": true
+              },
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the SAML identity provider. The name contains 1 to 64 characters and can only contain letters, digits, underscores (_) and hyphens (-).",
+                "required": true,
+                "forcenew": true
+              },
+              "private_keys": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "key_id": "string",
+                      "timestamp": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of private keys managed by the SAML identity provider.",
+                "computed": true
+              },
+              "provider_id": {
+                "type": "string",
+                "description": "The ID of the SAML identity provider.",
+                "computed": true
+              },
+              "remove_private_key": {
+                "type": "string",
+                "description": "Specifies the ID of the private key to be removed from the SAML identity provider. The value contains 22 to 64 characters and can only contain uppercase letters and digits.",
+                "optional": true
+              },
+              "saml_metadata_document": {
+                "type": "string",
+                "description": "Specifies the SAML metadata document obtained from the identity provider. The document is an XML string that contains the issuer name, the validity period and the signing certificate used to verify SAML assertions.",
+                "required": true
+              },
+              "tags": {
+                "type": [
+                  "map",
+                  "string"
+                ],
+                "optional": true,
+                "computed": true
+              },
+              "urn": {
+                "type": "string",
+                "description": "The uniform resource name of the SAML identity provider.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

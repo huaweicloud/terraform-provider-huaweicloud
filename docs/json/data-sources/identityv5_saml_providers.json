@@ -1,0 +1,62 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_identityv5_saml_providers": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "name": {
+                "type": "string",
+                "description": "Specifies the name of the SAML identity provider used for filtering.",
+                "optional": true
+              },
+              "provider_id": {
+                "type": "string",
+                "description": "Specifies the ID of the SAML identity provider used for filtering. If this parameter is set, only the provider with the matched ID is returned.",
+                "optional": true
+              },
+              "providers": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "assertion_encryption_mode": "string",
+                      "created_at": "string",
+                      "description": "string",
+                      "expires_at": "string",
+                      "name": "string",
+                      "private_keys": [
+                        "list",
+                        [
+                          "object",
+                          {
+                            "key_id": "string",
+                            "timestamp": "string"
+                          }
+                        ]
+                      ],
+                      "provider_id": "string",
+                      "saml_metadata_document": "string",
+                      "tags": [
+                        "map",
+                        "string"
+                      ],
+                      "urn": "string"
+                    }
+                  ]
+                ],
+                "description": "The list of SAML identity providers that matched the filter parameters.",
+                "computed": true
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

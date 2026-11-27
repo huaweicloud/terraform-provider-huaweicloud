@@ -1,0 +1,55 @@
+{
+  "provider_schemas": {
+    "huaweicloud/huaweicloud": {
+      "data_source_schemas": {
+        "huaweicloud_tms_associated_resource_rules": {
+          "block": {
+            "attributes": {
+              "id": {
+                "type": "string",
+                "computed": true
+              },
+              "region_id": {
+                "type": "string",
+                "description": "Specifies the region ID used to filter rules.",
+                "optional": true
+              },
+              "rules": {
+                "type": [
+                  "list",
+                  [
+                    "object",
+                    {
+                      "auto_delete_status": "string",
+                      "existing_resource_status": "string",
+                      "region_id": "string",
+                      "setting_name": "string",
+                      "tag_keys": [
+                        "list",
+                        "string"
+                      ]
+                    }
+                  ]
+                ],
+                "description": "The list of associated resource rules.",
+                "computed": true
+              },
+              "setting_name": {
+                "type": "string",
+                "description": "Specifies the name of the rule setting used to filter rules.",
+                "optional": true
+              }
+            }
+          },
+          "product": {
+            "short": "TMS",
+            "name": "Tag Management Service",
+            "catalog": "Management & Governance",
+            "name_cn": "标签管理服务",
+            "catalog_cn": "管理与监管"
+          }
+        }
+      }
+    }
+  }
+}
