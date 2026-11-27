@@ -76,9 +76,9 @@ func ResourceV5SamlProvider() *schema.Resource {
 				Description: `The expiration time of the SAML identity provider.`,
 			},
 			"assertion_encryption_mode": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:         schema.TypeString,
+				Optional:     true,
+				Computed:     true,
 				ValidateFunc: validation.StringInSlice([]string{"Allowed", "Required"}, false),
 				Description: `Specifies the assertion encryption mode of the SAML identity provider. ` +
 					`The valid values are **Allowed** and **Required**. ` +
@@ -86,15 +86,15 @@ func ResourceV5SamlProvider() *schema.Resource {
 					`**Required** only accepts encrypted SAML assertions.`,
 			},
 			"add_private_key": {
-				Type:        schema.TypeString,
-				Optional:    true,
-				Sensitive:   true,
+				Type:      schema.TypeString,
+				Optional:  true,
+				Sensitive: true,
 				Description: `Specifies the PEM format RSA private key used to decrypt SAML assertions. ` +
 					`The length ranges from 1 to 16,384 characters.`,
 			},
 			"remove_private_key": {
-				Type:        schema.TypeString,
-				Optional:    true,
+				Type:     schema.TypeString,
+				Optional: true,
 				Description: `Specifies the ID of the private key to be removed from the SAML identity provider. ` +
 					`The value contains 22 to 64 characters and can only contain uppercase letters and digits.`,
 			},
