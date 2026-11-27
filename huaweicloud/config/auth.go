@@ -698,3 +698,64 @@ func getSecurityTokenByIdp(c *Config, subjectToken string) error {
 
 	return nil
 }
+
+// getSecurityTokenByOIDCV5 exchanges the ID token for temporary credentials of the target agency directly.
+func getSecurityTokenByOIDCV5(c *Config) error {
+	assumeURL := GetServiceEndpoint(c, "sts", c.Region) + "v5/agencies/assume-with-oidc"
+
+	client := &http.Client{
+		Transport: &LogRoundTripper{
+			Rt:         &http.Transport{Proxy: http.ProxyFromEnvironment},
+			MaxRetries: c.MaxRetries,
+		},
+	}
+
+	reqBody := map[string]interface{}{
+		"provider_urn":        c.AssumeRoleProviderURN,
+		"agency_urn":          "iam::" + c.AssumeRoleDomainID + ":agency:" + c.AssumeRoleAgency,
+		"agency_session_name": c.AssumeRoleAgency,
+		"id_token":            c.AssumeRoleIdToken,
+	}
+	if c.AssumeRoleDuration != 0 {
+		reqBody["duration_seconds"] = c.AssumeRoleDuration
+	}
+	body, err := json.Marshal(reqBody)
+	if err != nil {
+		return fmt.Errorf("error marshal AssumeAgencyWithOIDC request body: %s", err)
+	}
+
+	req, err := http.NewRequest("POST", assumeURL, bytes.NewBuffer(body))
+	if err != nil {
+		return fmt.Errorf("error building AssumeAgencyWithOIDC request: %s", err)
+	}
+	req.Header.Set("Content-Type", "application/json;charset=UTF-8")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return fmt.Errorf("error requesting AssumeAgencyWithOIDC API: %s", err)
+	}
+	defer resp.Body.Close()
+
+	rawBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("error reading AssumeAgencyWithOIDC response: %s", err)
+	}
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("error requesting AssumeAgencyWithOIDC API: status code = %d, body = %s", resp.StatusCode, rawBody)
+	}
+
+	var parsedBody interface{}
+	if err := json.Unmarshal(rawBody, &parsedBody); err != nil {
+		return fmt.Errorf("error unmarshal AssumeAgencyWithOIDC response: %s", err)
+	}
+
+	accessKey := utils.PathSearch("credentials.access_key_id", parsedBody, "").(string)
+	secretKey := utils.PathSearch("credentials.secret_access_key", parsedBody, "").(string)
+	securityToken := utils.PathSearch("credentials.security_token", parsedBody, "").(string)
+	if accessKey == "" || secretKey == "" || securityToken == "" {
+		return errors.New("error fetching credentials from AssumeAgencyWithOIDC response")
+	}
+	c.AccessKey, c.SecretKey, c.SecurityToken = accessKey, secretKey, securityToken
+
+	return nil
+}
