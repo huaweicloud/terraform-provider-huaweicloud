@@ -1,5 +1,43 @@
 # CHANGELOG
 
+## 1.101.0 (Nov 27, 2026)
+
+ENHANCEMENTS:
+
+* feat(CCE): support the `data_plane_v2` parameter for the `huaweicloud_cce_cluster` resource
+
+  The new parameter expresses whether to enable the CCE data plane v2 while creating a cluster. It is only valid
+  for the **eni** and **vpc-router** network modes, and it requires a cluster version that supports the data plane
+  v2 (see the help center referenced by the resource documentation).
+
+  **Upgrade notice**: existing clusters are not affected as long as the parameter is not declared. Before using the
+  parameter, run `terraform plan` first and make sure that no replacement (destroy/create) of the cluster is
+  proposed: adding the parameter as `true` to an existing cluster, or declaring it as `true` after a
+  `terraform import`, replaces the whole cluster, because the attribute is never filled back from the server side.
+  Existing clusters that enable the data plane v2 through the `eni` package of `component_configurations` should
+  keep that path, which is a zero diff path, there is no migration to the new parameter. See the `data_plane_v2`
+  argument of the resource documentation for the accepted paths (`ignore_changes` or accepting the replacement).
+
+  **Rollback notice**: reverting this change only needs the provider files to be restored. The clusters created
+  with the parameter are not affected, because the data plane state is recorded on the server side, but the
+  `data_plane_v2` argument becomes unsupported after the rollback, so it must be removed from the configuration
+  at the same time.
+
+* **New Resource Source:**
+  + `huaweicloud_identityv5_oidc_provider`
+  + `huaweicloud_identityv5_saml_provider`
+  + `huaweicloud_tms_associated_resource_rule`
+  + `huaweicloud_tms_associated_resource_status`
+
+* **New Data Source:**
+  + `huaweicloud_identityv5_oidc_credential`
+  + `huaweicloud_identityv5_oidc_providers`
+  + `huaweicloud_identityv5_saml_credential`
+  + `huaweicloud_identityv5_saml_providers`
+  + `huaweicloud_tms_associated_resource_rules`
+  + `huaweicloud_tms_associated_resource_settings`
+  + `huaweicloud_tms_associated_resource_status`
+
 ## 1.100.0 (Oct 27, 2026)
 
 * **New Resource Source:**
