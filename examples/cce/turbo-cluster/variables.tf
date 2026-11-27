@@ -165,6 +165,12 @@ variable "container_network_type" {
   default     = "eni"
 }
 
+variable "data_plane_v2" {
+  description = "Whether to enable the data plane v2 of the CCE cluster. Only valid for the eni and vpc-router network modes, and requires a cluster version that supports it"
+  type        = bool
+  default     = false
+}
+
 variable "cluster_description" {
   description = "The description of the CCE cluster"
   type        = string

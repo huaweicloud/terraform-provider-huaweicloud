@@ -2,6 +2,7 @@ package cce
 
 import (
 	"fmt"
+	"regexp"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
@@ -197,6 +198,193 @@ func TestAccCluster_turbo(t *testing.T) {
 					testAccCheckClusterExists(resourceName, &cluster),
 					resource.TestCheckResourceAttr(resourceName, "container_network_type", "eni"),
 					resource.TestCheckOutput("is_eni_subnet_id_different", "false"),
+				),
+			},
+		},
+	})
+}
+
+// clusterDataPlaneV2Annotation is the cluster annotation that CCE writes only when the data plane v2 of the
+// cluster is enabled. The cluster GET response carries neither the configurationsOverride field nor a
+// first-class data plane v2 field, so this annotation is the only way to verify the effective state.
+const clusterDataPlaneV2Annotation = "cluster.install.addons/yangtse-cilium-install-success"
+
+func testAccCheckClusterDataPlaneV2Enabled(n string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("resource not found: %s", n)
+		}
+
+		cfg := acceptance.TestAccProvider.Meta().(*config.Config)
+		cceClient, err := cfg.CceV3Client(acceptance.HW_REGION_NAME)
+		if err != nil {
+			return fmt.Errorf("error creating CCE v3 client: %s", err)
+		}
+
+		found, err := clusters.Get(cceClient, rs.Primary.ID).Extract()
+		if err != nil {
+			return err
+		}
+		if _, ok := found.Metadata.Annotations[clusterDataPlaneV2Annotation]; !ok {
+			return fmt.Errorf("the cluster %s does not carry the data plane v2 annotation %q",
+				rs.Primary.ID, clusterDataPlaneV2Annotation)
+		}
+		return nil
+	}
+}
+
+// testAccCheckClusterRecordID stores the cluster ID of the current step, so that a later step can assert that the
+// cluster was destroyed and recreated instead of updated in place.
+func testAccCheckClusterRecordID(n string, id *string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("resource not found: %s", n)
+		}
+		*id = rs.Primary.ID
+		return nil
+	}
+}
+
+// testAccCheckClusterRecreated asserts that the cluster ID changed after an attribute that is ForceNew was
+// modified, which is the observable evidence of a replacement: the previous cluster is destroyed and a brand-new
+// one is created.
+//
+// This assertion is what makes the case sensitive to the replacement. A cluster updated in place keeps its ID, and
+// an attribute that loses ForceNew while the update function ignores it keeps it as well (no request is sent, the
+// new value still lands in the state), so an assertion on the attribute value alone cannot tell the difference.
+func testAccCheckClusterRecreated(n string, previousID *string) resource.TestCheckFunc {
+	return func(s *terraform.State) error {
+		rs, ok := s.RootModule().Resources[n]
+		if !ok {
+			return fmt.Errorf("resource not found: %s", n)
+		}
+		if *previousID == "" {
+			return fmt.Errorf("the previous cluster ID of %s was not recorded", n)
+		}
+		if rs.Primary.ID == *previousID {
+			return fmt.Errorf("the cluster %s was not replaced, its ID did not change after the data_plane_v2 "+
+				"switch", rs.Primary.ID)
+		}
+		return nil
+	}
+}
+
+func TestAccCluster_dataPlaneV2Turbo(t *testing.T) {
+	var cluster clusters.Clusters
+	var previousClusterID string
+
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_cce_cluster.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				// A-02: an eni cluster created through the first-class attribute runs the data plane v2.
+				// The cluster version must satisfy the server-side gate (>= 1.34.3-r10).
+				// Cost: this step creates a dedicated cluster, and the next step recreates it, so the whole test
+				// consumes two cluster creations.
+				Config: testAccCluster_dataPlaneV2Turbo(rName, true),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckClusterExists(resourceName, &cluster),
+					testAccCheckClusterRecordID(resourceName, &previousClusterID),
+					resource.TestCheckResourceAttr(resourceName, "container_network_type", "eni"),
+					resource.TestCheckResourceAttr(resourceName, "data_plane_v2", "true"),
+					testAccCheckClusterDataPlaneV2Enabled(resourceName),
+				),
+			},
+			{
+				// A-03: the attribute is ForceNew, switching it destroys and recreates the cluster instead of
+				// updating the data plane in place. The ID change is asserted first, so that a regression of the
+				// ForceNew behaviour fails here instead of being masked by the attribute value landing in the
+				// state anyway (the update function does not handle the attribute at all).
+				Config: testAccCluster_dataPlaneV2Turbo(rName, false),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckClusterRecreated(resourceName, &previousClusterID),
+					testAccCheckClusterExists(resourceName, &cluster),
+					resource.TestCheckResourceAttr(resourceName, "data_plane_v2", "false"),
+				),
+			},
+		},
+	})
+}
+
+func TestAccCluster_dataPlaneV2VpcRouter(t *testing.T) {
+	var cluster clusters.Clusters
+
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_cce_cluster.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				// A-01: a vpc-router cluster created through the first-class attribute runs the data plane v2.
+				// The cluster version must satisfy the commercial vpc-router gate.
+				// Cost: this step creates a dedicated cluster (one cluster creation).
+				Config: testAccCluster_dataPlaneV2VpcRouter(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckClusterExists(resourceName, &cluster),
+					resource.TestCheckResourceAttr(resourceName, "container_network_type", "vpc-router"),
+					resource.TestCheckResourceAttr(resourceName, "data_plane_v2", "true"),
+					testAccCheckClusterDataPlaneV2Enabled(resourceName),
+				),
+			},
+		},
+	})
+}
+
+func TestAccCluster_dataPlaneV2UnsupportedNetwork(t *testing.T) {
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				// A-05: the provider does not duplicate the server-side network mode check, the server error is
+				// surfaced as is.
+				Config:      testAccCluster_dataPlaneV2OverlayL2(rName),
+				ExpectError: regexp.MustCompile("does not support DataPlane V2"),
+			},
+		},
+	})
+}
+
+func TestAccCluster_componentConfigurationsCompat(t *testing.T) {
+	var cluster clusters.Clusters
+
+	rName := fmt.Sprintf("tf-acc-test-%s", acctest.RandString(5))
+	resourceName := "huaweicloud_cce_cluster.test"
+
+	resource.ParallelTest(t, resource.TestCase{
+		PreCheck:          func() { acceptance.TestAccPreCheck(t) },
+		ProviderFactories: acceptance.TestAccProviderFactories,
+		CheckDestroy:      testAccCheckClusterDestroy,
+		Steps: []resource.TestStep{
+			{
+				// A-04: the users that declare the component configurations only keep the previous behavior,
+				// the new attribute is not configured at all.
+				// The framework asserts an empty plan right after the apply of every step, so a request body that
+				// gained a key, or a state that drifted away from the configuration, fails this step as a
+				// non-empty plan — the "no diff, behaviour unchanged" evidence of this case.
+				// Input difference from delta-design.md §6.2: the design sketched a kube-apiserver package, the
+				// eni package is used here instead, so that the end-to-end path of U-02 (the switch declared by
+				// hand as a JSON boolean, left untouched by the provider) is covered as well.
+				// Cost: this step creates a dedicated cluster (one cluster creation).
+				Config: testAccCluster_componentConfigurations(rName),
+				Check: resource.ComposeTestCheckFunc(
+					testAccCheckClusterExists(resourceName, &cluster),
+					resource.TestCheckResourceAttr(resourceName, "container_network_type", "eni"),
+					resource.TestCheckResourceAttr(resourceName, "data_plane_v2", "false"),
+					resource.TestCheckResourceAttr(resourceName, "component_configurations.#", "1"),
 				),
 			},
 		},
@@ -645,6 +833,84 @@ output "is_eni_subnet_id_different" {
   huaweicloud_vpc_subnet.eni_test[*].ipv4_subnet_id)) != 0
 }
 `, common.TestVpc(rName), rName, eniNum)
+}
+
+func testAccCluster_dataPlaneV2Turbo(rName string, dataPlaneV2 bool) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_vpc_subnet" "eni_test" {
+  name       = "%[2]s-eni"
+  cidr       = cidrsubnet(huaweicloud_vpc.test.cidr, 8, 1)
+  gateway_ip = cidrhost(cidrsubnet(huaweicloud_vpc.test.cidr, 8, 1), 1)
+  vpc_id     = huaweicloud_vpc.test.id
+}
+
+resource "huaweicloud_cce_cluster" "test" {
+  name                   = "%[2]s"
+  flavor_id              = "cce.s1.small"
+  vpc_id                 = huaweicloud_vpc.test.id
+  subnet_id              = huaweicloud_vpc_subnet.test.id
+  container_network_type = "eni"
+  eni_subnet_id          = huaweicloud_vpc_subnet.eni_test.ipv4_subnet_id
+  data_plane_v2          = %[3]v
+}
+`, common.TestVpc(rName), rName, dataPlaneV2)
+}
+
+func testAccCluster_dataPlaneV2VpcRouter(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_cce_cluster" "test" {
+  name                   = "%s"
+  flavor_id              = "cce.s1.small"
+  vpc_id                 = huaweicloud_vpc.test.id
+  subnet_id              = huaweicloud_vpc_subnet.test.id
+  container_network_type = "vpc-router"
+  data_plane_v2          = true
+}
+`, common.TestVpc(rName), rName)
+}
+
+func testAccCluster_dataPlaneV2OverlayL2(rName string) string {
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_cce_cluster" "test" {
+  name                   = "%s"
+  flavor_id              = "cce.s1.small"
+  vpc_id                 = huaweicloud_vpc.test.id
+  subnet_id              = huaweicloud_vpc_subnet.test.id
+  container_network_type = "overlay_l2"
+  data_plane_v2          = true
+}
+`, common.TestVpc(rName), rName)
+}
+
+func testAccCluster_componentConfigurations(rName string) string {
+	// The eni package carries the switch as a JSON boolean, which is the type the server asserts on.
+	return fmt.Sprintf(`
+%s
+
+resource "huaweicloud_cce_cluster" "test" {
+  name                   = "%s"
+  flavor_id              = "cce.s1.small"
+  vpc_id                 = huaweicloud_vpc.test.id
+  subnet_id              = huaweicloud_vpc_subnet.test.id
+  container_network_type = "eni"
+
+  component_configurations {
+    name           = "eni"
+    configurations = jsonencode([
+      {
+        name  = "dataplane-v2"
+        value = true
+      }
+    ])
+  }
+}
+`, common.TestVpc(rName), rName)
 }
 
 func testAccCluster_hibernate(rName string) string {

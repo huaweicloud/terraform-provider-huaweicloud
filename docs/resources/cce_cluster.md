@@ -178,6 +178,26 @@ resource "huaweicloud_cce_cluster" "cluster" {
 }
 ```
 
+### Cluster with Data Plane V2
+
+```hcl
+variable "vpc_id" {}
+variable "subnet_id" {}
+variable "eni_subnet_id" {}
+
+resource "huaweicloud_cce_cluster" "cluster" {
+  name                   = "cluster"
+  flavor_id              = "cce.s1.small"
+  vpc_id                 = var.vpc_id
+  subnet_id              = var.subnet_id
+  container_network_type = "eni"
+  eni_subnet_id          = var.eni_subnet_id
+  data_plane_v2          = true
+}
+```
+
+-> For a **vpc-router** cluster, set `container_network_type = "vpc-router"` and omit the `eni_subnet_id` argument.
+
 ## Argument Reference
 
 The following arguments are supported:
@@ -306,6 +326,24 @@ The following arguments are supported:
   For details, see [documentation](https://support.huaweicloud.com/intl/en-us/usermanual-cce/cce_10_0213.html).
   The [object](#cce_cluster_component_configurations) structure is documented below.
 
+  -> The `dataplane-v2` switch of the `eni` package must be a JSON boolean (`value = true`, never `value = "true"`):
+     a string is silently ignored, so the cluster is created without the data plane v2. Do not use this package to
+     switch the data plane after the cluster is created, that path skips the cluster version check.
+
+* `data_plane_v2` - (Optional, Bool, ForceNew) Specifies whether to enable the data plane v2 (Cilium/Yangtse).
+  It is only valid for the clusters whose `container_network_type` is **eni** or **vpc-router** **and** whose
+  version supports the data plane v2; the provider does not duplicate the version check, see the
+  [help center](https://support.huaweicloud.com/intl/en-us/usermanual/cce/cce_10_0213.html).
+  If it is not specified, the provider does not interfere with the data plane configuration at all, which is
+  equivalent to the server-side default (**false**). Changing this parameter will create a new cluster resource.
+
+  -> **Newly created clusters only.** Declaring it on an existing cluster, or after an import, makes
+     `terraform plan` propose to **replace (destroy/create) the whole cluster**; clusters that enable the data
+     plane v2 through `component_configurations` keep that path (zero diff) and must not be migrated to this
+     parameter. Writing the value into the state by hand (including `terraform state push`) is not supported,
+     and an explicit `false` conflicts with a hand-written `true` and fails the apply. See the Import section
+     below for the `ignore_changes` workaround.
+
 * `encryption_config` - (Optional, List, ForceNew) Specifies the encryption configuration.
   The [object](#cce_cluster_encryption_config) structure is documented below.
   Changing this parameter will create a new cluster resource.
@@ -413,6 +451,8 @@ The `component_configurations` block supports:
 
 * `configurations` - (Optional, String) Specifies JSON string of the component configurations.
 
+  -> See the `data_plane_v2` argument for the boolean contract of the `dataplane-v2` switch.
+
 <a name="cce_cluster_encryption_config"></a>
 The `encryption_config` block supports:
 
@@ -480,10 +520,14 @@ Cluster can be imported using the cluster ID, e.g.
 
 Note that the imported state may not be identical to your resource definition, due to some attributes missing from the
 API response, security or some other reason. The missing attributes include:
-`delete_efs`, `delete_eni`, `delete_evs`, `delete_net`, `delete_obs`, `delete_sfs` and `delete_all`. It is generally
-recommended running `terraform plan` after importing an CCE cluster. You can then decide if changes should be applied to
-the cluster, or the resource definition should be updated to align with the cluster. Also you can ignore changes as
-below.
+`delete_efs`, `delete_eni`, `delete_evs`, `delete_net`, `delete_obs`, `delete_sfs`, `delete_all` and `data_plane_v2`.
+It is generally recommended running `terraform plan` after importing an CCE cluster. You can then decide if changes
+should be applied to the cluster, or the resource definition should be updated to align with the cluster. Also you can
+ignore changes as below.
+
+-> `data_plane_v2` is never filled back, so it is the zero value **false** right after the import. Declaring it as
+   `true` in the configuration then makes `terraform plan` propose to replace the whole cluster, see the
+   `data_plane_v2` argument above for the accepted paths.
 
 ```hcl
 resource "huaweicloud_cce_cluster" "cluster_1" {
@@ -491,7 +535,7 @@ resource "huaweicloud_cce_cluster" "cluster_1" {
 
   lifecycle {
     ignore_changes = [
-      delete_efs, delete_obs,
+      delete_efs, delete_obs, data_plane_v2,
     ]
   }
 }
