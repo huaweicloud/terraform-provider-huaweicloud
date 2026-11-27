@@ -11,7 +11,7 @@ import (
 
 func TestAccDataSourceCocScriptOrders_basic(t *testing.T) {
 	dataSource := "data.huaweicloud_coc_script_orders.test"
-	rName := acceptance.RandomAccResourceName()
+	name := acceptance.RandomAccResourceName()
 	dc := acceptance.InitDataSourceCheck(dataSource)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -22,7 +22,7 @@ func TestAccDataSourceCocScriptOrders_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceDataSourceCocScriptOrders_basic(rName, acceptance.HW_COC_INSTANCE_ID),
+				Config: testDataSourceCocScriptOrders_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(dataSource, "data.#"),
@@ -45,7 +45,7 @@ func TestAccDataSourceCocScriptOrders_basic(t *testing.T) {
 	})
 }
 
-func testDataSourceDataSourceCocScriptOrders_basic(name, instanceId string) string {
+func testDataSourceCocScriptOrders_basic(name string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -108,5 +108,5 @@ output "status_filter_is_useful" {
     [for v in data.huaweicloud_coc_script_orders.status_filter.data[*].status : v == local.status]
   )
 }
-`, tesScriptExecute_basic(name, instanceId))
+`, testDataSourceScriptExecute_base(name))
 }

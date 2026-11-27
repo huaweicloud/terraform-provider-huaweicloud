@@ -11,7 +11,7 @@ import (
 
 func TestAccDataSourceCocScriptOrderBatchDetails_basic(t *testing.T) {
 	dataSource := "data.huaweicloud_coc_script_order_batch_details.test"
-	rName := acceptance.RandomAccResourceName()
+	name := acceptance.RandomAccResourceName()
 	dc := acceptance.InitDataSourceCheck(dataSource)
 
 	resource.ParallelTest(t, resource.TestCase{
@@ -22,7 +22,7 @@ func TestAccDataSourceCocScriptOrderBatchDetails_basic(t *testing.T) {
 		ProviderFactories: acceptance.TestAccProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testDataSourceDataSourceCocScriptOrderBatchDetails_basic(rName, acceptance.HW_COC_INSTANCE_ID),
+				Config: testDataSourceCocScriptOrderBatchDetails_basic(name),
 				Check: resource.ComposeTestCheckFunc(
 					dc.CheckResourceExists(),
 					resource.TestCheckResourceAttrSet(dataSource, "execute_instances.#"),
@@ -49,7 +49,28 @@ func TestAccDataSourceCocScriptOrderBatchDetails_basic(t *testing.T) {
 	})
 }
 
-func testDataSourceDataSourceCocScriptOrderBatchDetails_basic(name, instanceId string) string {
+func testDataSourceScriptExecute_base(name string) string {
+	return fmt.Sprintf(`
+%[1]s
+
+resource "huaweicloud_coc_script_execute" "test" {
+  script_id    = huaweicloud_coc_script.test.id
+  instance_id  = "%[2]s"
+  timeout      = 600
+  execute_user = "root"
+
+  parameters {
+    name  = "name"
+    value = "somebody"
+  }
+  parameters {
+    name  = "company"
+    value = "HuaweiCloud"
+  }
+}`, tesScriptExecute_basic_base(name), acceptance.HW_COC_INSTANCE_ID)
+}
+
+func testDataSourceCocScriptOrderBatchDetails_basic(name string) string {
 	return fmt.Sprintf(`
 %s
 
@@ -70,5 +91,5 @@ output "status_filter_is_useful" {
       v == data.huaweicloud_coc_script_order_batch_details.status_filter.status]
   )
 }
-`, tesScriptExecute_basic(name, instanceId))
+`, testDataSourceScriptExecute_base(name))
 }
