@@ -1,0 +1,22 @@
+info:
+    version: ""
+    title: resource_huaweicloud_tms_associated_resource_rule
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: TMS
+paths:
+    /v2/tms/associated-resources/rules:
+        GET:
+            tag: TMS
+    /v2/tms/associated-resources/rules/{setting_name}:
+        DELETE:
+            tag: TMS
+    /v2/tms/associated-resources/rules/batch-create:
+        POST:
+            tag: TMS
+    /v2/tms/associated-resources/rules/batch-update:
+        PUT:
+            tag: TMS

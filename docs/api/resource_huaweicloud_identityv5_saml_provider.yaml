@@ -1,0 +1,28 @@
+info:
+    version: ""
+    title: resource_huaweicloud_identityv5_saml_provider
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: IAM
+paths:
+    /v5/{resource_type}/{resource_id}/tags/create:
+        POST:
+            tag: IAM
+    /v5/{resource_type}/{resource_id}/tags/delete:
+        DELETE:
+            tag: IAM
+    /v5/saml-providers:
+        GET:
+            tag: IAM
+        POST:
+            tag: IAM
+    /v5/saml-providers/{provider_id}:
+        DELETE:
+            tag: IAM
+        GET:
+            tag: IAM
+        PUT:
+            tag: IAM

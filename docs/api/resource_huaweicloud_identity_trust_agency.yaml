@@ -27,6 +27,9 @@ paths:
     /v5/agencies/{agency_id}/attached-policies:
         GET:
             tag: IAM
+    /v5/agencies/{agency_id}/trust-policy:
+        PUT:
+            tag: IAM
     /v5/policies:
         GET:
             tag: IAM

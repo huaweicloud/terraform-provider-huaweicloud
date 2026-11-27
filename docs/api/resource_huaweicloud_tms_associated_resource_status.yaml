@@ -1,0 +1,15 @@
+info:
+    version: ""
+    title: resource_huaweicloud_tms_associated_resource_status
+    description: ""
+schemes:
+    - https
+host: huaweicloud.com
+tags:
+    - name: TMS
+paths:
+    /v2/tms/associated-resources/status:
+        GET:
+            tag: TMS
+        PUT:
+            tag: TMS
