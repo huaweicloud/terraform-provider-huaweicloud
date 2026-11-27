@@ -23,11 +23,59 @@ resource "huaweicloud_cce_addon" "addon_test" {
 }
 ```
 
+### Using the Add-on Template as a Starting Point
+
+The parameters that can be passed in `basic_json`, `custom_json` and `flavor_json` depend on the add-on type and
+version. The [huaweicloud_cce_addon_template](../data-sources/cce_addon_template.md) data source returns the default
+parameters of an add-on version in its `spec` attribute, a JSON string whose `basic` and `parameters` keys map to
+these arguments:
+
+* `basic` holds the value for `basic_json`.
+* `parameters.custom` holds the value for `custom_json`.
+* `parameters.flavor1`, `parameters.flavor2` and so on hold the predefined specifications, one of which can be used as
+  the value for `flavor_json`.
+
+The keys inside each object, and the flavors that exist, depend on the add-on and its version, so decode `spec` with
+`jsondecode()` (or look at it with `terraform console`) to see them. Use `merge()` to change single values and keep
+the defaults for the rest.
+
+```hcl
+variable "cluster_id" {}
+variable "addon_name" {}
+variable "addon_version" {}
+
+data "huaweicloud_cce_addon_template" "test" {
+  cluster_id = var.cluster_id
+  name       = var.addon_name
+  version    = var.addon_version
+}
+
+locals {
+  addon_spec = jsondecode(data.huaweicloud_cce_addon_template.test.spec)
+}
+
+resource "huaweicloud_cce_addon" "test" {
+  cluster_id    = var.cluster_id
+  template_name = var.addon_name
+  version       = var.addon_version
+
+  values {
+    basic_json  = jsonencode(local.addon_spec.basic)
+    custom_json = jsonencode(merge(local.addon_spec.parameters.custom, {
+      # Override single values of the template here.
+    }))
+    flavor_json = jsonencode(local.addon_spec.parameters.flavor1)
+  }
+}
+```
+
 ### More Examples
 
-Arguments which can be passed to the `basic_json`, `custom_json` and `flavor_json` add-on parameters depends on
-the add-on type and version. For more detailed description of add-ons
-see [Deploy AutoScaler Addon](https://hcbp.gitbook.io/huaweicloud-provider/best-practices/cce/addon_autoscaler)
+For a complete example, see [Deploy AutoScaler Addon][autoscaler-best-practice] and the add-on examples in the
+[examples/cce][cce-examples] directory of this repository.
+
+[autoscaler-best-practice]: https://hcbp.gitbook.io/huaweicloud-provider/best-practices/cce/addon_autoscaler
+[cce-examples]: https://github.com/huaweicloud/terraform-provider-huaweicloud/tree/master/examples/cce
 
 ## Argument Reference
 
