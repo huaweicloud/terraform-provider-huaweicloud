@@ -11,8 +11,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 
+	"github.com/chnsz/golangsdk"
 	"github.com/chnsz/golangsdk/openstack/obs"
 
+	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/common"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/config"
 	"github.com/huaweicloud/terraform-provider-huaweicloud/huaweicloud/utils"
 )
@@ -341,6 +343,9 @@ func resourceOBSBucketObjectAclRead(_ context.Context, d *schema.ResourceData, m
 	}
 	output, err := obsClient.GetObjectAcl(params)
 	if err != nil {
+		if obsErr, ok := err.(obs.ObsError); ok && obsErr.StatusCode == 404 {
+			return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "OBS bucket object acl")
+		}
 		return diag.FromErr(getObsError("Error retrieving OBS bucket object acl", d.Id(), err))
 	}
 
@@ -370,6 +375,9 @@ func resourceOBSBucketObjectAclDelete(_ context.Context, d *schema.ResourceData,
 	// the operation to delete acl is to set the owner permission: READ、READ_ACP、WRITE_ACP
 	ownerPermissions, err := buildObjectOwnerPermissionGrants(obsClient, d, cfg.DomainID)
 	if err != nil {
+		if obsErr, ok := err.(obs.ObsError); ok && obsErr.StatusCode == 404 {
+			return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "OBS bucket object acl")
+		}
 		return diag.FromErr(err)
 	}
 
@@ -382,6 +390,9 @@ func resourceOBSBucketObjectAclDelete(_ context.Context, d *schema.ResourceData,
 	params.Grants = ownerPermissions
 	_, err = obsClient.SetObjectAcl(params)
 	if err != nil {
+		if obsErr, ok := err.(obs.ObsError); ok && obsErr.StatusCode == 404 {
+			return common.CheckDeletedDiag(d, golangsdk.ErrDefault404{}, "OBS bucket object acl")
+		}
 		return diag.FromErr(getObsError("Error deleting OBS bucket object acl", d.Id(), err))
 	}
 	return nil
