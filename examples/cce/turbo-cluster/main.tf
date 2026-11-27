@@ -56,5 +56,6 @@ resource "huaweicloud_cce_cluster" "test" {
   eni_subnet_id          = var.eni_ipv4_subnet_id != "" ? var.eni_ipv4_subnet_id : huaweicloud_vpc_subnet.eni[0].ipv4_subnet_id
   eip                    = var.eip_address != "" ? var.eip_address : huaweicloud_vpc_eip.test[0].address
   description            = var.cluster_description
+  data_plane_v2          = var.data_plane_v2
   tags                   = var.cluster_tags
 }

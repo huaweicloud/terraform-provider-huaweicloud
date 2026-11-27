@@ -383,6 +383,11 @@ func ResourceCluster() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
+			"data_plane_v2": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+			},
 			"tags": common.TagsSchema(),
 
 			// charge info: charging_mode, period_unit, period, auto_renew, auto_pay
@@ -683,6 +688,117 @@ func buildResourceClusterConfigurationsOverride(componentConfigurationsRaw []int
 	return res, nil
 }
 
+const (
+	// dataPlaneV2Name is the first-class attribute used to express whether the data plane v2 of the cluster is
+	// enabled. It is a creation-time attribute, changing it replaces the whole cluster.
+	dataPlaneV2Name = "data_plane_v2"
+	// eniPackageName is the name of the configurationsOverride package that carries the data plane v2 switch.
+	eniPackageName = "eni"
+	// dataPlaneV2Key is the key of the data plane v2 switch inside the "eni" package.
+	dataPlaneV2Key = "dataplane-v2"
+)
+
+// mergeDataPlaneV2Configuration merges the first-class data_plane_v2 attribute into the "eni" package of
+// the spec.configurationsOverride of a create request.
+//
+// The server reads the switch from the "eni" package with the "dataplane-v2" key and asserts the value as a
+// JSON boolean (see the GetDataPlaneV2FromConfigurations function of the cfe-clustermgr pkg/helper/configuration
+// package), so the value must never be a string: a string form is silently ignored by the server.
+//
+// The attribute is read from the raw configuration, because once it is declared without a default value the
+// schema cannot distinguish "not configured" from an explicit false through d.Get.
+func mergeDataPlaneV2Configuration(d *schema.ResourceData,
+	packages []clusters.PackageConfiguration) ([]clusters.PackageConfiguration, error) {
+	return mergeDataPlaneV2Packages(utils.GetNestedObjectFromRawConfig(d.GetRawConfig(), dataPlaneV2Name), packages)
+}
+
+// mergeDataPlaneV2Packages merges the raw value of the data_plane_v2 attribute into the packages. The raw value
+// is nil when the attribute is not explicitly configured, and a bool when it is.
+//
+// Rules:
+//   - not configured: return the packages untouched, and skip every conflict/duplicate/type check to keep the
+//     request body byte-for-byte identical to the one of the previous provider versions.
+//   - explicit true without an "eni" package: create the package with the only "dataplane-v2" switch.
+//   - explicit true with an "eni" package without the switch: append it, leaving the other keys untouched.
+//   - explicit true/false with the switch already declared with the same boolean: keep it as is (idempotent).
+//   - explicit true/false with the switch already declared with the opposite boolean: fail fast, so that a
+//     contradictory declaration is never resolved silently.
+//   - the switch already declared with a non-boolean value: fail fast, because such a value never reaches the
+//     server side switch.
+//   - explicit false: never introduce the switch, which is the server-side default.
+//
+// Note that this function may update the given slice in place: appending the switch to an existing "eni" package
+// rewrites that element of the given slice (the slice header is copied, the backing array is shared), so the
+// caller must always use the returned slice.
+func mergeDataPlaneV2Packages(raw interface{},
+	packages []clusters.PackageConfiguration) ([]clusters.PackageConfiguration, error) {
+	if raw == nil {
+		return packages, nil
+	}
+
+	want, ok := raw.(bool)
+	if !ok {
+		return nil, fmt.Errorf("the value of %s must be a boolean", dataPlaneV2Name)
+	}
+
+	eniIndex := -1
+	for i := range packages {
+		if packages[i].Name != eniPackageName {
+			continue
+		}
+		if eniIndex >= 0 {
+			return nil, fmt.Errorf("only one %q package is allowed in component_configurations, "+
+				"the %s attribute cannot be merged into a duplicated package", eniPackageName, dataPlaneV2Name)
+		}
+		eniIndex = i
+	}
+
+	if eniIndex < 0 {
+		if !want {
+			return packages, nil
+		}
+		return append(packages, clusters.PackageConfiguration{
+			Name: eniPackageName,
+			Configurations: []interface{}{
+				map[string]interface{}{"name": dataPlaneV2Key, "value": want},
+			},
+		}), nil
+	}
+
+	// The elements are map[string]interface{} values, they are unmarshalled from the free JSON string of the
+	// component_configurations block, so a JSON true lands as a bool and a JSON "true" lands as a string.
+	items := packages[eniIndex].Configurations
+	for _, item := range items {
+		configuration, isMap := item.(map[string]interface{})
+		if !isMap {
+			// A non-object element cannot carry the switch, and it is not swallowed here: the server deserializes
+			// the package into a typed structure and reports the invalid JSON itself.
+			continue
+		}
+		if name, _ := configuration["name"].(string); name != dataPlaneV2Key {
+			continue
+		}
+
+		existing, isBool := configuration["value"].(bool)
+		if !isBool {
+			return nil, fmt.Errorf("the value of %q in the %q package must be a JSON boolean (true/false), "+
+				"not a string or a number, otherwise it is silently ignored by the server", dataPlaneV2Key, eniPackageName)
+		}
+		if existing != want {
+			return nil, fmt.Errorf("conflict between %q and %q in the %q package: %v vs %v, "+
+				"please configure only one of them", dataPlaneV2Name, dataPlaneV2Key, eniPackageName, want, existing)
+		}
+		// Already declared with the expected value, keep the user declaration untouched to stay idempotent.
+		return packages, nil
+	}
+
+	if !want {
+		return packages, nil
+	}
+	packages[eniIndex].Configurations = append(items, map[string]interface{}{"name": dataPlaneV2Key, "value": want})
+	return packages, nil
+}
+
 func buildResourceClusterEncryptionConfig(d *schema.ResourceData) *clusters.EncryptionConfig {
 	encryptionConfigRaw, ok := d.GetOk("encryption_config")
 	if !ok {
@@ -788,6 +904,11 @@ func resourceClusterCreate(ctx context.Context, d *schema.ResourceData, meta int
 
 	componentConfigurations, err := buildResourceClusterConfigurationsOverride(
 		d.Get("component_configurations").([]interface{}))
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	componentConfigurations, err = mergeDataPlaneV2Configuration(d, componentConfigurations)
 	if err != nil {
 		return diag.FromErr(err)
 	}
