@@ -11,9 +11,9 @@ description: |-
 Use this data source to obtain the temporary security credentials by assuming a trust agency with a SAML
 authentication response (API: `POST /v5/agencies/assume-with-saml`).
 
-Before using this data source, you need to:
-1. Create a SAML identity provider within IAM v5.
-2. Create a trust agency whose trust principal is the SAML identity provider.
+-> Before using this data source, you need to:
+  <br/>1. Create a SAML identity provider within IAM v5.
+  <br/>2. Create a trust agency whose trust principal is the SAML identity provider.
 
 -> The temporary security credentials are refreshed every time `terraform plan` or `terraform apply` runs, and they
 will expire according to the `credentials.0.expiration` attribute. Please use them in the scenarios where the

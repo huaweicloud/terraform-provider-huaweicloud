@@ -45,9 +45,10 @@ The following arguments are supported:
   When modified, the added or removed client IDs are updated separately.
 
 * `thumbprints` - (Optional, Set) Specifies the list of server certificate fingerprints of the OIDC identity provider.  
-  The fingerprint is the SHA-1 hash of the top-intermediate CA certificate of the JWKS endpoint of the identity provider.  
-  If this parameter is not specified, IAM automatically obtains the CA certificate fingerprint of the JWKS endpoint.
-  When modified, the list is replaced entirely.
+  The fingerprint is the SHA-1 hash of the top-intermediate CA certificate of the JWKS endpoint of the identity  
+  provider.
+  If this parameter is not specified, IAM automatically obtains the CA certificate fingerprint of the JWKS endpoint.  
+  When modified, the list is replaced entirely.  
 
 * `tags` - (Optional, Map) Specifies the key/value pairs to associate with the OIDC identity provider.
 

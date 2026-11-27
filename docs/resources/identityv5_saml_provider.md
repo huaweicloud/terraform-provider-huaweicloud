@@ -73,9 +73,8 @@ In addition to all arguments above, the following attributes are exported:
 * `private_keys` - The list of private keys managed by the SAML identity provider.
   The [private_keys](#private_keys_struct) structure is documented below.
 
-### `private_keys` Struct
-
-The `private_keys` block supports the following attributes:
+<a name="private_keys_struct"></a>
+The `private_keys` block supports:
 
 * `key_id` - The ID of the private key.
 
