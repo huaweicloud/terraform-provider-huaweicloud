@@ -160,14 +160,16 @@ func buildExecuteParamReqBody(d *schema.ResourceData) map[string]interface{} {
 	}
 }
 
-func buildExecuteBatchesReqBody(info interface{}) []map[string]interface{} {
+func buildExecuteBatchesReqBody(info, resourceProvider, resourceType interface{}) []map[string]interface{} {
 	targetInstances := []map[string]interface{}{
-		{
+		utils.RemoveNil(map[string]interface{}{
 			"resource_id": utils.PathSearch("resource_id", info, nil),
 			"agent_sn":    utils.PathSearch("agent_id", info, nil),
 			"project_id":  utils.PathSearch("project_id", info, nil),
 			"region_id":   utils.PathSearch("region_id", info, nil),
-		},
+			"provider":    utils.ValueIgnoreEmpty(resourceProvider),
+			"type":        utils.ValueIgnoreEmpty(resourceType),
+		}),
 	}
 
 	return []map[string]interface{}{
@@ -180,9 +182,13 @@ func buildExecuteBatchesReqBody(info interface{}) []map[string]interface{} {
 }
 
 func buildCreateExecuteBodyParams(d *schema.ResourceData, extra interface{}) map[string]interface{} {
+	rawConfig := d.GetRawConfig()
+	resourceProvider := utils.GetNestedObjectFromRawConfig(rawConfig, "resource_provider")
+	resourceType := utils.GetNestedObjectFromRawConfig(rawConfig, "type")
+
 	bodyParams := map[string]interface{}{
 		"execute_param":   buildExecuteParamReqBody(d),
-		"execute_batches": buildExecuteBatchesReqBody(extra),
+		"execute_batches": buildExecuteBatchesReqBody(extra, resourceProvider, resourceType),
 	}
 	return bodyParams
 }
